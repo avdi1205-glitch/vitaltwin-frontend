@@ -1,8 +1,9 @@
 'use client';
+import { apiUrl } from '@/lib/api';
 
 export default function Preise() {
   const handlePremium = async () => {
-    const res = await fetch('http://localhost:8000/api/payments/create-checkout', {
+    const res = await fetch(apiUrl('/api/payments/create-checkout'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),

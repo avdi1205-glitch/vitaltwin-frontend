@@ -1,63 +1,102 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
-export default function Dashboard() {
-  const [user, setUser] = useState<any>(null);
-  const [twin, setTwin] = useState<any>(null);
+import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { apiUrl } from '@/lib/api';
+
+export default function Register() {
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    setUser({ email: "Willkommen zurück!" });
-  }, [router]);
-
-  const calculate = async () => {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
-    const res = await fetch('http://localhost:8000/api/twin/calculate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        age: 42,
-        gender: "männlich",
-        hba1c: 5.4,
-        crp: 0.8,
-        vitamin_d: 55,
-        apob: 65
-      })
-    });
-    const data = await res.json();
-    setTwin(data);
-    setLoading(false);
+    setErrorMessage('');
+
+    try {
+      const res = await fetch(apiUrl('/api/users/register'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          full_name: fullName,
+        }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (res.ok) {
+        router.push('/login');
+        return;
+      }
+
+      setErrorMessage(data?.detail ?? 'Registrierung fehlgeschlagen');
+    } catch {
+      setErrorMessage('Backend nicht erreichbar. Bitte pruefe die API-URL und den Server-Status.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto bg-slate-950 min-h-screen text-white">
-      <div className="flex justify-between items-center mb-10">
-        <h1 className="text-4xl font-bold">VitalTwin Dashboard</h1>
-        <button onClick={() => router.push('/login')} className="text-red-400 hover:underline">Abmelden</button>
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-6">
+      <div className="bg-slate-900 p-10 rounded-3xl w-full max-w-md border border-slate-800">
+        <h1 className="text-3xl font-bold text-center mb-8 text-white">Registrieren</h1>
+
+        <form onSubmit={handleRegister} className="space-y-6">
+          <input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Vollstaendiger Name"
+            className="w-full p-4 bg-slate-800 border border-slate-700 rounded-2xl text-white"
+            required
+          />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="E-Mail"
+            className="w-full p-4 bg-slate-800 border border-slate-700 rounded-2xl text-white"
+            required
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Passwort"
+            className="w-full p-4 bg-slate-800 border border-slate-700 rounded-2xl text-white"
+            required
+          />
+
+          {errorMessage && (
+            <div className="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              {errorMessage}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 py-4 rounded-2xl font-semibold text-lg text-white disabled:opacity-70"
+          >
+            {loading ? 'Registriere...' : 'Konto erstellen'}
+          </button>
+        </form>
+
+        <p className="text-center mt-6 text-slate-400">
+          Bereits registriert?{' '}
+          <Link href="/login" className="text-blue-400 hover:underline">
+            Anmelden
+          </Link>
+        </p>
       </div>
-
-      <button 
-        onClick={calculate}
-        disabled={loading}
-        className="bg-blue-600 px-10 py-5 rounded-2xl text-xl mb-10 hover:bg-blue-500 disabled:opacity-70"
-      >
-        {loading ? 'Berechne...' : 'Digital Twin berechnen'}
-      </button>
-
-      {twin && (
-        <div className="bg-slate-900 p-10 rounded-3xl">
-          <h2 className="text-4xl font-bold mb-6">Dein Ergebnis</h2>
-          <p className="text-7xl font-bold text-blue-400 mb-4">{twin.biologisches_alter} Jahre</p>
-          <p className="text-2xl mb-8">Differenz: {twin.differenz} Jahre</p>
-        </div>
-      )}
     </div>
   );
 }

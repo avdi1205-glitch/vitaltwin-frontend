@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiUrl } from '@/lib/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -17,7 +18,7 @@ export default function Login() {
     setErrorMessage('');
 
     try {
-      const res = await fetch('http://localhost:8000/api/users/login', {
+      const res = await fetch(apiUrl('/api/users/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -33,7 +34,7 @@ export default function Login() {
 
       setErrorMessage(data?.detail ?? 'Login fehlgeschlagen');
     } catch {
-      setErrorMessage('Backend nicht erreichbar. Bitte pruefe, ob der Server auf Port 8000 laeuft.');
+      setErrorMessage('Backend nicht erreichbar. Bitte pruefe die API-URL und den Server-Status.');
     } finally {
       setLoading(false);
     }
