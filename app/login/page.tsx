@@ -10,14 +10,18 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [infoMessage, setInfoMessage] = useState('');
+  const [resending, setResending] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const showRegisteredHint = searchParams.get('registered') === '1';
+  const canResendConfirmation = errorMessage.toLowerCase().includes('bestaetige');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage('');
+    setInfoMessage('');
 
     try {
       const res = await fetch(apiUrl('/api/users/login'), {
@@ -39,6 +43,37 @@ export default function Login() {
       setErrorMessage('Backend nicht erreichbar. Bitte pruefe die API-URL und den Server-Status.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      setErrorMessage('Bitte gib zuerst deine E-Mail ein.');
+      return;
+    }
+
+    setResending(true);
+    setErrorMessage('');
+    setInfoMessage('');
+
+    try {
+      const res = await fetch(apiUrl('/api/users/resend-confirmation'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setErrorMessage(data?.detail ?? 'Bestaetigungs-E-Mail konnte nicht erneut gesendet werden.');
+        return;
+      }
+
+      setInfoMessage('Bestaetigungs-E-Mail wurde erneut gesendet. Bitte auch Spam-Ordner pruefen.');
+    } catch {
+      setErrorMessage('Verbindung zur API fehlgeschlagen. Bitte erneut versuchen.');
+    } finally {
+      setResending(false);
     }
   };
 
@@ -74,6 +109,23 @@ export default function Login() {
           {errorMessage && (
             <div className="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
               {errorMessage}
+            </div>
+          )}
+
+          {canResendConfirmation && (
+            <button
+              type="button"
+              onClick={handleResendConfirmation}
+              disabled={resending}
+              className="w-full rounded-2xl border border-amber-400/50 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-200 disabled:opacity-70"
+            >
+              {resending ? 'Sende erneut...' : 'Bestaetigungs-E-Mail erneut senden'}
+            </button>
+          )}
+
+          {infoMessage && (
+            <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              {infoMessage}
             </div>
           )}
 
