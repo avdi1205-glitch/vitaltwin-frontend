@@ -32,7 +32,7 @@ export default function Register() {
       const data = await res.json().catch(() => null);
 
       if (res.ok) {
-        router.push('/login');
+        router.push('/login?registered=1');
         return;
       }
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
 
 export default function Login() {
@@ -11,6 +11,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const showRegisteredHint = searchParams.get('registered') === '1';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +46,12 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-slate-950 px-6">
       <div className="bg-slate-900 p-10 rounded-3xl w-full max-w-md border border-slate-800">
         <h1 className="text-3xl font-bold text-center mb-8 text-white">Anmelden</h1>
+
+        {showRegisteredHint && (
+          <div className="mb-6 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+            Registrierung erfolgreich. Bitte bestaetige zuerst deine E-Mail und melde dich danach an.
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-6">
           <input
