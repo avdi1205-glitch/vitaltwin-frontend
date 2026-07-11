@@ -3,24 +3,28 @@ import { apiUrl } from '@/lib/api';
 
 export default function Preise() {
   const handlePremium = async () => {
-    const res = await fetch(apiUrl('/api/payments/create-checkout'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
-    });
+    try {
+      const res = await fetch(apiUrl('/api/payments/create-checkout'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
 
-    const data = await res.json().catch(() => null);
-    if (!res.ok) {
-      alert(data?.detail ?? 'Checkout konnte nicht gestartet werden.');
-      return;
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        alert(data?.detail ?? data?.message ?? 'Checkout konnte nicht gestartet werden.');
+        return;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      alert('Stripe Checkout URL fehlt. Bitte Backend-Konfiguration pruefen.');
+    } catch {
+      alert('Verbindung zur Payment-API fehlgeschlagen. Bitte Seite neu laden und erneut versuchen.');
     }
-
-    if (data?.url) {
-      window.location.href = data.url;
-      return;
-    }
-
-    alert('Stripe Checkout URL fehlt. Bitte Backend-Konfiguration prüfen.');
   };
 
   return (
