@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -16,6 +16,12 @@ export const metadata: Metadata = {
   title: "VitalTwin | Digitaler Gesundheits-Zwilling",
   description:
     "VitalTwin analysiert Biomarker, berechnet dein biologisches Alter und gibt personalisierte Empfehlungen fuer ein laengeres, besseres Leben.",
+  manifest: "/manifest.webmanifest",
+  applicationName: "VitalTwin",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0f172a",
 };
 
 export default function RootLayout({
