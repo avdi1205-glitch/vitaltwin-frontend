@@ -37,6 +37,7 @@ type ProfileResponse = {
   email: string;
   full_name?: string | null;
   premium: boolean;
+  starter_calc_remaining?: number | null;
 };
 
 type HistoryItem = {
@@ -150,6 +151,14 @@ export default function Dashboard() {
         void fetchProfile(token);
         void fetchHistory(token);
       }, 1800);
+    } else if (params.get('beta') === 'activated') {
+      paymentNoticeTimer = window.setTimeout(() => {
+        setPaymentMessage('Beta-Zugang aktiviert. Viel Erfolg beim Testen.');
+      }, 0);
+      paymentTimer = window.setTimeout(() => {
+        void fetchProfile(token);
+        void fetchHistory(token);
+      }, 700);
     }
 
     return () => {
@@ -165,6 +174,12 @@ export default function Dashboard() {
 
   const calculate = useCallback(async () => {
     setErrorMessage('');
+
+    if (!profile?.premium && profile?.starter_calc_remaining === 0) {
+      setErrorMessage('Deine Starter-Berechnung wurde bereits genutzt. Aktiviere den Beta-Zugang für weitere Simulationen.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -183,6 +198,9 @@ export default function Dashboard() {
       }
 
       setTwin(data as TwinResponse);
+      if (!profile?.premium) {
+        setProfile((current) => (current ? { ...current, starter_calc_remaining: 0 } : current));
+      }
       if (token) {
         void fetchHistory(token);
       }
@@ -191,7 +209,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, [fetchHistory, form]);
+  }, [fetchHistory, form, profile]);
 
   useEffect(() => {
     if (loadingProfile || loadingHistory || autoStarterTriggeredRef.current) {
@@ -199,6 +217,10 @@ export default function Dashboard() {
     }
 
     if (profile?.premium) {
+      return;
+    }
+
+    if (profile?.starter_calc_remaining === 0) {
       return;
     }
 
@@ -214,7 +236,7 @@ export default function Dashboard() {
     return () => {
       window.clearTimeout(timer);
     };
-  }, [calculate, history.length, loadingHistory, loadingProfile, profile?.premium, twin]);
+  }, [calculate, history.length, loadingHistory, loadingProfile, profile?.premium, profile?.starter_calc_remaining, twin]);
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -337,7 +359,9 @@ export default function Dashboard() {
 
         {!loadingProfile && !profile?.premium && (
           <div className="mt-6 rounded-2xl border border-blue-400/30 bg-blue-500/10 px-5 py-4 text-sm text-blue-100">
-            Starter enthält eine einmalige Twin-Berechnung mit Basis-Empfehlungen. Für Verlauf, Detailquellen und unbegrenzte Simulationen aktiviere den Beta-Zugang.
+            {profile?.starter_calc_remaining === 0
+              ? 'Deine einmalige Starter-Berechnung wurde bereits genutzt. Für weitere Berechnungen, Verlauf und Detailquellen aktiviere den Beta-Zugang.'
+              : 'Starter enthält eine einmalige Twin-Berechnung mit Basis-Empfehlungen. Für Verlauf, Detailquellen und unbegrenzte Simulationen aktiviere den Beta-Zugang.'}
           </div>
         )}
 

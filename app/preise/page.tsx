@@ -80,6 +80,37 @@ export default function Preise() {
     setConfirmCheckout(true);
   };
 
+  const activateFreeBeta = async () => {
+    setCheckoutMessage('');
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/?auth=register&premium=1');
+      return;
+    }
+
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch(apiUrl('/api/users/activate-beta'), {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setCheckoutMessage(extractErrorMessage(data));
+        return;
+      }
+
+      router.push('/dashboard?beta=activated');
+    } catch {
+      setCheckoutMessage('Beta-Aktivierung gerade nicht erreichbar. Bitte später erneut versuchen.');
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-white py-20 px-8">
       <div className="max-w-5xl mx-auto text-center">
@@ -115,15 +146,22 @@ export default function Preise() {
 
             {confirmCheckout && (
               <div className="mt-4 rounded-2xl border border-white/35 bg-black/25 p-4 text-left text-sm text-white">
-                <p className="font-semibold">Weiter zu Stripe?</p>
-                <p className="mt-2 text-white/85">Du startest mit 30 Tagen kostenlos. Heute wird laut Angebot nichts berechnet.</p>
+                <p className="font-semibold">Wähle deinen Start</p>
+                <p className="mt-2 text-white/85">Du kannst als Beta-Tester kostenlos starten oder optional mit 30 Tagen Testphase über Stripe aktivieren.</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
-                    onClick={startCheckout}
+                    onClick={activateFreeBeta}
                     disabled={checkoutLoading}
                     className="rounded-xl bg-white px-4 py-2 font-semibold text-black disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    {checkoutLoading ? 'Weiterleitung...' : 'Ja, zu Stripe'}
+                    {checkoutLoading ? 'Aktiviere...' : 'Als Beta-Tester kostenlos starten'}
+                  </button>
+                  <button
+                    onClick={startCheckout}
+                    disabled={checkoutLoading}
+                    className="rounded-xl border border-white/60 px-4 py-2 font-semibold disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {checkoutLoading ? 'Weiterleitung...' : 'Mit Stripe (30 Tage kostenlos)'}
                   </button>
                   <button
                     onClick={() => setConfirmCheckout(false)}
