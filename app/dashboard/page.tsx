@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
 
 type TwinResult = {
@@ -29,7 +29,6 @@ export default function Dashboard() {
 	const [planLoading, setPlanLoading] = useState(true);
 	const [paymentNotice, setPaymentNotice] = useState('');
 	const router = useRouter();
-	const searchParams = useSearchParams();
 
 	const fetchMe = async (token: string): Promise<MeResponse> => {
 		const res = await fetch(apiUrl('/api/users/me'), {
@@ -83,7 +82,7 @@ export default function Dashboard() {
 	}, [router]);
 
 	useEffect(() => {
-		const payment = searchParams.get('payment');
+		const payment = new URLSearchParams(window.location.search).get('payment');
 		const token = localStorage.getItem('token');
 		if (payment !== 'success' || !token) {
 			return;
@@ -117,7 +116,7 @@ export default function Dashboard() {
 			clearTimeout(kickoffTimer);
 			clearInterval(interval);
 		};
-	}, [searchParams]);
+	}, []);
 
 	const calculate = async () => {
 		setLoading(true);
