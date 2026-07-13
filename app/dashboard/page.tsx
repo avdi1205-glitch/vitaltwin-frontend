@@ -12,7 +12,25 @@ type TwinResponse = {
     optimiert: number;
     aggressiv: number;
   };
+  methodik?: {
+    typ: string;
+    hinweis: string;
+  };
+  marker_references?: MarkerReference[];
   empfehlungen: string[];
+};
+
+type MarkerReference = {
+  marker: string;
+  unit: string;
+  target_min: number | null;
+  target_max: number | null;
+  warn_min: number | null;
+  warn_max: number | null;
+  source_name: string;
+  source_url: string;
+  evidence_level: string;
+  population_note: string;
 };
 
 type ProfileResponse = {
@@ -164,7 +182,7 @@ export default function Dashboard() {
         void fetchHistory(token);
       }
     } catch {
-      setErrorMessage('Berechnung aktuell nicht verfuegbar. Bitte pruefe die API-Verbindung.');
+      setErrorMessage('Berechnung aktuell nicht verfügbar. Bitte prüfe die API-Verbindung.');
     } finally {
       setLoading(false);
     }
@@ -184,7 +202,7 @@ export default function Dashboard() {
               <p className="text-xs uppercase tracking-[0.22em] text-cyan-300/90">VitalTwin Intelligence</p>
               <h1 className="mt-2 text-3xl font-bold md:text-5xl">Dein Gesundheits-Cockpit</h1>
               <p className="mt-3 text-slate-300">
-                Willkommen{profile?.full_name ? `, ${profile.full_name}` : ''}. Fuehre neue Berechnungen aus und optimiere deinen Twin Schritt fuer Schritt.
+                Willkommen{profile?.full_name ? `, ${profile.full_name}` : ''}. Führe neue Berechnungen aus und optimiere deinen Twin Schritt für Schritt.
               </p>
             </div>
 
@@ -209,6 +227,10 @@ export default function Dashboard() {
             </div>
           </div>
         </header>
+
+        <div className="mt-6 rounded-2xl border border-amber-400/30 bg-amber-500/10 px-5 py-4 text-sm text-amber-100">
+          Dieses Dashboard ist ein Wellness-Tool zur Gesundheitsorientierung und kein medizinisches Produkt. Die Ergebnisse ersetzen keine ärztliche Diagnose oder Therapie.
+        </div>
 
         {paymentMessage && (
           <div className="mt-6 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-5 py-4 text-emerald-100">
@@ -316,6 +338,10 @@ export default function Dashboard() {
             >
               {loading ? 'Berechne Twin...' : 'Twin neu berechnen'}
             </button>
+
+            {twin?.methodik && (
+              <p className="mt-4 text-xs text-slate-400">Methodik: {twin.methodik.typ} · {twin.methodik.hinweis}</p>
+            )}
           </div>
 
           <div className="space-y-6">
@@ -356,15 +382,42 @@ export default function Dashboard() {
               <h3 className="text-xl font-semibold">Empfehlungen</h3>
               <ul className="mt-4 space-y-3 text-slate-200">
                 {(twin?.empfehlungen ?? [
-                  'Schliesse eine Berechnung ab, um personalisierte Empfehlungen zu erhalten.',
-                  'Achte auf Schlaf, Stressmanagement und regelmaessige Bewegung.',
-                  'Kontrolliere Marker regelmaessig und tracke Verbesserungen im Dashboard.',
+                  'Schließe eine Berechnung ab, um personalisierte Empfehlungen zu erhalten.',
+                  'Achte auf Schlaf, Stressmanagement und regelmäßige Bewegung.',
+                  'Kontrolliere Marker regelmäßig und tracke Verbesserungen im Dashboard.',
                 ]).map((item) => (
                   <li key={item} className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3">
                     {item}
                   </li>
                 ))}
               </ul>
+            </div>
+
+            <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7">
+              <h3 className="text-xl font-semibold">Referenzdaten & Quellen</h3>
+              <p className="mt-2 text-sm text-slate-400">Transparente Referenzbereiche aus veröffentlichten Leitlinien und Fachquellen.</p>
+
+              {(!twin?.marker_references || twin.marker_references.length === 0) && (
+                <p className="mt-4 rounded-xl border border-dashed border-slate-700 bg-slate-950/40 px-4 py-3 text-slate-400">
+                  Referenzdaten werden nach der ersten Berechnung angezeigt.
+                </p>
+              )}
+
+              {twin?.marker_references && twin.marker_references.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  {twin.marker_references.map((ref) => (
+                    <div key={ref.marker} className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3">
+                      <p className="text-sm font-semibold text-cyan-300">
+                        {ref.marker.toUpperCase()} · Zielbereich {ref.target_min ?? '-'} bis {ref.target_max ?? '-'} {ref.unit}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-300">Population: {ref.population_note} · Evidenz: {ref.evidence_level}</p>
+                      <a href={ref.source_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs text-blue-300 hover:underline">
+                        Quelle: {ref.source_name}
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7">
