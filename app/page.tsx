@@ -1,7 +1,7 @@
 import HomeLanding from './components/home-landing';
 
 type HomePageProps = {
-  searchParams?: Promise<{ auth?: string; registered?: string; reset?: string }>;
+  searchParams?: Promise<{ auth?: string; registered?: string; reset?: string; premium?: string }>;
 };
 
 export default async function Home({ searchParams }: HomePageProps) {
@@ -15,10 +15,12 @@ export default async function Home({ searchParams }: HomePageProps) {
       ? 'Konto erstellt. Du kannst dich jetzt anmelden.'
       : params?.reset === '1'
         ? 'Passwort aktualisiert. Bitte melde dich mit dem neuen Passwort an.'
+        : params?.premium === '1'
+          ? 'Bitte melde dich an, um Premium zu kaufen.'
         : '';
 
   const startedFromQuery =
-    Boolean(initialAuthMode) || params?.registered === '1' || params?.reset === '1';
+    Boolean(initialAuthMode) || params?.registered === '1' || params?.reset === '1' || params?.premium === '1';
 
   return (
     <HomeLanding

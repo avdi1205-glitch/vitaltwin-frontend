@@ -34,8 +34,7 @@ export default function Preise() {
   const handlePremium = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
-      alert('Bitte zuerst einloggen, um Premium zu kaufen.');
-      router.push('/?auth=login');
+      router.push('/?auth=login&premium=1');
       return;
     }
 
