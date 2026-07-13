@@ -182,6 +182,57 @@ export default function HomeLanding({
           </div>
         </div>
       </section>
+
+      <section className="mx-auto max-w-6xl px-6 pb-20 md:pb-24">
+        <div className="grid gap-8 lg:grid-cols-2">
+          <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
+            <h3 className="text-2xl font-bold text-white">Häufige Fragen</h3>
+            <div className="mt-6 space-y-5 text-slate-200">
+              <div>
+                <p className="font-semibold text-white">Ist VitalTwin ein medizinisches Produkt?</p>
+                <p className="mt-1 text-sm text-slate-300">Nein. VitalTwin ist ein Wellness-Tool zur Gesundheitsorientierung und ersetzt keine ärztliche Diagnostik.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-white">Wie schnell sehe ich erste Ergebnisse?</p>
+                <p className="mt-1 text-sm text-slate-300">In der Regel in unter 3 Minuten nach Eingabe deiner Marker.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-white">Kann ich erstmal kostenlos starten?</p>
+                <p className="mt-1 text-sm text-slate-300">Ja. Du kannst kostenlos starten und erst später auf Premium upgraden.</p>
+              </div>
+            </div>
+          </article>
+
+          <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
+            <h3 className="text-2xl font-bold text-white">Wie Premium funktioniert</h3>
+            <ol className="mt-6 space-y-4 text-sm text-slate-200">
+              <li className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3">
+                <span className="font-semibold text-cyan-300">1.</span> Kostenlos registrieren und erste Twin-Berechnung starten.
+              </li>
+              <li className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3">
+                <span className="font-semibold text-cyan-300">2.</span> Premium aktivieren für unbegrenzte Simulationen und Verlauf.
+              </li>
+              <li className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3">
+                <span className="font-semibold text-cyan-300">3.</span> Wöchentlich Fortschritt tracken und Empfehlungen umsetzen.
+              </li>
+            </ol>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button
+                onClick={() => openAuth('register')}
+                className="rounded-xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+              >
+                Kostenlos starten
+              </button>
+              <Link
+                href="/preise"
+                className="rounded-xl border border-slate-600 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:border-cyan-300"
+              >
+                Premium ansehen
+              </Link>
+            </div>
+          </article>
+        </div>
+      </section>
     </main>
   );
 }
