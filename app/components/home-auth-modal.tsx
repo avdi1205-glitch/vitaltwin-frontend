@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { apiUrl } from '@/lib/api';
 
@@ -10,25 +10,18 @@ type AuthMode = 'login' | 'register';
 type HomeAuthModalProps = {
   mode: AuthMode;
   onClose: () => void;
+  initialNotice?: string;
 };
 
-export default function HomeAuthModal({ mode, onClose }: HomeAuthModalProps) {
+export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: HomeAuthModalProps) {
   const [tab, setTab] = useState<AuthMode>(mode);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [infoMessage, setInfoMessage] = useState('');
+  const [infoMessage, setInfoMessage] = useState(initialNotice);
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const urlInfoMessage =
-    searchParams.get('registered') === '1'
-      ? 'Konto erstellt. Du kannst dich jetzt anmelden.'
-      : searchParams.get('reset') === '1'
-        ? 'Passwort aktualisiert. Bitte melde dich mit dem neuen Passwort an.'
-        : '';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,9 +202,9 @@ export default function HomeAuthModal({ mode, onClose }: HomeAuthModalProps) {
           </form>
         )}
 
-        {(infoMessage || urlInfoMessage) && (
+        {infoMessage && (
           <div className="mt-4 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-            {infoMessage || urlInfoMessage}
+            {infoMessage}
           </div>
         )}
 
