@@ -17,6 +17,8 @@ export default async function Home({ searchParams }: HomePageProps) {
         ? 'Passwort aktualisiert. Bitte melde dich mit dem neuen Passwort an.'
         : params?.premium === '1'
           ? 'Bitte melde dich an, um Premium zu kaufen.'
+          : params?.auth === 'login'
+            ? 'Hinweis: Im Starter ist genau 1 Berechnung enthalten. Danach kannst du kostenlos als Beta-Tester weitermachen.'
         : '';
 
   const startedFromQuery =
