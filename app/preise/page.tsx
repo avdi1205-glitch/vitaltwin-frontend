@@ -1,8 +1,10 @@
 'use client';
 import { apiUrl } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 
 export default function Preise() {
   const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID;
+  const router = useRouter();
 
   const extractErrorMessage = (data: unknown): string => {
     if (!data || typeof data !== 'object') {
@@ -29,6 +31,13 @@ export default function Preise() {
   };
 
   const handlePremium = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Bitte zuerst einloggen, um Premium zu kaufen.');
+      router.push('/login');
+      return;
+    }
+
     if (!priceId) {
       alert('Preis-ID fehlt. Bitte NEXT_PUBLIC_STRIPE_PRICE_ID in Vercel setzen.');
       return;
@@ -38,7 +47,7 @@ export default function Preise() {
       const res = await fetch(apiUrl('/api/payments/create-checkout'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ price_id: priceId }),
+        body: JSON.stringify({ price_id: priceId, token }),
       });
 
       const data = await res.json().catch(() => null);
