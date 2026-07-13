@@ -2,10 +2,14 @@
 import Link from 'next/link';
 import { apiUrl } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function Preise() {
   const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID;
   const router = useRouter();
+  const [confirmCheckout, setConfirmCheckout] = useState(false);
+  const [checkoutMessage, setCheckoutMessage] = useState('');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const extractErrorMessage = (data: unknown): string => {
     if (!data || typeof data !== 'object') {
@@ -31,7 +35,8 @@ export default function Preise() {
     return 'Checkout konnte nicht gestartet werden.';
   };
 
-  const handlePremium = async () => {
+  const startCheckout = async () => {
+    setCheckoutMessage('');
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/?auth=login&premium=1');
@@ -39,10 +44,11 @@ export default function Preise() {
     }
 
     if (!priceId) {
-      alert('Preis-ID fehlt. Bitte NEXT_PUBLIC_STRIPE_PRICE_ID in Vercel setzen.');
+      setCheckoutMessage('Preis-ID fehlt. Bitte NEXT_PUBLIC_STRIPE_PRICE_ID in Vercel setzen.');
       return;
     }
 
+    setCheckoutLoading(true);
     try {
       const res = await fetch(apiUrl('/api/payments/create-checkout'), {
         method: 'POST',
@@ -52,7 +58,7 @@ export default function Preise() {
 
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        alert(extractErrorMessage(data));
+        setCheckoutMessage(extractErrorMessage(data));
         return;
       }
 
@@ -61,10 +67,17 @@ export default function Preise() {
         return;
       }
 
-      alert('Stripe Checkout URL fehlt. Bitte Backend-Konfiguration prüfen.');
+      setCheckoutMessage('Stripe Checkout URL fehlt. Bitte Backend-Konfiguration prüfen.');
     } catch {
-      alert('Verbindung zur Payment-API fehlgeschlagen. Bitte Seite neu laden und erneut versuchen.');
+      setCheckoutMessage('Verbindung zur Payment-API fehlgeschlagen. Bitte Seite neu laden und erneut versuchen.');
+    } finally {
+      setCheckoutLoading(false);
     }
+  };
+
+  const handlePremium = () => {
+    setCheckoutMessage('');
+    setConfirmCheckout(true);
   };
 
   return (
@@ -99,6 +112,30 @@ export default function Preise() {
             <button onClick={handlePremium} className="w-full bg-white text-black py-4 rounded-2xl font-semibold text-lg">
               Beta-Zugang aktivieren
             </button>
+
+            {confirmCheckout && (
+              <div className="mt-4 rounded-2xl border border-white/35 bg-black/25 p-4 text-left text-sm text-white">
+                <p className="font-semibold">Weiter zu Stripe?</p>
+                <p className="mt-2 text-white/85">Du startest mit 30 Tagen kostenlos. Heute wird laut Angebot nichts berechnet.</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    onClick={startCheckout}
+                    disabled={checkoutLoading}
+                    className="rounded-xl bg-white px-4 py-2 font-semibold text-black disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {checkoutLoading ? 'Weiterleitung...' : 'Ja, zu Stripe'}
+                  </button>
+                  <button
+                    onClick={() => setConfirmCheckout(false)}
+                    className="rounded-xl border border-white/60 px-4 py-2 font-semibold"
+                  >
+                    Abbrechen
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {checkoutMessage && <p className="mt-3 text-sm text-red-100">{checkoutMessage}</p>}
           </div>
         </div>
       </div>

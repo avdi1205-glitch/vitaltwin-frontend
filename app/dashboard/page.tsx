@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
 
@@ -71,6 +71,7 @@ export default function Dashboard() {
   const [feedbackText, setFeedbackText] = useState('');
   const [sendingFeedback, setSendingFeedback] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const autoStarterTriggeredRef = useRef(false);
   const router = useRouter();
 
   const fetchProfile = useCallback(async (token: string) => {
@@ -162,7 +163,7 @@ export default function Dashboard() {
     };
   }, [fetchHistory, fetchProfile, router]);
 
-  const calculate = async () => {
+  const calculate = useCallback(async () => {
     setErrorMessage('');
     setLoading(true);
 
@@ -190,7 +191,30 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchHistory, form]);
+
+  useEffect(() => {
+    if (loadingProfile || loadingHistory || autoStarterTriggeredRef.current) {
+      return;
+    }
+
+    if (profile?.premium) {
+      return;
+    }
+
+    if (history.length > 0 || twin) {
+      return;
+    }
+
+    autoStarterTriggeredRef.current = true;
+    const timer = window.setTimeout(() => {
+      void calculate();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [calculate, history.length, loadingHistory, loadingProfile, profile?.premium, twin]);
 
   const logout = () => {
     localStorage.removeItem('token');
