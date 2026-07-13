@@ -180,8 +180,11 @@ export default function Dashboard() {
   const calculate = useCallback(async () => {
     setErrorMessage('');
 
-    if (!profile?.premium && profile?.starter_calc_remaining === 0) {
-      setErrorMessage('Deine Starter-Berechnung wurde bereits genutzt. Aktiviere den Beta-Zugang für weitere Simulationen.');
+    if (!profile) {
+      return;
+    }
+
+    if (!profile.premium && profile.starter_calc_remaining === 0) {
       return;
     }
 
@@ -198,7 +201,12 @@ export default function Dashboard() {
       const data = (await res.json().catch(() => null)) as TwinResponse | { detail?: string } | null;
 
       if (!res.ok) {
-        setErrorMessage(data && 'detail' in data ? data.detail ?? 'Berechnung fehlgeschlagen.' : 'Berechnung fehlgeschlagen.');
+        const detail = data && 'detail' in data ? data.detail ?? '' : '';
+        if (typeof detail === 'string' && detail.toLowerCase().includes('starter')) {
+          // Starter limit is already explained by the dedicated info banner.
+          return;
+        }
+        setErrorMessage(detail || 'Berechnung fehlgeschlagen.');
         return;
       }
 
@@ -221,11 +229,15 @@ export default function Dashboard() {
       return;
     }
 
-    if (profile?.premium) {
+    if (!profile) {
       return;
     }
 
-    if (profile?.starter_calc_remaining === 0) {
+    if (profile.premium) {
+      return;
+    }
+
+    if (profile.starter_calc_remaining === 0) {
       return;
     }
 
@@ -241,7 +253,7 @@ export default function Dashboard() {
     return () => {
       window.clearTimeout(timer);
     };
-  }, [calculate, history.length, loadingHistory, loadingProfile, profile?.premium, profile?.starter_calc_remaining, twin]);
+  }, [calculate, history.length, loadingHistory, loadingProfile, profile, twin]);
 
   const displayedTwin: TwinResponse | null = twin ?? (history.length > 0
     ? {
@@ -461,10 +473,16 @@ export default function Dashboard() {
 
             <button
               onClick={calculate}
-              disabled={loading || (!profile?.premium && profile?.starter_calc_remaining === 0)}
+              disabled={loading || loadingProfile || !profile || (!profile.premium && profile.starter_calc_remaining === 0)}
               className="mt-6 w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 py-4 text-lg font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {loading ? 'Berechne Twin...' : (!profile?.premium && profile?.starter_calc_remaining === 0) ? 'Starter-Limit erreicht' : 'Twin neu berechnen'}
+              {loading
+                ? 'Berechne Twin...'
+                : (loadingProfile || !profile)
+                  ? 'Profil wird geladen...'
+                  : (!profile.premium && profile.starter_calc_remaining === 0)
+                    ? 'Starter-Limit erreicht'
+                    : 'Twin neu berechnen'}
             </button>
 
             {displayedTwin?.methodik && (
