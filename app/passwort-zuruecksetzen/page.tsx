@@ -32,7 +32,7 @@ export default function PasswortZuruecksetzen() {
 
       router.push('/login?reset=1');
     } catch {
-      setErrorMessage('Backend nicht erreichbar. Bitte pruefe die API-URL und den Server-Status.');
+      setErrorMessage('Backend nicht erreichbar. Bitte prüfe die API-URL und den Server-Status.');
     } finally {
       setLoading(false);
     }
@@ -41,9 +41,9 @@ export default function PasswortZuruecksetzen() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 px-6">
       <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-10">
-        <h1 className="text-center text-3xl font-bold text-white">Passwort zuruecksetzen</h1>
+        <h1 className="text-center text-3xl font-bold text-white">Passwort zurücksetzen</h1>
         <p className="mt-3 text-center text-slate-400">
-          Gib deine E-Mail und ein neues Passwort ein. Fuer bestehende Alt-Accounts ist das der schnellste Weg zurueck in dein Konto.
+          Gib deine E-Mail und ein neues Passwort ein. Für bestehende Alt-Accounts ist das der schnellste Weg zurück in dein Konto.
         </p>
 
         <form onSubmit={handleReset} className="mt-8 space-y-6">
@@ -80,7 +80,7 @@ export default function PasswortZuruecksetzen() {
         </form>
 
         <p className="mt-6 text-center text-slate-400">
-          Zurueck zum <Link href="/login" className="text-blue-400 hover:underline">Login</Link>
+          Zurück zum <Link href="/login" className="text-blue-400 hover:underline">Login</Link>
         </p>
       </div>
     </div>

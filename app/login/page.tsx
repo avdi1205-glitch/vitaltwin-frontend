@@ -51,7 +51,7 @@ export default function Login() {
 
       setErrorMessage(data?.detail ?? data?.message ?? 'Login fehlgeschlagen');
     } catch {
-      setErrorMessage('Backend nicht erreichbar. Bitte pruefe die API-URL und den Server-Status.');
+      setErrorMessage('Backend nicht erreichbar. Bitte prüfe die API-URL und den Server-Status.');
     }
 
     setLoading(false);
@@ -66,7 +66,7 @@ export default function Login() {
         </div>
 
         <div className="mb-6 rounded-2xl border border-blue-500/20 bg-blue-500/10 px-4 py-3 text-sm text-blue-100">
-          Falls dein Konto noch aus der alten Version stammt, registriere dich einmal neu oder setze dein Passwort zur Sicherheit zurueck.
+          Falls dein Konto noch aus der alten Version stammt, registriere dich einmal neu oder setze dein Passwort zur Sicherheit zurück.
         </div>
         
         <form onSubmit={handleLogin} className="space-y-6">

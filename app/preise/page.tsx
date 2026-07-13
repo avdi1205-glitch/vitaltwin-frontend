@@ -61,7 +61,7 @@ export default function Preise() {
         return;
       }
 
-      alert('Stripe Checkout URL fehlt. Bitte Backend-Konfiguration pruefen.');
+      alert('Stripe Checkout URL fehlt. Bitte Backend-Konfiguration prüfen.');
     } catch {
       alert('Verbindung zur Payment-API fehlgeschlagen. Bitte Seite neu laden und erneut versuchen.');
     }

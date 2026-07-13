@@ -38,7 +38,7 @@ export default function Register() {
 
       setErrorMessage(data?.detail ?? 'Registrierung fehlgeschlagen');
     } catch {
-      setErrorMessage('Backend nicht erreichbar. Bitte pruefe die API-URL und den Server-Status.');
+      setErrorMessage('Backend nicht erreichbar. Bitte prüfe die API-URL und den Server-Status.');
     } finally {
       setLoading(false);
     }
@@ -54,7 +54,7 @@ export default function Register() {
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            placeholder="Vollstaendiger Name"
+            placeholder="Vollständiger Name"
             className="w-full p-4 bg-slate-800 border border-slate-700 rounded-2xl text-white"
             required
           />

@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "VitalTwin | Digitaler Gesundheits-Zwilling",
   description:
-    "VitalTwin analysiert Biomarker, berechnet dein biologisches Alter und gibt personalisierte Empfehlungen fuer ein laengeres, besseres Leben.",
+    "VitalTwin analysiert Biomarker, berechnet dein biologisches Alter und gibt personalisierte Empfehlungen für ein längeres, besseres Leben.",
   manifest: "/manifest.webmanifest",
   applicationName: "VitalTwin",
 };

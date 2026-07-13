@@ -7,7 +7,7 @@ export default function Impressum() {
         <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-8 md:p-10">
           <p className="text-xs uppercase tracking-[0.18em] text-cyan-300">Rechtliches</p>
           <h1 className="mt-3 text-4xl font-bold md:text-5xl">Impressum</h1>
-          <p className="mt-4 text-slate-300">Angaben gemaess § 5 TMG und § 18 Abs. 2 MStV.</p>
+          <p className="mt-4 text-slate-300">Angaben gemäß § 5 TMG und § 18 Abs. 2 MStV.</p>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             <section className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
@@ -16,7 +16,7 @@ export default function Impressum() {
                 <p className="font-semibold">VitalTwin DE</p>
                 <p>Avdi Morina</p>
                 <p>Klepsauerstr. 60</p>
-                <p>74677 Doerzbach</p>
+                <p>74677 Dörzbach</p>
                 <p>Deutschland</p>
               </div>
             </section>
@@ -38,15 +38,15 @@ export default function Impressum() {
           </div>
 
           <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
-            <h2 className="text-xl font-semibold text-white">Verantwortlich fuer den Inhalt</h2>
+            <h2 className="text-xl font-semibold text-white">Verantwortlich für den Inhalt</h2>
             <p className="mt-3 text-slate-200">Avdi Morina, Anschrift wie oben.</p>
           </section>
 
           <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
             <h2 className="text-xl font-semibold text-white">Haftungshinweis</h2>
             <p className="mt-3 text-slate-300">
-              Trotz sorgfaeltiger inhaltlicher Kontrolle uebernehmen wir keine Haftung fuer die Inhalte externer Links.
-              Fuer den Inhalt der verlinkten Seiten sind ausschliesslich deren Betreiber verantwortlich.
+              Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links.
+              Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.
             </p>
           </section>
 
@@ -54,7 +54,7 @@ export default function Impressum() {
             <Link href="/" className="transition hover:text-cyan-300">Startseite</Link>
             <Link href="/dashboard" className="transition hover:text-cyan-300">Dashboard</Link>
             <Link href="/datenschutz" className="transition hover:text-cyan-300">Datenschutz</Link>
-            <p className="ml-auto">Gilt fuer www.vitaltwin.de</p>
+            <p className="ml-auto">Gilt für www.vitaltwin.de</p>
           </div>
         </div>
       </div>

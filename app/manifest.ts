@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'VitalTwin',
     short_name: 'VitalTwin',
     description:
-      'Dein digitaler Gesundheits-Zwilling fuer ein laengeres, besseres Leben.',
+      'Dein digitaler Gesundheits-Zwilling für ein längeres, besseres Leben.',
     start_url: '/',
     display: 'standalone',
     background_color: '#020617',

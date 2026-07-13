@@ -11,7 +11,7 @@ export default function Home() {
               VitalTwin Plattform
             </p>
             <h1 className="mt-6 text-4xl font-bold leading-tight md:text-6xl">
-              Dein digitaler Gesundheits-Zwilling fuer ein laengeres, besseres Leben.
+              Dein digitaler Gesundheits-Zwilling für ein längeres, besseres Leben.
             </h1>
             <p className="mt-6 text-lg text-slate-300 md:text-xl">
               VitalTwin analysiert deine Biomarker, berechnet dein biologisches Alter und zeigt dir klare,
@@ -55,21 +55,21 @@ export default function Home() {
         <h2 className="text-3xl font-bold md:text-4xl">Warum VitalTwin</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
-            <h3 className="text-xl font-semibold">Biologisches Alter statt Bauchgefuehl</h3>
+            <h3 className="text-xl font-semibold">Biologisches Alter statt Bauchgefühl</h3>
             <p className="mt-3 text-slate-300">
               Du siehst sofort, wie deine aktuellen Marker dein biologisches Alter beeinflussen.
             </p>
           </article>
           <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
-            <h3 className="text-xl font-semibold">Persoenliche Szenarien</h3>
+            <h3 className="text-xl font-semibold">Persönliche Szenarien</h3>
             <p className="mt-3 text-slate-300">
-              Vergleich von aktuell, optimiert und aggressiv, damit du die Hebel mit dem groessten Effekt erkennst.
+              Vergleich von aktuell, optimiert und aggressiv, damit du die Hebel mit dem größten Effekt erkennst.
             </p>
           </article>
           <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
-            <h3 className="text-xl font-semibold">Skalierbar fuer Millionen Nutzer</h3>
+            <h3 className="text-xl font-semibold">Skalierbar für Millionen Nutzer</h3>
             <p className="mt-3 text-slate-300">
-              Cloud-ready Architektur mit Subscription-Flow und API-gestuetzter Auswertung.
+              Cloud-ready Architektur mit Subscription-Flow und API-gestützter Auswertung.
             </p>
           </article>
         </div>
@@ -82,7 +82,7 @@ export default function Home() {
             <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-6">
               <p className="text-cyan-300 font-semibold">01</p>
               <h3 className="mt-2 text-xl font-semibold">Account erstellen</h3>
-              <p className="mt-3 text-slate-300">Registriere dich und starte mit deinem persoenlichen Profil.</p>
+              <p className="mt-3 text-slate-300">Registriere dich und starte mit deinem persönlichen Profil.</p>
             </div>
             <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-6">
               <p className="text-cyan-300 font-semibold">02</p>
@@ -92,7 +92,7 @@ export default function Home() {
             <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-6">
               <p className="text-cyan-300 font-semibold">03</p>
               <h3 className="mt-2 text-xl font-semibold">Twin optimieren</h3>
-              <p className="mt-3 text-slate-300">Erhalte klare Empfehlungen und verbessere deinen Score Schritt fuer Schritt.</p>
+              <p className="mt-3 text-slate-300">Erhalte klare Empfehlungen und verbessere deinen Score Schritt für Schritt.</p>
             </div>
           </div>
         </div>
@@ -100,7 +100,7 @@ export default function Home() {
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
         <div className="rounded-3xl border border-cyan-300/20 bg-gradient-to-r from-blue-600/30 to-cyan-500/20 p-8 md:p-12">
-          <h2 className="text-3xl font-bold md:text-4xl">Bereit fuer deinen VitalTwin?</h2>
+          <h2 className="text-3xl font-bold md:text-4xl">Bereit für deinen VitalTwin?</h2>
           <p className="mt-4 max-w-2xl text-slate-200">
             Starte heute mit deiner ersten Analyse und baue dir eine datenbasierte Gesundheitsstrategie auf.
           </p>
