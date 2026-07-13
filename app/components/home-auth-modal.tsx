@@ -260,6 +260,10 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
           </button>
         </div>
 
+        <div className="mb-5 rounded-2xl border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+          Starter enthält genau 1 Berechnung. Für weitere Simulationen kannst du danach kostenlos als Beta-Tester freischalten (ohne automatische Abbuchung).
+        </div>
+
         {tab === 'register' ? (
           <form onSubmit={handleRegister} className="space-y-4">
             <input
