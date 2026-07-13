@@ -21,6 +21,17 @@ type ProfileResponse = {
   premium: boolean;
 };
 
+type HistoryItem = {
+  id: number;
+  created_at: string;
+  biologisches_alter: number;
+  differenz: number;
+  hba1c: number;
+  crp: number;
+  vitamin_d: number;
+  apob: number;
+};
+
 export default function Dashboard() {
   const [form, setForm] = useState({
     age: 42,
@@ -32,8 +43,10 @@ export default function Dashboard() {
   });
   const [twin, setTwin] = useState<TwinResponse | null>(null);
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const [loadingHistory, setLoadingHistory] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [paymentMessage, setPaymentMessage] = useState('');
   const router = useRouter();
@@ -66,6 +79,31 @@ export default function Dashboard() {
     }
   }, [router]);
 
+  const fetchHistory = useCallback(async (token: string) => {
+    try {
+      const response = await fetch(apiUrl('/api/twin/history?limit=8'), {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = (await response.json().catch(() => null)) as { items?: HistoryItem[]; detail?: string } | null;
+
+      if (!response.ok) {
+        if (response.status !== 401 && data?.detail) {
+          setErrorMessage(data.detail);
+        }
+        return;
+      }
+
+      setHistory(Array.isArray(data?.items) ? data.items : []);
+    } catch {
+      setHistory([]);
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -75,6 +113,7 @@ export default function Dashboard() {
 
     const profileTimer = window.setTimeout(() => {
       void fetchProfile(token);
+      void fetchHistory(token);
     }, 0);
 
     const params = new URLSearchParams(window.location.search);
@@ -86,6 +125,7 @@ export default function Dashboard() {
       }, 0);
       paymentTimer = window.setTimeout(() => {
         void fetchProfile(token);
+        void fetchHistory(token);
       }, 1800);
     }
 
@@ -98,17 +138,18 @@ export default function Dashboard() {
         window.clearTimeout(paymentTimer);
       }
     };
-  }, [fetchProfile, router]);
+  }, [fetchHistory, fetchProfile, router]);
 
   const calculate = async () => {
     setErrorMessage('');
     setLoading(true);
 
     try {
+      const token = localStorage.getItem('token');
       const res = await fetch(apiUrl('/api/twin/calculate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, token }),
       });
 
       const data = (await res.json().catch(() => null)) as TwinResponse | { detail?: string } | null;
@@ -119,6 +160,9 @@ export default function Dashboard() {
       }
 
       setTwin(data as TwinResponse);
+      if (token) {
+        void fetchHistory(token);
+      }
     } catch {
       setErrorMessage('Berechnung aktuell nicht verfuegbar. Bitte pruefe die API-Verbindung.');
     } finally {
@@ -321,6 +365,34 @@ export default function Dashboard() {
                   </li>
                 ))}
               </ul>
+            </div>
+
+            <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7">
+              <h3 className="text-xl font-semibold">Verlauf</h3>
+              <p className="mt-2 text-sm text-slate-400">Deine letzten gespeicherten Berechnungen.</p>
+
+              {loadingHistory && <p className="mt-4 text-slate-400">Verlauf wird geladen...</p>}
+
+              {!loadingHistory && history.length === 0 && (
+                <p className="mt-4 rounded-xl border border-dashed border-slate-700 bg-slate-950/40 px-4 py-3 text-slate-400">
+                  Noch keine gespeicherten Berechnungen vorhanden.
+                </p>
+              )}
+
+              {!loadingHistory && history.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  {history.map((item) => (
+                    <div key={item.id} className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3">
+                      <div className="flex items-center justify-between gap-2 text-sm text-slate-400">
+                        <span>{new Date(item.created_at).toLocaleString('de-DE')}</span>
+                        <span>{item.differenz > 0 ? '+' : ''}{item.differenz} Jahre</span>
+                      </div>
+                      <p className="mt-1 text-lg font-semibold text-cyan-300">Biologisches Alter: {item.biologisches_alter} Jahre</p>
+                      <p className="mt-1 text-xs text-slate-400">HbA1c {item.hba1c} • CRP {item.crp} • Vitamin D {item.vitamin_d} • ApoB {item.apob}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </section>
