@@ -1,13 +1,32 @@
 'use client';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
+
+function getInitialInfoMessage() {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('registered') === '1') {
+    return 'Konto erstellt. Du kannst dich jetzt anmelden.';
+  }
+
+  if (params.get('reset') === '1') {
+    return 'Passwort aktualisiert. Bitte melde dich mit dem neuen Passwort an.';
+  }
+
+  return '';
+}
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [infoMessage] = useState(getInitialInfoMessage);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -45,6 +64,10 @@ export default function Login() {
           <h1 className="text-4xl font-bold mb-2">Willkommen zurück</h1>
           <p className="text-slate-400">Melde dich an, um deinen Twin zu sehen</p>
         </div>
+
+        <div className="mb-6 rounded-2xl border border-blue-500/20 bg-blue-500/10 px-4 py-3 text-sm text-blue-100">
+          Falls dein Konto noch aus der alten Version stammt, registriere dich einmal neu oder setze dein Passwort zur Sicherheit zurueck.
+        </div>
         
         <form onSubmit={handleLogin} className="space-y-6">
           <input
@@ -71,6 +94,18 @@ export default function Login() {
             {loading ? 'Anmelden...' : 'Jetzt anmelden'}
           </button>
 
+          <div className="text-right text-sm">
+            <Link href="/passwort-zuruecksetzen" className="text-blue-400 hover:underline">
+              Passwort vergessen?
+            </Link>
+          </div>
+
+          {infoMessage && (
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+              {infoMessage}
+            </div>
+          )}
+
           {errorMessage && (
             <div className="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
               {errorMessage}
@@ -79,7 +114,7 @@ export default function Login() {
         </form>
 
         <p className="text-center mt-8 text-slate-400">
-          Noch kein Konto? <a href="/register" className="text-blue-400 hover:underline">Registrieren</a>
+          Noch kein Konto? <Link href="/register" className="text-blue-400 hover:underline">Registrieren</Link>
         </p>
       </div>
     </div>
