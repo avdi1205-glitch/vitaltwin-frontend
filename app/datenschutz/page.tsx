@@ -1,42 +1,72 @@
+import Link from 'next/link';
+
 export default function Datenschutz() {
   return (
-    <div className="max-w-3xl mx-auto p-8 text-white">
-      <h1 className="text-4xl font-bold mb-8">Datenschutzerklärung</h1>
-      
-      <div className="space-y-8 text-lg">
-        <section>
-          <h2 className="text-2xl mb-4">1. Verantwortliche Stelle</h2>
-          <p>VitalTwin DE, Avdi Morina, info@vitaltwin.de</p>
-        </section>
+    <main className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="mx-auto max-w-5xl px-6 py-14">
+        <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-8 md:p-10">
+          <p className="text-xs uppercase tracking-[0.18em] text-cyan-300">Rechtliches</p>
+          <h1 className="mt-3 text-4xl font-bold md:text-5xl">Datenschutzerklaerung</h1>
+          <p className="mt-4 text-slate-300">Informationen zur Verarbeitung personenbezogener Daten gemaess DSGVO.</p>
 
-        <section>
-          <h2 className="text-2xl mb-4">2. Welche Daten wir erheben</h2>
-          <ul className="list-disc pl-6 space-y-1">
-            <li>E-Mail-Adresse und Name (bei Registrierung)</li>
-            <li>Biomarker-Werte, die du im Dashboard eingibst</li>
-            <li>Zahlungsdaten (über Stripe)</li>
-          </ul>
-        </section>
+          <div className="mt-10 space-y-6">
+            <section className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
+              <h2 className="text-xl font-semibold text-white">1. Verantwortliche Stelle</h2>
+              <p className="mt-3 text-slate-300">VitalTwin DE, Avdi Morina, info@vitaltwin.de</p>
+            </section>
 
-        <section>
-          <h2 className="text-2xl mb-4">3. Zweck der Datenerhebung</h2>
-          <p>Wir speichern deine Daten, um dir den Digital Twin berechnen zu können und Premium-Funktionen bereitzustellen.</p>
-        </section>
+            <section className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
+              <h2 className="text-xl font-semibold text-white">2. Verarbeitete Daten</h2>
+              <ul className="mt-3 list-disc space-y-1 pl-6 text-slate-300">
+                <li>Accountdaten wie Name und E-Mail-Adresse</li>
+                <li>Biomarker und Eingaben aus dem Dashboard</li>
+                <li>Technische Logdaten zur Stabilitaet und Sicherheit</li>
+                <li>Zahlungsinformationen bei Premium-Abschluss ueber Stripe</li>
+              </ul>
+            </section>
 
-        <section>
-          <h2 className="text-2xl mb-4">4. Weitergabe der Daten</h2>
-          <p>Wir geben keine Daten an Dritte weiter, außer an Stripe für die Zahlungsabwicklung.</p>
-        </section>
+            <section className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
+              <h2 className="text-xl font-semibold text-white">3. Zweck und Rechtsgrundlagen</h2>
+              <p className="mt-3 text-slate-300">
+                Die Verarbeitung erfolgt zur Bereitstellung der Plattform, zur Berechnung deines Digital Twins, zur
+                Vertragserfuellung sowie zur sicheren Zahlungsabwicklung. Rechtsgrundlagen sind insbesondere Art. 6
+                Abs. 1 lit. b und lit. f DSGVO.
+              </p>
+            </section>
 
-        <section>
-          <h2 className="text-2xl mb-4">5. Deine Rechte</h2>
-          <p>Du kannst jederzeit Auskunft, Löschung oder Berichtigung deiner Daten verlangen.</p>
-        </section>
+            <section className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
+              <h2 className="text-xl font-semibold text-white">4. Weitergabe und Dienstleister</h2>
+              <p className="mt-3 text-slate-300">
+                Eine Weitergabe erfolgt ausschliesslich, soweit sie fuer den Betrieb erforderlich ist, z. B. an Stripe
+                fuer Zahlungen sowie Hosting- und Infrastruktur-Dienstleister.
+              </p>
+            </section>
+
+            <section className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
+              <h2 className="text-xl font-semibold text-white">5. Speicherdauer</h2>
+              <p className="mt-3 text-slate-300">
+                Daten werden nur so lange gespeichert, wie es fuer die jeweiligen Zwecke notwendig ist oder gesetzliche
+                Aufbewahrungsfristen bestehen.
+              </p>
+            </section>
+
+            <section className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
+              <h2 className="text-xl font-semibold text-white">6. Deine Rechte</h2>
+              <p className="mt-3 text-slate-300">
+                Du hast Rechte auf Auskunft, Berichtigung, Loeschung, Einschraenkung, Datenuertragbarkeit und
+                Widerspruch. Zudem besteht ein Beschwerderecht bei einer Datenschutzaufsichtsbehoerde.
+              </p>
+            </section>
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-slate-800 pt-6 text-sm text-slate-400">
+            <Link href="/" className="transition hover:text-cyan-300">Startseite</Link>
+            <Link href="/dashboard" className="transition hover:text-cyan-300">Dashboard</Link>
+            <Link href="/impressum" className="transition hover:text-cyan-300">Impressum</Link>
+            <p className="ml-auto">Stand: Juli 2026</p>
+          </div>
+        </div>
       </div>
-
-      <p className="mt-10 text-sm text-slate-400">
-        Stand: Juli 2026
-      </p>
-    </div>
+    </main>
   );
 }
