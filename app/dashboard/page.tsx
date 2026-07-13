@@ -153,7 +153,7 @@ export default function Dashboard() {
       }, 1800);
     } else if (params.get('beta') === 'activated') {
       paymentNoticeTimer = window.setTimeout(() => {
-        setPaymentMessage('Beta-Zugang aktiviert. Viel Erfolg beim Testen.');
+        setPaymentMessage('Beta-Zugang aktiviert. Keine automatische Zahlung während der Beta-Phase.');
       }, 0);
       paymentTimer = window.setTimeout(() => {
         void fetchProfile(token);
@@ -453,7 +453,9 @@ export default function Dashboard() {
 
               {!twin && (
                 <div className="mt-6 rounded-2xl border border-dashed border-slate-700 bg-slate-950/40 p-6 text-slate-400">
-                  Starte deine erste Berechnung, um hier Ergebnisse und Szenarien zu sehen.
+                  {!profile?.premium && profile?.starter_calc_remaining === 0
+                    ? 'Starter-Berechnung bereits genutzt. Aktiviere den Beta-Zugang, um hier wieder Ergebnisse und Szenarien zu sehen.'
+                    : 'Starte deine erste Berechnung, um hier Ergebnisse und Szenarien zu sehen.'}
                 </div>
               )}
 
