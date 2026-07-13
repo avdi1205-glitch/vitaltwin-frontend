@@ -1,8 +1,35 @@
+"use client";
+
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import HomeAuthModal from './components/home-auth-modal';
+
+type AuthMode = 'login' | 'register' | null;
 
 export default function Home() {
+  const [manualAuthMode, setManualAuthMode] = useState<AuthMode>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const queryAuth = searchParams.get('auth');
+  const authFromQuery: AuthMode = queryAuth === 'login' || queryAuth === 'register' ? queryAuth : null;
+  const authMode: AuthMode = manualAuthMode ?? authFromQuery;
+
+  const openAuth = (mode: Exclude<AuthMode, null>) => {
+    setManualAuthMode(mode);
+  };
+
+  const closeAuth = () => {
+    setManualAuthMode(null);
+    if (searchParams.get('auth')) {
+      router.replace('/', { scroll: false });
+    }
+  };
+
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
+      {authMode && <HomeAuthModal mode={authMode} onClose={closeAuth} />}
       <section className="relative overflow-hidden border-b border-slate-800/80">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.22),_transparent_55%)]" />
         <div className="relative mx-auto max-w-6xl px-6 py-20 md:py-28">
@@ -19,12 +46,12 @@ export default function Home() {
             </p>
 
             <div className="mt-10 flex flex-wrap gap-4">
-              <Link
-                href="/register"
+              <button
+                onClick={() => openAuth('register')}
                 className="rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-4 text-base font-semibold text-white transition hover:opacity-90"
               >
                 Jetzt VitalTwin starten
-              </Link>
+              </button>
               <Link
                 href="/preise"
                 className="rounded-2xl border border-slate-600 bg-slate-900/60 px-8 py-4 text-base font-semibold text-slate-100 transition hover:border-cyan-300/50"
@@ -105,12 +132,18 @@ export default function Home() {
             Starte heute mit deiner ersten Analyse und baue dir eine datenbasierte Gesundheitsstrategie auf.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
-            <Link href="/register" className="rounded-2xl bg-white px-8 py-4 font-semibold text-slate-900">
+            <button
+              onClick={() => openAuth('register')}
+              className="rounded-2xl bg-white px-8 py-4 font-semibold text-slate-900"
+            >
               Kostenlos starten
-            </Link>
-            <Link href="/login" className="rounded-2xl border border-white/50 px-8 py-4 font-semibold text-white">
+            </button>
+            <button
+              onClick={() => openAuth('login')}
+              className="rounded-2xl border border-white/50 px-8 py-4 font-semibold text-white"
+            >
               Zum Login
-            </Link>
+            </button>
           </div>
         </div>
       </section>
