@@ -2,17 +2,48 @@
 import { apiUrl } from '@/lib/api';
 
 export default function Preise() {
+  const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID;
+
+  const extractErrorMessage = (data: unknown): string => {
+    if (!data || typeof data !== 'object') {
+      return 'Checkout konnte nicht gestartet werden.';
+    }
+
+    const payload = data as { detail?: unknown; message?: string };
+    if (typeof payload.message === 'string' && payload.message.trim()) {
+      return payload.message;
+    }
+
+    if (typeof payload.detail === 'string' && payload.detail.trim()) {
+      return payload.detail;
+    }
+
+    if (Array.isArray(payload.detail) && payload.detail.length > 0) {
+      const first = payload.detail[0] as { msg?: string };
+      if (typeof first?.msg === 'string' && first.msg.trim()) {
+        return first.msg;
+      }
+    }
+
+    return 'Checkout konnte nicht gestartet werden.';
+  };
+
   const handlePremium = async () => {
+    if (!priceId) {
+      alert('Preis-ID fehlt. Bitte NEXT_PUBLIC_STRIPE_PRICE_ID in Vercel setzen.');
+      return;
+    }
+
     try {
       const res = await fetch(apiUrl('/api/payments/create-checkout'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ price_id: priceId }),
       });
 
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        alert(data?.detail ?? data?.message ?? 'Checkout konnte nicht gestartet werden.');
+        alert(extractErrorMessage(data));
         return;
       }
 
