@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { apiUrl } from '@/lib/api';
 
@@ -21,6 +21,14 @@ export default function HomeAuthModal({ mode, onClose }: HomeAuthModalProps) {
   const [errorMessage, setErrorMessage] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const urlInfoMessage =
+    searchParams.get('registered') === '1'
+      ? 'Konto erstellt. Du kannst dich jetzt anmelden.'
+      : searchParams.get('reset') === '1'
+        ? 'Passwort aktualisiert. Bitte melde dich mit dem neuen Passwort an.'
+        : '';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,9 +209,9 @@ export default function HomeAuthModal({ mode, onClose }: HomeAuthModalProps) {
           </form>
         )}
 
-        {infoMessage && (
+        {(infoMessage || urlInfoMessage) && (
           <div className="mt-4 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-            {infoMessage}
+            {infoMessage || urlInfoMessage}
           </div>
         )}
 
@@ -214,7 +222,7 @@ export default function HomeAuthModal({ mode, onClose }: HomeAuthModalProps) {
         )}
 
         <p className="mt-5 text-center text-xs text-slate-400">
-          Du kannst weiterhin auch die klassischen Seiten nutzen: <Link href="/login" className="text-cyan-300 hover:underline">Login</Link> und <Link href="/register" className="text-cyan-300 hover:underline">Registrierung</Link>.
+          Schneller Zugang ohne Seitenwechsel. Passwort-Reset bleibt verfügbar unter <Link href="/passwort-zuruecksetzen" className="text-cyan-300 hover:underline">Passwort zurücksetzen</Link>.
         </p>
       </div>
     </div>

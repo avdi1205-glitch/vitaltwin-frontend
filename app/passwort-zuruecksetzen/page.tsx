@@ -30,7 +30,7 @@ export default function PasswortZuruecksetzen() {
         return;
       }
 
-      router.push('/login?reset=1');
+      router.push('/?auth=login&reset=1');
     } catch {
       setErrorMessage('Backend nicht erreichbar. Bitte prüfe die API-URL und den Server-Status.');
     } finally {
@@ -80,7 +80,7 @@ export default function PasswortZuruecksetzen() {
         </form>
 
         <p className="mt-6 text-center text-slate-400">
-          Zurück zum <Link href="/login" className="text-blue-400 hover:underline">Login</Link>
+          Zurück zum <Link href="/?auth=login" className="text-blue-400 hover:underline">Login</Link>
         </p>
       </div>
     </div>

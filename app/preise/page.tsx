@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { apiUrl } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 
@@ -34,7 +35,7 @@ export default function Preise() {
     const token = localStorage.getItem('token');
     if (!token) {
       alert('Bitte zuerst einloggen, um Premium zu kaufen.');
-      router.push('/login');
+      router.push('/?auth=login');
       return;
     }
 
@@ -81,7 +82,7 @@ export default function Preise() {
               <li>✓ Einmalige Twin-Berechnung</li>
               <li>✓ Basis-Empfehlungen</li>
             </ul>
-            <a href="/register" className="block text-center py-4 border border-white rounded-2xl font-semibold">Kostenlos starten</a>
+            <Link href="/?auth=register" className="block text-center py-4 border border-white rounded-2xl font-semibold">Kostenlos starten</Link>
           </div>
 
           <div className="bg-gradient-to-br from-blue-600 to-cyan-600 p-10 rounded-3xl relative scale-105">

@@ -82,7 +82,7 @@ export default function Dashboard() {
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.removeItem('token');
-          router.push('/login');
+          router.push('/?auth=login');
           return;
         }
         setErrorMessage(data && 'detail' in data ? data.detail ?? 'Profil konnte nicht geladen werden.' : 'Profil konnte nicht geladen werden.');
@@ -125,7 +125,7 @@ export default function Dashboard() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      router.push('/login');
+      router.push('/?auth=login');
       return;
     }
 
