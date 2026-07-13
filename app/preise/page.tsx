@@ -70,8 +70,9 @@ export default function Preise() {
   return (
     <div className="min-h-screen bg-slate-950 text-white py-20 px-8">
       <div className="max-w-5xl mx-auto text-center">
-        <h1 className="text-5xl font-bold mb-6">Wähle deinen Plan</h1>
-        <p className="text-xl text-slate-400 mb-16">Starte kostenlos und upgrade jederzeit</p>
+        <h1 className="text-5xl font-bold mb-6">Wähle deinen Zugang</h1>
+        <p className="text-xl text-slate-400 mb-4">Starte kostenlos und sichere dir den Beta-Zugang</p>
+        <p className="text-sm text-cyan-300 mb-16">30 Tage kostenlos, danach 9,90 € pro Monat, jederzeit kündbar.</p>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <div className="bg-slate-900 p-10 rounded-3xl">
@@ -86,16 +87,17 @@ export default function Preise() {
 
           <div className="bg-gradient-to-br from-blue-600 to-cyan-600 p-10 rounded-3xl relative scale-105">
             <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-400 text-black px-8 py-1 rounded-full font-bold">EMPFOHLEN</div>
-            <h2 className="text-3xl font-semibold mb-2">Premium</h2>
+            <h2 className="text-3xl font-semibold mb-2">Beta-Zugang</h2>
             <p className="text-6xl font-bold mb-2">9,90 €</p>
-            <p className="mb-8">pro Monat • Jederzeit kündbar</p>
+            <p className="mb-8">30 Tage kostenlos • danach monatlich kündbar</p>
             <ul className="text-left space-y-4 mb-12">
               <li>✓ Vollständiger Digital Twin</li>
               <li>✓ Unbegrenzte Simulationen</li>
               <li>✓ Monatliche Updates</li>
+              <li>✓ Priorisierte Produktverbesserungen durch dein Feedback</li>
             </ul>
             <button onClick={handlePremium} className="w-full bg-white text-black py-4 rounded-2xl font-semibold text-lg">
-              Jetzt Premium starten
+              Beta-Zugang aktivieren
             </button>
           </div>
         </div>

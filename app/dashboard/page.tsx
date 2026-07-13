@@ -67,6 +67,10 @@ export default function Dashboard() {
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [paymentMessage, setPaymentMessage] = useState('');
+  const [feedbackScore, setFeedbackScore] = useState(5);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [sendingFeedback, setSendingFeedback] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
   const router = useRouter();
 
   const fetchProfile = useCallback(async (token: string) => {
@@ -193,6 +197,50 @@ export default function Dashboard() {
     router.push('/');
   };
 
+  const submitFeedback = async () => {
+    setFeedbackMessage('');
+    if (feedbackText.trim().length < 5) {
+      setFeedbackMessage('Bitte gib mindestens 5 Zeichen Feedback ein.');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/?auth=login');
+      return;
+    }
+
+    setSendingFeedback(true);
+    try {
+      const response = await fetch(apiUrl('/api/users/feedback'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          score: feedbackScore,
+          message: feedbackText.trim(),
+          source: 'dashboard',
+        }),
+      });
+
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setFeedbackMessage(data?.detail ?? 'Feedback konnte nicht gesendet werden.');
+        return;
+      }
+
+      setFeedbackText('');
+      setFeedbackScore(5);
+      setFeedbackMessage(data?.message ?? 'Danke für dein Feedback!');
+    } catch {
+      setFeedbackMessage('Feedback-Service gerade nicht erreichbar. Bitte später erneut versuchen.');
+    } finally {
+      setSendingFeedback(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <div className="mx-auto max-w-7xl px-6 py-8 md:py-10">
@@ -208,14 +256,14 @@ export default function Dashboard() {
 
             <div className="flex flex-wrap items-center gap-3">
               <span className={`rounded-full px-4 py-1 text-sm font-semibold ${profile?.premium ? 'bg-emerald-500/20 text-emerald-200 ring-1 ring-emerald-300/30' : 'bg-blue-500/20 text-blue-200 ring-1 ring-blue-300/30'}`}>
-                Plan: {profile?.premium ? 'Premium' : 'Starter'}
+                Plan: {profile?.premium ? 'Beta-Zugang' : 'Starter'}
               </span>
               {!profile?.premium && (
                 <button
                   onClick={() => router.push('/preise')}
                   className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"
                 >
-                  Upgrade
+                  Beta freischalten
                 </button>
               )}
               <button
@@ -248,7 +296,7 @@ export default function Dashboard() {
           <article className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
             <p className="text-sm text-slate-400">Status</p>
             <p className="mt-2 text-2xl font-bold text-white">
-              {loadingProfile ? 'Lade...' : profile?.premium ? 'Premium aktiv' : 'Starter aktiv'}
+              {loadingProfile ? 'Lade...' : profile?.premium ? 'Beta-Zugang aktiv' : 'Starter aktiv'}
             </p>
           </article>
           <article className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
@@ -446,6 +494,47 @@ export default function Dashboard() {
                   ))}
                 </div>
               )}
+            </div>
+
+            <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7">
+              <h3 className="text-xl font-semibold">Feedback zur Beta</h3>
+              <p className="mt-2 text-sm text-slate-400">
+                Was war hilfreich und was sollten wir verbessern? Dein Feedback fließt direkt in die nächsten Releases.
+              </p>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-[160px_1fr] sm:items-center">
+                <label className="text-sm text-slate-300">Bewertung (1-5)</label>
+                <select
+                  value={feedbackScore}
+                  onChange={(e) => setFeedbackScore(Number(e.target.value))}
+                  className="rounded-xl border border-slate-700 bg-slate-800/90 px-4 py-3 text-white focus:border-cyan-400 focus:outline-none"
+                >
+                  <option value={5}>5 - Sehr gut</option>
+                  <option value={4}>4 - Gut</option>
+                  <option value={3}>3 - Okay</option>
+                  <option value={2}>2 - Schwach</option>
+                  <option value={1}>1 - Schlecht</option>
+                </select>
+              </div>
+
+              <textarea
+                value={feedbackText}
+                onChange={(e) => setFeedbackText(e.target.value)}
+                rows={4}
+                placeholder="Z. B. 'Simulation ist stark, aber ich wünsche mir mehr Erklärung zu Marker X.'"
+                className="mt-4 w-full rounded-xl border border-slate-700 bg-slate-800/90 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+              />
+
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <button
+                  onClick={submitFeedback}
+                  disabled={sendingFeedback}
+                  className="rounded-xl bg-cyan-500 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {sendingFeedback ? 'Sende...' : 'Feedback senden'}
+                </button>
+                {feedbackMessage && <p className="text-sm text-slate-300">{feedbackMessage}</p>}
+              </div>
             </div>
           </div>
         </section>
