@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { apiUrl } from '@/lib/api';
+import { trackEvent } from '@/lib/analytics';
 
 type AuthMode = 'login' | 'register';
 
@@ -22,6 +23,10 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
   const [errorMessage, setErrorMessage] = useState('');
   const [infoMessage, setInfoMessage] = useState(initialNotice);
   const router = useRouter();
+
+  useEffect(() => {
+    trackEvent('open_modal', { mode });
+  }, [mode]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +48,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
       }
 
       localStorage.setItem('token', data.access_token);
+      trackEvent('login_success', { method: 'email', tab: 'login' });
       onClose();
       router.push('/dashboard');
     } catch {
@@ -57,6 +63,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
     setLoading(true);
     setErrorMessage('');
     setInfoMessage('');
+    trackEvent('register_submit', { tab: 'register' });
 
     try {
       const regRes = await fetch(apiUrl('/api/users/register'), {
@@ -85,6 +92,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
 
       if (loginRes.ok && loginData?.access_token) {
         localStorage.setItem('token', loginData.access_token);
+        trackEvent('login_success', { method: 'email', tab: 'register_auto_login' });
         onClose();
         router.push('/dashboard');
         return;
@@ -101,15 +109,35 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 p-7 shadow-2xl shadow-black/50">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-white">Schnell starten</h2>
+      <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 p-5 shadow-2xl shadow-black/50 sm:p-7">
+        <div className="mb-4 flex items-center justify-between sm:mb-6">
+          <h2 className="text-xl font-bold text-white sm:text-2xl">Schnell starten</h2>
           <button
             onClick={onClose}
             className="rounded-full border border-slate-600 px-3 py-1 text-sm text-slate-300 transition hover:border-slate-400"
           >
             Schließen
           </button>
+        </div>
+
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6">
+          <button
+            type="button"
+            disabled
+            className="rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2 text-sm font-semibold text-slate-300 opacity-70"
+            title="Bald verfügbar"
+          >
+            Mit Google
+          </button>
+          <button
+            type="button"
+            disabled
+            className="rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2 text-sm font-semibold text-slate-300 opacity-70"
+            title="Bald verfügbar"
+          >
+            Mit Apple
+          </button>
+          <p className="col-span-2 text-center text-xs text-slate-400">Social Login folgt in einem der nächsten Releases.</p>
         </div>
 
         <div className="mb-6 grid grid-cols-2 rounded-2xl border border-slate-700 bg-slate-800/70 p-1">
