@@ -190,7 +190,7 @@ export default function Dashboard() {
 
   const logout = () => {
     localStorage.removeItem('token');
-    router.push('/login');
+    router.push('/');
   };
 
   return (
