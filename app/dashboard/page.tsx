@@ -1,11 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
 
 type TwinResult = {
 	biologisches_alter: number;
 	differenz: number;
+};
+
+type MeResponse = {
+	email: string;
+	full_name?: string;
+	premium: boolean;
 };
 
 export default function Dashboard() {
@@ -19,13 +25,99 @@ export default function Dashboard() {
 	});
 	const [twin, setTwin] = useState<TwinResult | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [plan, setPlan] = useState<'starter' | 'premium'>('starter');
+	const [planLoading, setPlanLoading] = useState(true);
+	const [paymentNotice, setPaymentNotice] = useState('');
 	const router = useRouter();
+	const searchParams = useSearchParams();
+
+	const fetchMe = async (token: string): Promise<MeResponse> => {
+		const res = await fetch(apiUrl('/api/users/me'), {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		if (!res.ok) {
+			throw new Error('me-failed');
+		}
+
+		return (await res.json()) as MeResponse;
+	};
 
 	useEffect(() => {
-		if (!localStorage.getItem('token')) {
+		const token = localStorage.getItem('token');
+		if (!token) {
 			router.push('/login');
+			return;
 		}
+
+		let cancelled = false;
+		queueMicrotask(() => {
+			if (!cancelled) {
+				setPlanLoading(true);
+			}
+		});
+
+		void fetchMe(token)
+			.then((data) => {
+				if (!cancelled) {
+					setPlan(data.premium ? 'premium' : 'starter');
+				}
+			})
+			.catch(() => {
+				if (!cancelled) {
+					localStorage.removeItem('token');
+					router.push('/login');
+				}
+			})
+			.finally(() => {
+				if (!cancelled) {
+					setPlanLoading(false);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
 	}, [router]);
+
+	useEffect(() => {
+		const payment = searchParams.get('payment');
+		const token = localStorage.getItem('token');
+		if (payment !== 'success' || !token) {
+			return;
+		}
+
+		const kickoffTimer = setTimeout(() => {
+			setPaymentNotice('Zahlung erkannt. Premium wird geprüft...');
+		}, 0);
+		let attempts = 0;
+		const interval = setInterval(() => {
+			attempts += 1;
+			void fetchMe(token)
+				.then((data) => {
+					setPlan(data.premium ? 'premium' : 'starter');
+					if (data.premium) {
+						setPaymentNotice('Premium ist jetzt aktiv.');
+						clearInterval(interval);
+					}
+				})
+				.catch(() => {
+					// Ignore transient errors while waiting for webhook processing.
+				});
+
+			if (attempts >= 8) {
+				clearInterval(interval);
+				setPaymentNotice('Premium-Status wird noch synchronisiert. Bitte Seite in 1-2 Minuten neu laden.');
+			}
+		}, 3000);
+
+		return () => {
+			clearTimeout(kickoffTimer);
+			clearInterval(interval);
+		};
+	}, [searchParams]);
 
 	const calculate = async () => {
 		setLoading(true);
@@ -47,8 +139,33 @@ export default function Dashboard() {
 		<div className="p-8 max-w-5xl mx-auto bg-slate-950 min-h-screen text-white">
 			<div className="flex justify-between items-center mb-10">
 				<h1 className="text-5xl font-bold">VitalTwin Dashboard</h1>
-				<button onClick={() => router.push('/login')} className="text-red-400">Abmelden</button>
+				<div className="flex items-center gap-4">
+					<div className={`rounded-full px-4 py-1 text-sm font-semibold ${plan === 'premium' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-700 text-slate-200'}`}>
+						Plan: {planLoading ? 'Lade...' : plan === 'premium' ? 'Premium' : 'Starter'}
+					</div>
+					<button
+						onClick={() => {
+							localStorage.removeItem('token');
+							router.push('/login');
+						}}
+						className="text-red-400"
+					>
+						Abmelden
+					</button>
+				</div>
 			</div>
+
+			{paymentNotice && (
+				<div className="mb-6 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm text-blue-100">
+					{paymentNotice}
+				</div>
+			)}
+
+			{!planLoading && plan !== 'premium' && (
+				<div className="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+					Du nutzt aktuell Starter. Upgrade auf Premium unter /preise fuer alle Premium-Funktionen.
+				</div>
+			)}
 
 			<div className="grid md:grid-cols-2 gap-8">
 				{/* Eingabefelder */}
