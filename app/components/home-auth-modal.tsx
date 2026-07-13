@@ -6,6 +6,22 @@ import { useEffect, useState } from 'react';
 import { apiUrl } from '@/lib/api';
 import { trackEvent } from '@/lib/analytics';
 
+declare global {
+  interface Window {
+    google?: {
+      accounts?: {
+        id?: {
+          initialize: (options: {
+            client_id: string;
+            callback: (response: { credential?: string }) => void;
+          }) => void;
+          prompt: () => void;
+        };
+      };
+    };
+  }
+}
+
 type AuthMode = 'login' | 'register';
 
 type HomeAuthModalProps = {
@@ -22,11 +38,92 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [infoMessage, setInfoMessage] = useState(initialNotice);
+  const [googleReady, setGoogleReady] = useState(false);
   const router = useRouter();
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() ?? '';
 
   useEffect(() => {
     trackEvent('open_modal', { mode });
   }, [mode]);
+
+  useEffect(() => {
+    if (!googleClientId) {
+      return;
+    }
+
+    const initGoogle = () => {
+      if (!window.google?.accounts?.id) {
+        return;
+      }
+
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: async ({ credential }) => {
+          if (!credential) {
+            setErrorMessage('Google-Login konnte nicht gestartet werden.');
+            return;
+          }
+
+          setLoading(true);
+          setErrorMessage('');
+          setInfoMessage('');
+
+          try {
+            const response = await fetch(apiUrl('/api/users/google-login'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ credential }),
+            });
+
+            const data = await response.json().catch(() => null);
+            if (!response.ok) {
+              setErrorMessage(data?.detail ?? 'Google-Login fehlgeschlagen.');
+              return;
+            }
+
+            localStorage.setItem('token', data.access_token);
+            trackEvent('login_success', { method: 'google' });
+            router.push('/dashboard');
+          } catch {
+            setErrorMessage('Google-Login aktuell nicht verfügbar. Bitte später erneut versuchen.');
+          } finally {
+            setLoading(false);
+          }
+        },
+      });
+
+      setGoogleReady(true);
+    };
+
+    if (window.google?.accounts?.id) {
+      initGoogle();
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = initGoogle;
+    document.head.appendChild(script);
+  }, [googleClientId, router]);
+
+  const handleGoogleLogin = () => {
+    setErrorMessage('');
+    setInfoMessage('');
+
+    if (!googleClientId) {
+      setErrorMessage('Google-Login ist noch nicht konfiguriert.');
+      return;
+    }
+
+    if (!googleReady || !window.google?.accounts?.id) {
+      setErrorMessage('Google-Login wird geladen. Bitte in 1-2 Sekunden erneut klicken.');
+      return;
+    }
+
+    window.google.accounts.id.prompt();
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,9 +220,9 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
         <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6">
           <button
             type="button"
-            disabled
-            className="rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2 text-sm font-semibold text-slate-300 opacity-70"
-            title="Bald verfügbar"
+            onClick={handleGoogleLogin}
+            className="rounded-xl border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm font-semibold text-white transition hover:border-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={loading}
           >
             Mit Google
           </button>
