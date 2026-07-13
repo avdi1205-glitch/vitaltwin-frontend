@@ -311,6 +311,12 @@ export default function Dashboard() {
           </article>
         </section>
 
+        {!loadingProfile && !profile?.premium && (
+          <div className="mt-6 rounded-2xl border border-blue-400/30 bg-blue-500/10 px-5 py-4 text-sm text-blue-100">
+            Starter enthält eine einmalige Twin-Berechnung mit Basis-Empfehlungen. Für Verlauf, Detailquellen und unbegrenzte Simulationen aktiviere den Beta-Zugang.
+          </div>
+        )}
+
         <section className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7">
             <div className="mb-6">
@@ -445,13 +451,19 @@ export default function Dashboard() {
               <h3 className="text-xl font-semibold">Referenzdaten & Quellen</h3>
               <p className="mt-2 text-sm text-slate-400">Transparente Referenzbereiche aus veröffentlichten Leitlinien und Fachquellen.</p>
 
-              {(!twin?.marker_references || twin.marker_references.length === 0) && (
+              {!loadingProfile && !profile?.premium && (
+                <p className="mt-4 rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-blue-100">
+                  Detailquellen sind im Beta-Zugang verfügbar.
+                </p>
+              )}
+
+              {(profile?.premium && (!twin?.marker_references || twin.marker_references.length === 0)) && (
                 <p className="mt-4 rounded-xl border border-dashed border-slate-700 bg-slate-950/40 px-4 py-3 text-slate-400">
                   Referenzdaten werden nach der ersten Berechnung angezeigt.
                 </p>
               )}
 
-              {twin?.marker_references && twin.marker_references.length > 0 && (
+              {(profile?.premium && twin?.marker_references && twin.marker_references.length > 0) && (
                 <div className="mt-4 space-y-3">
                   {twin.marker_references.map((ref) => (
                     <div key={ref.marker} className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3">
@@ -472,15 +484,21 @@ export default function Dashboard() {
               <h3 className="text-xl font-semibold">Verlauf</h3>
               <p className="mt-2 text-sm text-slate-400">Deine letzten gespeicherten Berechnungen.</p>
 
-              {loadingHistory && <p className="mt-4 text-slate-400">Verlauf wird geladen...</p>}
+              {!loadingProfile && !profile?.premium && (
+                <p className="mt-4 rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-blue-100">
+                  Verlaufsansicht ist im Beta-Zugang freigeschaltet.
+                </p>
+              )}
 
-              {!loadingHistory && history.length === 0 && (
+              {loadingHistory && profile?.premium && <p className="mt-4 text-slate-400">Verlauf wird geladen...</p>}
+
+              {!loadingHistory && profile?.premium && history.length === 0 && (
                 <p className="mt-4 rounded-xl border border-dashed border-slate-700 bg-slate-950/40 px-4 py-3 text-slate-400">
                   Noch keine gespeicherten Berechnungen vorhanden.
                 </p>
               )}
 
-              {!loadingHistory && history.length > 0 && (
+              {!loadingHistory && profile?.premium && history.length > 0 && (
                 <div className="mt-4 space-y-3">
                   {history.map((item) => (
                     <div key={item.id} className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3">
