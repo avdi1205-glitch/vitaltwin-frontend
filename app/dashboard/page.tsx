@@ -396,6 +396,14 @@ export default function Dashboard() {
         </section>
 
         {!loadingProfile && !profile?.premium && (
+          <div className="mt-3 rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+            {profile?.starter_calc_remaining === 0
+              ? 'Starter-Limit: 1 von 1 Berechnung wurde bereits genutzt.'
+              : 'Starter-Limit: Du hast genau 1 von 1 Berechnung verfügbar.'}
+          </div>
+        )}
+
+        {!loadingProfile && !profile?.premium && (
           <div className="mt-6 rounded-2xl border border-blue-400/30 bg-blue-500/10 px-5 py-4 text-sm text-blue-100">
             {profile?.starter_calc_remaining === 0
               ? 'Deine einmalige Starter-Berechnung wurde bereits genutzt. Für weitere Berechnungen, Verlauf und Detailquellen aktiviere den Beta-Zugang.'
@@ -484,6 +492,10 @@ export default function Dashboard() {
                     ? 'Starter-Limit erreicht'
                     : 'Twin neu berechnen'}
             </button>
+
+            {!loadingProfile && !profile?.premium && profile?.starter_calc_remaining === 1 && (
+              <p className="mt-3 text-sm text-amber-200">Hinweis: Im Starter ist genau eine Berechnung möglich.</p>
+            )}
 
             {displayedTwin?.methodik && (
               <p className="mt-4 text-xs text-slate-400">Methodik: {displayedTwin.methodik.typ} · {displayedTwin.methodik.hinweis}</p>
