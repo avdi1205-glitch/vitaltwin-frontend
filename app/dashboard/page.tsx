@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiUrl } from '@/lib/api';
 
 type TwinResult = {
 	biologisches_alter: number;
@@ -29,7 +30,7 @@ export default function Dashboard() {
 	const calculate = async () => {
 		setLoading(true);
 		try {
-			const res = await fetch('http://localhost:8000/api/twin/calculate', {
+			const res = await fetch(apiUrl('/api/twin/calculate'), {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(form)
