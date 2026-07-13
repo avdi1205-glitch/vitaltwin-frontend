@@ -1,30 +1,40 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiUrl } from '@/lib/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage('');
 
-    const res = await fetch('http://localhost:8000/api/users/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch(apiUrl('/api/users/login'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (res.ok) {
-      const data = await res.json();
-      localStorage.setItem('token', data.access_token);
-      router.push('/dashboard');
-    } else {
-      alert('Login fehlgeschlagen');
+      const data = await res.json().catch(() => null);
+
+      if (res.ok) {
+        localStorage.setItem('token', data.access_token);
+        router.push('/dashboard');
+        return;
+      }
+
+      setErrorMessage(data?.detail ?? data?.message ?? 'Login fehlgeschlagen');
+    } catch {
+      setErrorMessage('Backend nicht erreichbar. Bitte pruefe die API-URL und den Server-Status.');
     }
+
     setLoading(false);
   };
 
@@ -60,6 +70,12 @@ export default function Login() {
           >
             {loading ? 'Anmelden...' : 'Jetzt anmelden'}
           </button>
+
+          {errorMessage && (
+            <div className="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              {errorMessage}
+            </div>
+          )}
         </form>
 
         <p className="text-center mt-8 text-slate-400">
