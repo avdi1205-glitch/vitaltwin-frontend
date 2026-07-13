@@ -39,6 +39,20 @@ export default function HomeLanding({
     <main className="min-h-screen bg-slate-950 text-slate-100">
       {authMode && <HomeAuthModal mode={authMode} onClose={closeAuth} initialNotice={notice} />}
 
+      <div className="border-b border-cyan-400/20 bg-cyan-500/10">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3 text-sm">
+          <p className="text-cyan-100">
+            Beta läuft: begrenzte Plätze für die erste DACH-Kohorte.
+          </p>
+          <button
+            onClick={() => openAuth('register')}
+            className="rounded-full border border-cyan-300/40 px-4 py-1 font-semibold text-cyan-200 transition hover:bg-cyan-400/10"
+          >
+            Platz sichern
+          </button>
+        </div>
+      </div>
+
       <section className="relative overflow-hidden border-b border-slate-800/80">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.22),_transparent_55%)]" />
         <div className="relative mx-auto max-w-6xl px-6 py-20 md:py-28">
@@ -59,7 +73,7 @@ export default function HomeLanding({
                 onClick={() => openAuth('register')}
                 className="rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-4 text-base font-semibold text-white transition hover:opacity-90"
               >
-                Jetzt VitalTwin starten
+                Jetzt zur Beta starten
               </button>
               <Link
                 href="/preise"
@@ -81,6 +95,18 @@ export default function HomeLanding({
               <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 col-span-2 md:col-span-1">
                 <p className="text-2xl font-bold text-white">Abo</p>
                 <p>skalierbares SaaS-Modell</p>
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-3 text-xs text-slate-300 sm:grid-cols-3">
+              <div className="rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2">
+                Evidenzbasierte Marker mit Quellen
+              </div>
+              <div className="rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2">
+                Kein medizinisches Produkt, klarer Wellness-Fokus
+              </div>
+              <div className="rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2">
+                Für DACH optimiert, EU-Skalierung geplant
               </div>
             </div>
           </div>
@@ -145,7 +171,7 @@ export default function HomeLanding({
               onClick={() => openAuth('register')}
               className="rounded-2xl bg-white px-8 py-4 font-semibold text-slate-900"
             >
-              Kostenlos starten
+              Kostenlos in die Beta
             </button>
             <button
               onClick={() => openAuth('login')}
