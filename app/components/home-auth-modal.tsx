@@ -205,8 +205,8 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 p-5 shadow-2xl shadow-black/50 sm:p-7">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-950/80 p-4 backdrop-blur-sm sm:items-center">
+      <div className="my-4 w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto rounded-3xl border border-slate-700 bg-slate-900 p-5 shadow-2xl shadow-black/50 sm:my-6 sm:max-h-[calc(100vh-3rem)] sm:p-7">
         <div className="mb-4 flex items-center justify-between sm:mb-6">
           <h2 className="text-xl font-bold text-white sm:text-2xl">Schnell starten</h2>
           <button
