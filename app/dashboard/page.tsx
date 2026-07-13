@@ -45,6 +45,11 @@ type HistoryItem = {
   created_at: string;
   biologisches_alter: number;
   differenz: number;
+  scenarios?: {
+    aktuell?: number;
+    optimiert?: number;
+    aggressiv?: number;
+  };
   hba1c: number;
   crp: number;
   vitamin_d: number;
@@ -238,6 +243,27 @@ export default function Dashboard() {
     };
   }, [calculate, history.length, loadingHistory, loadingProfile, profile?.premium, profile?.starter_calc_remaining, twin]);
 
+  const displayedTwin: TwinResponse | null = twin ?? (history.length > 0
+    ? {
+      biologisches_alter: history[0].biologisches_alter,
+      differenz: history[0].differenz,
+      scenarios: {
+        aktuell: history[0].scenarios?.aktuell ?? history[0].biologisches_alter,
+        optimiert: history[0].scenarios?.optimiert ?? history[0].biologisches_alter,
+        aggressiv: history[0].scenarios?.aggressiv ?? history[0].biologisches_alter,
+      },
+      methodik: {
+        typ: 'Wellness-Orientierung',
+        hinweis: 'Angezeigt wird deine letzte gespeicherte Berechnung.',
+      },
+      marker_references: [],
+      empfehlungen: [
+        'Achte auf Schlaf, Stressmanagement und regelmäßige Bewegung.',
+        'Kontrolliere deine Marker regelmäßig für bessere Vergleichbarkeit.',
+      ],
+    }
+    : null);
+
   const logout = () => {
     localStorage.removeItem('token');
     router.push('/');
@@ -347,12 +373,12 @@ export default function Dashboard() {
           </article>
           <article className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
             <p className="text-sm text-slate-400">Biologisches Alter</p>
-            <p className="mt-2 text-2xl font-bold text-cyan-300">{twin ? `${twin.biologisches_alter} Jahre` : 'Noch keine Berechnung'}</p>
+            <p className="mt-2 text-2xl font-bold text-cyan-300">{displayedTwin ? `${displayedTwin.biologisches_alter} Jahre` : 'Noch keine Berechnung'}</p>
           </article>
           <article className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
             <p className="text-sm text-slate-400">Differenz</p>
-            <p className={`mt-2 text-2xl font-bold ${twin && twin.differenz <= 0 ? 'text-emerald-300' : 'text-amber-200'}`}>
-              {twin ? `${twin.differenz > 0 ? '+' : ''}${twin.differenz} Jahre` : '-'}
+            <p className={`mt-2 text-2xl font-bold ${displayedTwin && displayedTwin.differenz <= 0 ? 'text-emerald-300' : 'text-amber-200'}`}>
+              {displayedTwin ? `${displayedTwin.differenz > 0 ? '+' : ''}${displayedTwin.differenz} Jahre` : '-'}
             </p>
           </article>
         </section>
@@ -435,14 +461,14 @@ export default function Dashboard() {
 
             <button
               onClick={calculate}
-              disabled={loading}
+              disabled={loading || (!profile?.premium && profile?.starter_calc_remaining === 0)}
               className="mt-6 w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 py-4 text-lg font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {loading ? 'Berechne Twin...' : 'Twin neu berechnen'}
+              {loading ? 'Berechne Twin...' : (!profile?.premium && profile?.starter_calc_remaining === 0) ? 'Starter-Limit erreicht' : 'Twin neu berechnen'}
             </button>
 
-            {twin?.methodik && (
-              <p className="mt-4 text-xs text-slate-400">Methodik: {twin.methodik.typ} · {twin.methodik.hinweis}</p>
+            {displayedTwin?.methodik && (
+              <p className="mt-4 text-xs text-slate-400">Methodik: {displayedTwin.methodik.typ} · {displayedTwin.methodik.hinweis}</p>
             )}
           </div>
 
@@ -451,7 +477,7 @@ export default function Dashboard() {
               <h2 className="text-2xl font-semibold">Analyse</h2>
               <p className="mt-2 text-sm text-slate-400">Deine aktuelle Auswertung inklusive Vergleichsszenarien.</p>
 
-              {!twin && (
+              {!displayedTwin && (
                 <div className="mt-6 rounded-2xl border border-dashed border-slate-700 bg-slate-950/40 p-6 text-slate-400">
                   {!profile?.premium && profile?.starter_calc_remaining === 0
                     ? 'Starter-Berechnung bereits genutzt. Aktiviere den Beta-Zugang, um hier wieder Ergebnisse und Szenarien zu sehen.'
@@ -459,23 +485,23 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {twin && (
+              {displayedTwin && (
                 <>
-                  <p className="mt-6 text-5xl font-bold text-cyan-300">{twin.biologisches_alter} Jahre</p>
-                  <p className="mt-2 text-slate-300">Abweichung vom chronologischen Alter: {twin.differenz > 0 ? '+' : ''}{twin.differenz} Jahre</p>
+                  <p className="mt-6 text-5xl font-bold text-cyan-300">{displayedTwin.biologisches_alter} Jahre</p>
+                  <p className="mt-2 text-slate-300">Abweichung vom chronologischen Alter: {displayedTwin.differenz > 0 ? '+' : ''}{displayedTwin.differenz} Jahre</p>
 
                   <div className="mt-6 grid grid-cols-3 gap-3 text-center text-sm">
                     <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-3">
                       <p className="text-slate-400">Aktuell</p>
-                      <p className="mt-1 text-lg font-semibold">{twin.scenarios.aktuell}</p>
+                      <p className="mt-1 text-lg font-semibold">{displayedTwin.scenarios.aktuell}</p>
                     </div>
                     <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-3">
                       <p className="text-slate-400">Optimiert</p>
-                      <p className="mt-1 text-lg font-semibold text-emerald-300">{twin.scenarios.optimiert}</p>
+                      <p className="mt-1 text-lg font-semibold text-emerald-300">{displayedTwin.scenarios.optimiert}</p>
                     </div>
                     <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-3">
                       <p className="text-slate-400">Aggressiv</p>
-                      <p className="mt-1 text-lg font-semibold text-cyan-300">{twin.scenarios.aggressiv}</p>
+                      <p className="mt-1 text-lg font-semibold text-cyan-300">{displayedTwin.scenarios.aggressiv}</p>
                     </div>
                   </div>
                 </>
@@ -485,7 +511,7 @@ export default function Dashboard() {
             <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7">
               <h3 className="text-xl font-semibold">Empfehlungen</h3>
               <ul className="mt-4 space-y-3 text-slate-200">
-                {(twin?.empfehlungen ?? [
+                {(displayedTwin?.empfehlungen ?? [
                   'Schließe eine Berechnung ab, um personalisierte Empfehlungen zu erhalten.',
                   'Achte auf Schlaf, Stressmanagement und regelmäßige Bewegung.',
                   'Kontrolliere Marker regelmäßig und tracke Verbesserungen im Dashboard.',
@@ -507,15 +533,15 @@ export default function Dashboard() {
                 </p>
               )}
 
-              {(profile?.premium && (!twin?.marker_references || twin.marker_references.length === 0)) && (
+              {(profile?.premium && (!displayedTwin?.marker_references || displayedTwin.marker_references.length === 0)) && (
                 <p className="mt-4 rounded-xl border border-dashed border-slate-700 bg-slate-950/40 px-4 py-3 text-slate-400">
                   Referenzdaten werden nach der ersten Berechnung angezeigt.
                 </p>
               )}
 
-              {(profile?.premium && twin?.marker_references && twin.marker_references.length > 0) && (
+              {(profile?.premium && displayedTwin?.marker_references && displayedTwin.marker_references.length > 0) && (
                 <div className="mt-4 space-y-3">
-                  {twin.marker_references.map((ref) => (
+                  {displayedTwin.marker_references.map((ref) => (
                     <div key={ref.marker} className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3">
                       <p className="text-sm font-semibold text-cyan-300">
                         {ref.marker.toUpperCase()} · Zielbereich {ref.target_min ?? '-'} bis {ref.target_max ?? '-'} {ref.unit}
