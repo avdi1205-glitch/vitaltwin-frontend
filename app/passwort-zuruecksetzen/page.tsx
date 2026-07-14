@@ -1,27 +1,49 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
 
-export default function PasswortZuruecksetzen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function PasswortAendern() {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const router = useRouter();
 
-  const handleReset = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMessage('');
+  useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      router.push('/?auth=login');
+    }
+  }, [router]);
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/?auth=login');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setErrorMessage('Neues Passwort muss mindestens 8 Zeichen haben.');
+      return;
+    }
+
+    setLoading(true);
     try {
-      const response = await fetch(apiUrl('/api/users/reset-password'), {
+      const response = await fetch(apiUrl('/api/users/change-password'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
       });
 
       const data = await response.json().catch(() => null);
@@ -30,7 +52,9 @@ export default function PasswortZuruecksetzen() {
         return;
       }
 
-      router.push('/?auth=login&reset=1');
+      setCurrentPassword('');
+      setNewPassword('');
+      setSuccessMessage(data?.message ?? 'Passwort erfolgreich aktualisiert.');
     } catch {
       setErrorMessage('Backend nicht erreichbar. Bitte prüfe die API-URL und den Server-Status.');
     } finally {
@@ -41,32 +65,39 @@ export default function PasswortZuruecksetzen() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 px-6">
       <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-10">
-        <h1 className="text-center text-3xl font-bold text-white">Passwort zurücksetzen</h1>
+        <h1 className="text-center text-3xl font-bold text-white">Passwort ändern</h1>
         <p className="mt-3 text-center text-slate-400">
-          Gib deine E-Mail und ein neues Passwort ein. Für bestehende Alt-Accounts ist das der schnellste Weg zurück in dein Konto.
+          Gib dein aktuelles Passwort und ein neues Passwort ein, um dein Konto-Passwort zu aktualisieren.
         </p>
 
-        <form onSubmit={handleReset} className="mt-8 space-y-6">
+        <form onSubmit={handleChangePassword} className="mt-8 space-y-6">
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="E-Mail"
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder="Aktuelles Passwort"
             className="w-full rounded-2xl border border-slate-700 bg-slate-800 p-4 text-white"
             required
           />
           <input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Neues Passwort"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="Neues Passwort (mind. 8 Zeichen)"
             className="w-full rounded-2xl border border-slate-700 bg-slate-800 p-4 text-white"
             required
+            minLength={8}
           />
 
           {errorMessage && (
             <div className="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
               {errorMessage}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              {successMessage}
             </div>
           )}
 
@@ -80,9 +111,10 @@ export default function PasswortZuruecksetzen() {
         </form>
 
         <p className="mt-6 text-center text-slate-400">
-          Zurück zum <Link href="/?auth=login" className="text-blue-400 hover:underline">Login</Link>
+          Zurück zum <Link href="/dashboard" className="text-blue-400 hover:underline">Dashboard</Link>
         </p>
       </div>
     </div>
   );
 }
+

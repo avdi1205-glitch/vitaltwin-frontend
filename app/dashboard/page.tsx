@@ -351,6 +351,12 @@ export default function Dashboard() {
                 </button>
               )}
               <button
+                onClick={() => router.push('/passwort-zuruecksetzen')}
+                className="rounded-full border border-slate-600 px-5 py-2 text-sm font-semibold text-slate-200 transition hover:border-cyan-300/50"
+              >
+                Passwort ändern
+              </button>
+              <button
                 onClick={logout}
                 className="rounded-full border border-red-400/50 px-5 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
               >
