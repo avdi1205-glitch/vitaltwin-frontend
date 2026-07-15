@@ -357,9 +357,9 @@ export default function Dashboard() {
 
             <div className="flex flex-wrap items-center gap-3">
               <span className={`rounded-full px-4 py-1 text-sm font-semibold ${profile?.premium ? 'bg-black text-white' : 'border border-neutral-300 text-neutral-700'}`}>
-                Plan: {profile?.premium ? 'Beta-Zugang' : 'Starter'}
+                Plan: {loadingProfile ? 'Lädt...' : profile?.premium ? 'Beta-Zugang' : 'Starter'}
               </span>
-              {!profile?.premium && (
+              {!loadingProfile && !profile?.premium && (
                 <button
                   onClick={() => router.push('/preise')}
                   className="rounded-full bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800"
