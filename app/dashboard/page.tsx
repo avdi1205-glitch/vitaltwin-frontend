@@ -65,7 +65,22 @@ export default function Dashboard() {
     crp: 0.8,
     vitamin_d: 55,
     apob: 65,
+    fasting_glucose: 92,
+    hdl: 55,
+    triglycerides: 110,
+    homocysteine: 9,
+    tsh: 1.8,
+    ferritin: 90,
+    vitamin_b12: 500,
+    omega3_index: 6,
+    resting_heart_rate: 65,
+    blood_pressure_systolic: 122,
+    blood_pressure_diastolic: 78,
+    waist_circumference: 88,
+    sleep_hours: 6.8,
+    grip_strength: 35,
   });
+  const [showMoreMarkers, setShowMoreMarkers] = useState(false);
   const [familyContext, setFamilyContext] = useState<string[]>([]);
   const [twin, setTwin] = useState<TwinResponse | null>(null);
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
@@ -486,6 +501,160 @@ export default function Dashboard() {
                 />
               </label>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setShowMoreMarkers((current) => !current)}
+              className="mt-4 text-sm font-semibold text-neutral-700 underline hover:text-black"
+            >
+              {showMoreMarkers ? 'Weitere Marker ausblenden' : 'Weitere Marker anzeigen (optional)'}
+            </button>
+
+            {showMoreMarkers && (
+              <div className="mt-4 space-y-5">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Weitere Blutwerte</p>
+                  <div className="mt-3 grid gap-4 md:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">Nüchternglukose (mg/dL)</span>
+                      <input
+                        type="number"
+                        value={form.fasting_glucose}
+                        onChange={(e) => setForm({ ...form, fasting_glucose: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">HDL-Cholesterin (mg/dL)</span>
+                      <input
+                        type="number"
+                        value={form.hdl}
+                        onChange={(e) => setForm({ ...form, hdl: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">Triglyceride (mg/dL)</span>
+                      <input
+                        type="number"
+                        value={form.triglycerides}
+                        onChange={(e) => setForm({ ...form, triglycerides: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">Homocystein (µmol/L)</span>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={form.homocysteine}
+                        onChange={(e) => setForm({ ...form, homocysteine: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">TSH (mIU/L)</span>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={form.tsh}
+                        onChange={(e) => setForm({ ...form, tsh: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">Ferritin (ng/mL)</span>
+                      <input
+                        type="number"
+                        value={form.ferritin}
+                        onChange={(e) => setForm({ ...form, ferritin: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">Vitamin B12 (pg/mL)</span>
+                      <input
+                        type="number"
+                        value={form.vitamin_b12}
+                        onChange={(e) => setForm({ ...form, vitamin_b12: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">Omega-3-Index (%)</span>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={form.omega3_index}
+                        onChange={(e) => setForm({ ...form, omega3_index: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Vitalwerte &amp; Sonstiges</p>
+                  <div className="mt-3 grid gap-4 md:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">Ruhepuls (bpm)</span>
+                      <input
+                        type="number"
+                        value={form.resting_heart_rate}
+                        onChange={(e) => setForm({ ...form, resting_heart_rate: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">Blutdruck systolisch (mmHg)</span>
+                      <input
+                        type="number"
+                        value={form.blood_pressure_systolic}
+                        onChange={(e) => setForm({ ...form, blood_pressure_systolic: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">Blutdruck diastolisch (mmHg)</span>
+                      <input
+                        type="number"
+                        value={form.blood_pressure_diastolic}
+                        onChange={(e) => setForm({ ...form, blood_pressure_diastolic: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">Taillenumfang (cm)</span>
+                      <input
+                        type="number"
+                        value={form.waist_circumference}
+                        onChange={(e) => setForm({ ...form, waist_circumference: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">Schlafdauer (h/Nacht)</span>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={form.sleep_hours}
+                        onChange={(e) => setForm({ ...form, sleep_hours: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm text-neutral-700">Griffkraft (kg)</span>
+                      <input
+                        type="number"
+                        value={form.grip_strength}
+                        onChange={(e) => setForm({ ...form, grip_strength: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="mt-6 rounded-xl border border-neutral-200 bg-[#F5EFE1] p-4">
               <p className="text-sm font-semibold text-neutral-800">Familienkontext (optional)</p>
