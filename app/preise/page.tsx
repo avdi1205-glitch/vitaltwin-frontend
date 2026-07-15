@@ -10,7 +10,9 @@ export default function Preise() {
   const [premiumMessage, setPremiumMessage] = useState('');
   const [premiumLoading, setPremiumLoading] = useState(false);
   const premiumPriceDisplay = process.env.NEXT_PUBLIC_PREMIUM_PRICE_DISPLAY?.trim() || '9,90 €/Monat';
-  const premiumCheckoutEnabled = process.env.NEXT_PUBLIC_ENABLE_PREMIUM_CHECKOUT === 'true';
+  // Premium checkout is enabled by default now that Stripe live payments are wired up and tested.
+  // Set NEXT_PUBLIC_ENABLE_PREMIUM_CHECKOUT=false explicitly to hide it again (e.g. to pause sales).
+  const premiumCheckoutEnabled = process.env.NEXT_PUBLIC_ENABLE_PREMIUM_CHECKOUT !== 'false';
 
   const extractErrorMessage = (data: unknown): string => {
     if (!data || typeof data !== 'object') {
