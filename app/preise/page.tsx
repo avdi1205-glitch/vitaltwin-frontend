@@ -9,6 +9,9 @@ export default function Preise() {
   const [confirmCheckout, setConfirmCheckout] = useState(false);
   const [checkoutMessage, setCheckoutMessage] = useState('');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [premiumMessage, setPremiumMessage] = useState('');
+  const [premiumLoading, setPremiumLoading] = useState(false);
+  const premiumPriceDisplay = process.env.NEXT_PUBLIC_PREMIUM_PRICE_DISPLAY?.trim() || '9,90 €/Monat';
 
   const extractErrorMessage = (data: unknown): string => {
     if (!data || typeof data !== 'object') {
@@ -70,6 +73,42 @@ export default function Preise() {
     }
   };
 
+  const startPremiumCheckout = async () => {
+    setPremiumMessage('');
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/?auth=register&premium=1');
+      return;
+    }
+
+    const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID?.trim();
+    if (!priceId) {
+      setPremiumMessage('Premium-Kauf ist noch nicht konfiguriert. Bitte später erneut versuchen.');
+      return;
+    }
+
+    setPremiumLoading(true);
+    try {
+      const res = await fetch(apiUrl('/api/payments/create-checkout'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ price_id: priceId, token }),
+      });
+
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.url) {
+        setPremiumMessage(extractErrorMessage(data));
+        return;
+      }
+
+      window.location.href = data.url;
+    } catch {
+      setPremiumMessage('Checkout gerade nicht erreichbar. Bitte später erneut versuchen.');
+    } finally {
+      setPremiumLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F5EFE1] text-neutral-900 py-20 px-8">
       <div className="max-w-5xl mx-auto text-center">
@@ -77,7 +116,7 @@ export default function Preise() {
         <p className="text-xl text-neutral-600 mb-4">Beta-Test ohne Kostenfalle: erst testen, Feedback geben, dann in Ruhe entscheiden</p>
         <p className="text-sm text-neutral-500 mb-16">Keine automatische Abbuchung im Beta-Test. Keine Kreditkarte nötig für den Einstieg.</p>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           <div className="bg-white border border-neutral-200 p-10 rounded-3xl">
             <h2 className="text-3xl font-semibold mb-2">Free</h2>
             <p className="text-6xl font-bold mb-8">0 €</p>
@@ -135,6 +174,26 @@ export default function Preise() {
                 <li>3. Oder jederzeit ohne Verlängerung beenden</li>
               </ul>
             </div>
+          </div>
+
+          <div className="bg-white border border-neutral-200 p-10 rounded-3xl">
+            <h2 className="text-3xl font-semibold mb-2">Premium</h2>
+            <p className="text-4xl font-bold mb-8">{premiumPriceDisplay}</p>
+            <ul className="text-left space-y-4 mb-12">
+              <li>✓ Vollständiger Digital Twin</li>
+              <li>✓ Unbegrenzte Simulationen</li>
+              <li>✓ Verlauf &amp; Detailquellen</li>
+              <li>✓ Jederzeit kündbar</li>
+            </ul>
+            <button
+              onClick={startPremiumCheckout}
+              disabled={premiumLoading}
+              className="w-full border border-neutral-900 py-4 rounded-2xl font-semibold text-lg transition hover:bg-neutral-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {premiumLoading ? 'Leite weiter...' : 'Jetzt Premium sichern'}
+            </button>
+            {premiumMessage && <p className="mt-3 text-sm text-red-600">{premiumMessage}</p>}
+            <p className="mt-4 text-xs text-neutral-500">Sichere Zahlung über Stripe. Widerrufsrecht siehe unten.</p>
           </div>
         </div>
       </div>
