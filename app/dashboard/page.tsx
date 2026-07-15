@@ -360,9 +360,9 @@ export default function Dashboard() {
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-neutral-500">VitalTwin Intelligence</p>
-              <h1 className="mt-2 font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-5xl">Dein Gesundheits-Cockpit</h1>
+              <h1 className="mt-2 font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-5xl">Dein digitaler Gesundheits-Zwilling</h1>
               <p className="mt-3 text-neutral-700">
-                Willkommen{profile?.full_name ? `, ${profile.full_name}` : ''}. Führe neue Berechnungen aus und optimiere deinen Twin Schritt für Schritt.
+                Willkommen{profile?.full_name ? `, ${profile.full_name}` : ''}. Führe neue Berechnungen aus und optimiere deinen Zwilling Schritt für Schritt.
               </p>
             </div>
 

@@ -71,12 +71,12 @@ export default function HomeLanding({
                 VitalTwin Plattform
               </p>
               <h1 className="mt-6 font-[family-name:var(--font-serif-display)] text-4xl font-semibold leading-[1.1] md:text-6xl">
-                3 Minuten Eingabe. Eine klare Wellness-Auswertung für Vielbeschäftigte.
+                3 Minuten Eingabe. Dein digitaler Gesundheits-Zwilling für Vielbeschäftigte.
               </h1>
               <p className="mt-6 text-lg text-neutral-700 md:text-xl">
-                VitalTwin ordnet deine Biomarker ein, zeigt dein biologisches Alter im Vergleich zu heute und optimierten
-                Szenarien &mdash; kompakt genug für den Kalender eines Managers, tief genug für alle, die ihre Werte wirklich
-                verstehen wollen.
+                VitalTwin baut aus deinen Biomarkern einen digitalen Zwilling deiner Gesundheit, zeigt dein biologisches
+                Alter im Vergleich zu heute und optimierten Szenarien &mdash; kompakt genug für den Kalender eines Managers,
+                tief genug für alle, die ihre Werte wirklich verstehen wollen.
               </p>
               <p className="mt-4 text-sm text-neutral-500">
                 &mdash; Avdi Morina, Gründer VitalTwin
