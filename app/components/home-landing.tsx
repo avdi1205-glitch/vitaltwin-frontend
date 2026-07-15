@@ -71,12 +71,12 @@ export default function HomeLanding({
                 VitalTwin Plattform
               </p>
               <h1 className="mt-6 font-[family-name:var(--font-serif-display)] text-4xl font-semibold leading-[1.1] md:text-6xl">
-                3 Minuten Eingabe. Dein digitaler Gesundheits-Zwilling für Vielbeschäftigte.
+                3 Minuten Eingabe. Dein digitaler Gesundheits-Zwilling für ein längeres, besseres Leben.
               </h1>
               <p className="mt-6 text-lg text-neutral-700 md:text-xl">
                 VitalTwin baut aus deinen Biomarkern einen digitalen Zwilling deiner Gesundheit, zeigt dein biologisches
-                Alter im Vergleich zu heute und optimierten Szenarien &mdash; kompakt genug für den Kalender eines Managers,
-                tief genug für alle, die ihre Werte wirklich verstehen wollen.
+                Alter im Vergleich zu heute und optimierten Szenarien &mdash; für alle, die ihre Werte wirklich verstehen und
+                gezielt etwas verändern wollen.
               </p>
               <p className="mt-4 text-sm text-neutral-500">
                 &mdash; Avdi Morina, Gründer VitalTwin
@@ -131,25 +131,34 @@ export default function HomeLanding({
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
         <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">Für wen VitalTwin gemacht ist</h2>
         <p className="mt-3 max-w-2xl text-neutral-700">
-          Kein Wellness-Tool für alle &mdash; sondern für drei ganz konkrete Situationen.
+          Für alle, die wissen wollen, wo sie gesundheitlich stehen &mdash; besonders wertvoll zwischen 35 und 55, wenn
+          Vorsorge den größten Unterschied macht.
         </p>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <article className="rounded-3xl border border-neutral-900 bg-white p-7">
+            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Kernzielgruppe</p>
+            <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Gesundheitsbewusste 35&ndash;55</h3>
+            <p className="mt-3 text-neutral-700">
+              Du willst schwarz auf weiß sehen, wo du stehst und was wirklich wirkt &mdash; unabhängig von Beruf oder
+              Fitnesslevel.
+            </p>
+          </article>
           <article className="rounded-3xl border border-neutral-200 bg-white p-7">
-            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Für Vielbeschäftigte</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Auch ideal für Vielbeschäftigte</p>
             <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Manager &amp; Entscheider</h3>
             <p className="mt-3 text-neutral-700">
               Wenig Zeit, klare Kennzahlen: 3 Minuten Eingabe, ein kompakter Überblick statt endloser Wellness-Ratgeber.
             </p>
           </article>
           <article className="rounded-3xl border border-neutral-200 bg-white p-7">
-            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Für Selbstoptimierer</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Auch ideal für Selbstoptimierer</p>
             <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Biohacker</h3>
             <p className="mt-3 text-neutral-700">
               Marker-Rohdaten, Zielbereiche und Quellen direkt einsehbar &mdash; keine verwässerten Pauschalaussagen.
             </p>
           </article>
           <article className="rounded-3xl border border-neutral-200 bg-white p-7">
-            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Für vorsorgeorientierte Menschen</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Auch ideal für vorsorgeorientierte Menschen</p>
             <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Familienkontext</h3>
             <p className="mt-3 text-neutral-700">
               Gib optional an, welche Themen in deiner Familie eine Rolle spielen &mdash; deine Wellness-Empfehlungen werden
