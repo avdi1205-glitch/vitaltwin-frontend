@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { apiUrl } from '@/lib/api';
@@ -342,7 +343,9 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               {loading ? 'Anmeldung läuft...' : 'Jetzt anmelden'}
             </button>
             <p className="text-right text-sm text-slate-400">
-              Passwort vergessen? <a href="mailto:info@vitaltwin.de" className="text-cyan-300 hover:underline">Support kontaktieren</a>
+              <Link href="/passwort-vergessen" className="text-cyan-300 hover:underline">
+                Passwort vergessen?
+              </Link>
             </p>
           </form>
         )}
@@ -360,7 +363,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
         )}
 
         <p className="mt-5 text-center text-xs text-slate-400">
-          Schneller Zugang ohne Seitenwechsel. Passwort ändern kannst du jederzeit eingeloggt im Dashboard.
+          Schneller Zugang ohne Seitenwechsel. Passwort ändern kannst du jederzeit eingeloggt im Dashboard oder über <Link href="/passwort-vergessen" className="text-cyan-300 hover:underline">Passwort vergessen</Link>.
         </p>
       </div>
     </div>
