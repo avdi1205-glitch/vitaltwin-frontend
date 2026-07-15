@@ -117,7 +117,7 @@ export default function Preise() {
         <p className="text-xl text-neutral-600 mb-4">Beta-Test ohne Kostenfalle: erst testen, Feedback geben, dann in Ruhe entscheiden</p>
         <p className="text-sm text-neutral-500 mb-16">Keine automatische Abbuchung im Beta-Test. Keine Kreditkarte nötig für den Einstieg.</p>
 
-        <div className={`grid gap-8 mx-auto ${premiumCheckoutEnabled ? 'md:grid-cols-3 max-w-5xl' : 'md:grid-cols-2 max-w-4xl'}`}>
+        <div className="grid gap-8 mx-auto md:grid-cols-3 max-w-5xl">
           <div className="bg-white border border-neutral-200 p-10 rounded-3xl">
             <h2 className="text-3xl font-semibold mb-2">Free</h2>
             <p className="text-6xl font-bold mb-8">0 €</p>
@@ -177,27 +177,36 @@ export default function Preise() {
             </div>
           </div>
 
-          {premiumCheckoutEnabled && (
-            <div className="bg-white border border-neutral-200 p-10 rounded-3xl">
-              <h2 className="text-3xl font-semibold mb-2">Premium</h2>
-              <p className="text-4xl font-bold mb-8">{premiumPriceDisplay}</p>
-              <ul className="text-left space-y-4 mb-12">
-                <li>✓ Vollständiger Digital Twin</li>
-                <li>✓ Unbegrenzte Simulationen</li>
-                <li>✓ Verlauf &amp; Detailquellen</li>
-                <li>✓ Jederzeit kündbar</li>
-              </ul>
-              <button
-                onClick={startPremiumCheckout}
-                disabled={premiumLoading}
-                className="w-full border border-neutral-900 py-4 rounded-2xl font-semibold text-lg transition hover:bg-neutral-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {premiumLoading ? 'Leite weiter...' : 'Jetzt Premium sichern'}
-              </button>
-              {premiumMessage && <p className="mt-3 text-sm text-red-600">{premiumMessage}</p>}
-              <p className="mt-4 text-xs text-neutral-500">Sichere Zahlung über Stripe. Widerrufsrecht siehe unten.</p>
-            </div>
-          )}
+          <div className="bg-white border border-neutral-200 p-10 rounded-3xl">
+            <h2 className="text-3xl font-semibold mb-2">Premium</h2>
+            <p className="text-4xl font-bold mb-8">{premiumPriceDisplay}</p>
+            <ul className="text-left space-y-4 mb-12">
+              <li>✓ Vollständiger Digital Twin</li>
+              <li>✓ Unbegrenzte Simulationen</li>
+              <li>✓ Verlauf &amp; Detailquellen</li>
+              <li>✓ Jederzeit kündbar</li>
+            </ul>
+            {premiumCheckoutEnabled ? (
+              <>
+                <button
+                  onClick={startPremiumCheckout}
+                  disabled={premiumLoading}
+                  className="w-full border border-neutral-900 py-4 rounded-2xl font-semibold text-lg transition hover:bg-neutral-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {premiumLoading ? 'Leite weiter...' : 'Jetzt Premium sichern'}
+                </button>
+                {premiumMessage && <p className="mt-3 text-sm text-red-600">{premiumMessage}</p>}
+                <p className="mt-4 text-xs text-neutral-500">Sichere Zahlung über Stripe. Widerrufsrecht siehe unten.</p>
+              </>
+            ) : (
+              <>
+                <div className="w-full rounded-2xl border border-dashed border-neutral-300 bg-[#F5EFE1] py-4 text-center text-sm font-semibold text-neutral-600">
+                  Verfügbar nach der Beta
+                </div>
+                <p className="mt-4 text-xs text-neutral-500">Während der Beta kostenlos über den Beta-Zugang nutzbar. Kein Kauf nötig.</p>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
