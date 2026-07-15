@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import HomeAuthModal from './home-auth-modal';
 
 type AuthMode = 'login' | 'register' | null;
@@ -21,6 +21,16 @@ export default function HomeLanding({
   const [authMode, setAuthMode] = useState<AuthMode>(initialAuthMode);
   const [notice, setNotice] = useState(initialNotice);
   const router = useRouter();
+
+  useEffect(() => {
+    // Supabase password-recovery links always redirect to the configured Site URL
+    // (this homepage) with the tokens in the URL hash, regardless of the requested
+    // redirect_to path. Forward recovery links to the page that can consume them.
+    const hash = window.location.hash;
+    if (hash.includes('type=recovery') && hash.includes('access_token=')) {
+      router.replace(`/passwort-bestaetigen${hash}`);
+    }
+  }, [router]);
 
   const openAuth = (mode: Exclude<AuthMode, null>) => {
     setNotice('');
