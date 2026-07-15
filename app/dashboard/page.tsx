@@ -903,7 +903,7 @@ export default function Dashboard() {
 
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-neutral-200 pt-6 text-sm text-neutral-500">
           <p>VitalTwin DE Dashboard</p>
-          <div className="flex items-center gap-5">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link href="/preise" className="transition hover:text-black">Preise</Link>
             <Link href="/impressum" className="transition hover:text-black">Impressum</Link>
             <Link href="/datenschutz" className="transition hover:text-black">Datenschutz</Link>
