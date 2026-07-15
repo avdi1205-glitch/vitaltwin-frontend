@@ -18,6 +18,7 @@ type TwinResponse = {
   };
   marker_references?: MarkerReference[];
   empfehlungen: string[];
+  familienkontext_hinweis?: string | null;
 };
 
 type MarkerReference = {
@@ -65,6 +66,7 @@ export default function Dashboard() {
     vitamin_d: 55,
     apob: 65,
   });
+  const [familyContext, setFamilyContext] = useState<string[]>([]);
   const [twin, setTwin] = useState<TwinResponse | null>(null);
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -195,7 +197,7 @@ export default function Dashboard() {
       const res = await fetch(apiUrl('/api/twin/calculate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, token }),
+        body: JSON.stringify({ ...form, family_context: familyContext, token }),
       });
 
       const data = (await res.json().catch(() => null)) as TwinResponse | { detail?: string } | null;
@@ -222,7 +224,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, [fetchHistory, form, profile]);
+  }, [familyContext, fetchHistory, form, profile]);
 
   useEffect(() => {
     if (loadingProfile || loadingHistory || autoStarterTriggeredRef.current) {
@@ -332,7 +334,7 @@ export default function Dashboard() {
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-cyan-300/90">VitalTwin Intelligence</p>
-              <h1 className="mt-2 text-3xl font-bold md:text-5xl">Dein Gesundheits-Cockpit</h1>
+              <h1 className="mt-2 font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-5xl">Dein Gesundheits-Cockpit</h1>
               <p className="mt-3 text-slate-300">
                 Willkommen{profile?.full_name ? `, ${profile.full_name}` : ''}. Führe neue Berechnungen aus und optimiere deinen Twin Schritt für Schritt.
               </p>
@@ -420,7 +422,7 @@ export default function Dashboard() {
         <section className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7">
             <div className="mb-6">
-              <h2 className="text-2xl font-semibold text-white">Marker-Eingabe</h2>
+              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-white">Marker-Eingabe</h2>
               <p className="mt-2 text-sm text-slate-400">Aktualisiere deine Biomarker und starte eine neue Twin-Berechnung.</p>
             </div>
 
@@ -485,6 +487,41 @@ export default function Dashboard() {
               </label>
             </div>
 
+            <div className="mt-6 rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+              <p className="text-sm font-semibold text-slate-200">Familienkontext (optional)</p>
+              <p className="mt-1 text-xs text-slate-400">
+                Rein für die Priorisierung deiner Wellness-Empfehlungen &mdash; keine Diagnose, keine Risikoeinstufung.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-200">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={familyContext.includes('herz_kreislauf')}
+                    onChange={(e) =>
+                      setFamilyContext((current) =>
+                        e.target.checked ? [...current, 'herz_kreislauf'] : current.filter((item) => item !== 'herz_kreislauf'),
+                      )
+                    }
+                    className="h-4 w-4 rounded border-slate-600 bg-slate-800 accent-cyan-500"
+                  />
+                  Herz-Kreislauf in der Familie
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={familyContext.includes('stoffwechsel')}
+                    onChange={(e) =>
+                      setFamilyContext((current) =>
+                        e.target.checked ? [...current, 'stoffwechsel'] : current.filter((item) => item !== 'stoffwechsel'),
+                      )
+                    }
+                    className="h-4 w-4 rounded border-slate-600 bg-slate-800 accent-cyan-500"
+                  />
+                  Stoffwechsel/Diabetes in der Familie
+                </label>
+              </div>
+            </div>
+
             <button
               onClick={calculate}
               disabled={loading || loadingProfile || !profile || (!profile.premium && profile.starter_calc_remaining === 0)}
@@ -510,7 +547,7 @@ export default function Dashboard() {
 
           <div className="space-y-6">
             <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7">
-              <h2 className="text-2xl font-semibold">Analyse</h2>
+              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold">Analyse</h2>
               <p className="mt-2 text-sm text-slate-400">Deine aktuelle Auswertung inklusive Vergleichsszenarien.</p>
 
               {!displayedTwin && (
@@ -523,7 +560,22 @@ export default function Dashboard() {
 
               {displayedTwin && (
                 <>
-                  <p className="mt-6 text-5xl font-bold text-cyan-300">{displayedTwin.biologisches_alter} Jahre</p>
+                  <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-cyan-500/5 p-5">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Auf einen Blick</p>
+                    <ul className="mt-3 space-y-2 text-sm text-slate-200">
+                      {displayedTwin.empfehlungen.slice(0, 3).map((item) => (
+                        <li key={item} className="flex gap-2">
+                          <span className="text-cyan-300">&bull;</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    {displayedTwin.familienkontext_hinweis && (
+                      <p className="mt-3 text-xs text-cyan-200/80">{displayedTwin.familienkontext_hinweis}</p>
+                    )}
+                  </div>
+
+                  <p className="mt-6 font-[family-name:var(--font-serif-display)] text-5xl font-semibold text-cyan-300">{displayedTwin.biologisches_alter} Jahre</p>
                   <p className="mt-2 text-slate-300">Abweichung vom chronologischen Alter: {displayedTwin.differenz > 0 ? '+' : ''}{displayedTwin.differenz} Jahre</p>
 
                   <div className="mt-6 grid grid-cols-3 gap-3 text-center text-sm">

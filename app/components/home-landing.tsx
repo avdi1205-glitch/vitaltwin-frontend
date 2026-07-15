@@ -65,81 +65,125 @@ export default function HomeLanding({
 
       <section className="relative overflow-hidden border-b border-slate-800/80">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.22),_transparent_55%)]" />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
+        />
         <div className="relative mx-auto max-w-6xl px-6 py-20 md:py-28">
-          <div className="max-w-3xl">
-            <p className="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-4 py-1 text-xs font-semibold tracking-widest text-cyan-200 uppercase">
-              VitalTwin Plattform
-            </p>
-            <h1 className="mt-6 text-4xl font-bold leading-tight md:text-6xl">
-              Dein digitaler Gesundheits-Zwilling für ein längeres, besseres Leben.
-            </h1>
-            <p className="mt-6 text-lg text-slate-300 md:text-xl">
-              VitalTwin analysiert deine Biomarker, berechnet dein biologisches Alter und zeigt dir klare,
-              personalisierte Schritte zur Gesundheitsoptimierung.
-            </p>
+          <div className="grid gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+            <div className="max-w-3xl">
+              <p className="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-4 py-1 text-xs font-semibold tracking-widest text-cyan-200 uppercase">
+                VitalTwin Plattform
+              </p>
+              <h1 className="mt-6 font-[family-name:var(--font-serif-display)] text-4xl font-semibold leading-[1.1] md:text-6xl">
+                3 Minuten Eingabe. Eine klare Wellness-Auswertung für Vielbeschäftigte.
+              </h1>
+              <p className="mt-6 text-lg text-slate-300 md:text-xl">
+                VitalTwin ordnet deine Biomarker ein, zeigt dein biologisches Alter im Vergleich zu heute und optimierten
+                Szenarien &mdash; kompakt genug für den Kalender eines Managers, tief genug für alle, die ihre Werte wirklich
+                verstehen wollen.
+              </p>
+              <p className="mt-4 text-sm text-slate-400">
+                &mdash; Avdi Morina, Gründer VitalTwin
+              </p>
 
-            <div className="mt-10 flex flex-wrap gap-4">
-              <button
-                onClick={() => openAuth('register')}
-                className="rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-4 text-base font-semibold text-white transition hover:opacity-90"
-              >
-                Jetzt zur Beta starten
-              </button>
-              <Link
-                href="/preise"
-                className="rounded-2xl border border-slate-600 bg-slate-900/60 px-8 py-4 text-base font-semibold text-slate-100 transition hover:border-cyan-300/50"
-              >
-                Preise ansehen
-              </Link>
-            </div>
-
-            <div className="mt-10 grid grid-cols-2 gap-4 text-sm text-slate-300 md:grid-cols-3">
-              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                <p className="text-2xl font-bold text-white">3 Min</p>
-                <p>bis zur ersten Twin-Analyse</p>
-              </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                <p className="text-2xl font-bold text-white">100%</p>
-                <p>personalisierte Auswertung</p>
-              </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 col-span-2 md:col-span-1">
-                <p className="text-2xl font-bold text-white">Abo</p>
-                <p>skalierbares SaaS-Modell</p>
+              <div className="mt-10 flex flex-wrap gap-4">
+                <button
+                  onClick={() => openAuth('register')}
+                  className="rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-4 text-base font-semibold text-white transition hover:opacity-90"
+                >
+                  Jetzt zur Beta starten
+                </button>
+                <Link
+                  href="/preise"
+                  className="rounded-2xl border border-slate-600 bg-slate-900/60 px-8 py-4 text-base font-semibold text-slate-100 transition hover:border-cyan-300/50"
+                >
+                  Preise ansehen
+                </Link>
               </div>
             </div>
 
-            <div className="mt-8 grid gap-3 text-xs text-slate-300 sm:grid-cols-3">
-              <div className="rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2">
-                Evidenzbasierte Marker mit Quellen
+            <div className="grid gap-3 text-sm text-slate-300">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+                <p className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-white">3 Min</p>
+                <p className="mt-1">bis zur ersten Twin-Analyse</p>
               </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2">
-                Kein medizinisches Produkt, klarer Wellness-Fokus
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+                <p className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-white">100%</p>
+                <p className="mt-1">personalisierte Auswertung</p>
               </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2">
-                Für DACH optimiert, EU-Skalierung geplant
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+                <p className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-white">Abo</p>
+                <p className="mt-1">skalierbares SaaS-Modell</p>
               </div>
+            </div>
+          </div>
+
+          <div className="mt-10 grid gap-3 text-xs text-slate-300 sm:grid-cols-3">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2">
+              Evidenzbasierte Marker mit Quellen
+            </div>
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2">
+              Kein medizinisches Produkt, klarer Wellness-Fokus
+            </div>
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2">
+              Für DACH optimiert, EU-Skalierung geplant
             </div>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
-        <h2 className="text-3xl font-bold md:text-4xl">Warum VitalTwin</h2>
+        <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">Für wen VitalTwin gemacht ist</h2>
+        <p className="mt-3 max-w-2xl text-slate-300">
+          Kein Wellness-Tool für alle &mdash; sondern für drei ganz konkrete Situationen.
+        </p>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
-            <h3 className="text-xl font-semibold">Biologisches Alter statt Bauchgefühl</h3>
+            <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Für Vielbeschäftigte</p>
+            <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Manager &amp; Entscheider</h3>
+            <p className="mt-3 text-slate-300">
+              Wenig Zeit, klare Kennzahlen: 3 Minuten Eingabe, ein kompakter Überblick statt endloser Wellness-Ratgeber.
+            </p>
+          </article>
+          <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
+            <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Für Selbstoptimierer</p>
+            <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Biohacker</h3>
+            <p className="mt-3 text-slate-300">
+              Marker-Rohdaten, Zielbereiche und Quellen direkt einsehbar &mdash; keine verwässerten Pauschalaussagen.
+            </p>
+          </article>
+          <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
+            <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Für vorsorgeorientierte Menschen</p>
+            <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Familienkontext</h3>
+            <p className="mt-3 text-slate-300">
+              Gib optional an, welche Themen in deiner Familie eine Rolle spielen &mdash; deine Wellness-Empfehlungen werden
+              entsprechend priorisiert.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 pb-16 md:pb-24">
+        <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">Warum VitalTwin</h2>
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
+            <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold">Biologisches Alter statt Bauchgefühl</h3>
             <p className="mt-3 text-slate-300">
               Du siehst sofort, wie deine aktuellen Marker dein biologisches Alter beeinflussen.
             </p>
           </article>
           <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
-            <h3 className="text-xl font-semibold">Persönliche Szenarien</h3>
+            <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold">Persönliche Szenarien</h3>
             <p className="mt-3 text-slate-300">
               Vergleich von aktuell, optimiert und aggressiv, damit du die Hebel mit dem größten Effekt erkennst.
             </p>
           </article>
           <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
-            <h3 className="text-xl font-semibold">Skalierbar für Millionen Nutzer</h3>
+            <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold">Skalierbar für Millionen Nutzer</h3>
             <p className="mt-3 text-slate-300">
               Cloud-ready Architektur mit Subscription-Flow und API-gestützter Auswertung.
             </p>
@@ -149,7 +193,7 @@ export default function HomeLanding({
 
       <section className="border-y border-slate-800/80 bg-slate-900/40">
         <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
-          <h2 className="text-3xl font-bold md:text-4xl">So funktioniert es</h2>
+          <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">So funktioniert es</h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-6">
               <p className="text-cyan-300 font-semibold">01</p>
@@ -172,7 +216,7 @@ export default function HomeLanding({
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
         <div className="rounded-3xl border border-cyan-300/20 bg-gradient-to-r from-blue-600/30 to-cyan-500/20 p-8 md:p-12">
-          <h2 className="text-3xl font-bold md:text-4xl">Bereit für deinen VitalTwin?</h2>
+          <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">Bereit für deinen VitalTwin?</h2>
           <p className="mt-4 max-w-2xl text-slate-200">
             Starte heute mit deiner ersten Analyse und baue dir eine datenbasierte Gesundheitsstrategie auf.
           </p>
@@ -196,7 +240,7 @@ export default function HomeLanding({
       <section className="mx-auto max-w-6xl px-6 pb-20 md:pb-24">
         <div className="grid gap-8 lg:grid-cols-2">
           <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
-            <h3 className="text-2xl font-bold text-white">Häufige Fragen</h3>
+            <h3 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-white">Häufige Fragen</h3>
             <div className="mt-6 space-y-5 text-slate-200">
               <div>
                 <p className="font-semibold text-white">Ist VitalTwin ein medizinisches Produkt?</p>
@@ -214,7 +258,7 @@ export default function HomeLanding({
           </article>
 
           <article className="rounded-3xl border border-slate-800 bg-slate-900/60 p-7">
-            <h3 className="text-2xl font-bold text-white">Wie Premium funktioniert</h3>
+            <h3 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-white">Wie Premium funktioniert</h3>
             <ol className="mt-6 space-y-4 text-sm text-slate-200">
               <li className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3">
                 <span className="font-semibold text-cyan-300">1.</span> Kostenlos registrieren und erste Twin-Berechnung starten.
