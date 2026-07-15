@@ -284,6 +284,7 @@ export default function HomeLanding({
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-neutral-500">
           <p>VitalTwin DE</p>
           <div className="flex flex-wrap items-center gap-5">
+            <Link href="/beta-bewerbung" className="transition hover:text-black">Beta-Bewerbung</Link>
             <Link href="/preise" className="transition hover:text-black">Preise</Link>
             <Link href="/impressum" className="transition hover:text-black">Impressum</Link>
             <Link href="/datenschutz" className="transition hover:text-black">Datenschutz</Link>
