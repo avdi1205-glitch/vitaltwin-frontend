@@ -252,7 +252,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="rounded-xl border border-stone-600 bg-stone-800/80 px-3 py-2 text-sm font-semibold text-white transition hover:border-amber-400 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-xl border border-stone-600 bg-stone-800/80 px-3 py-2 text-sm font-semibold text-white transition hover:border-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={loading}
           >
             Mit Google
@@ -275,7 +275,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               setErrorMessage('');
               setInfoMessage('');
             }}
-            className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${tab === 'register' ? 'bg-amber-500 text-white' : 'text-stone-300 hover:text-white'}`}
+            className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${tab === 'register' ? 'bg-emerald-500 text-white' : 'text-stone-300 hover:text-white'}`}
           >
             Registrieren
           </button>
@@ -285,13 +285,13 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               setErrorMessage('');
               setInfoMessage('');
             }}
-            className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${tab === 'login' ? 'bg-amber-500 text-white' : 'text-stone-300 hover:text-white'}`}
+            className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${tab === 'login' ? 'bg-emerald-500 text-white' : 'text-stone-300 hover:text-white'}`}
           >
             Anmelden
           </button>
         </div>
 
-        <div className="mb-5 rounded-2xl border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+        <div className="mb-5 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
           Starter enthält genau 1 Berechnung. Für weitere Simulationen kannst du danach kostenlos als Beta-Tester freischalten (ohne automatische Abbuchung).
         </div>
 
@@ -326,19 +326,19 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
                 type="checkbox"
                 checked={acceptedTerms}
                 onChange={(e) => setAcceptedTerms(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-stone-600 bg-stone-800 accent-amber-500"
+                className="mt-0.5 h-4 w-4 rounded border-stone-600 bg-stone-800 accent-emerald-500"
                 required
               />
               <span>
                 Ich akzeptiere die{' '}
-                <Link href="/agb" target="_blank" className="text-amber-300 hover:underline">AGB</Link> und die{' '}
-                <Link href="/datenschutz" target="_blank" className="text-amber-300 hover:underline">Datenschutzerklärung</Link>.
+                <Link href="/agb" target="_blank" className="text-emerald-300 hover:underline">AGB</Link> und die{' '}
+                <Link href="/datenschutz" target="_blank" className="text-emerald-300 hover:underline">Datenschutzerklärung</Link>.
               </span>
             </label>
             <button
               type="submit"
               disabled={loading || !acceptedTerms}
-              className="w-full rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-70"
+              className="w-full rounded-2xl bg-gradient-to-r from-green-600 to-emerald-500 py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-70"
             >
               {loading ? 'Erstelle Konto...' : 'Konto erstellen'}
             </button>
@@ -364,12 +364,12 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-70"
+              className="w-full rounded-2xl bg-gradient-to-r from-green-600 to-emerald-500 py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-70"
             >
               {loading ? 'Anmeldung läuft...' : 'Jetzt anmelden'}
             </button>
             <p className="text-right text-sm text-stone-400">
-              <Link href="/passwort-vergessen" className="text-amber-300 hover:underline">
+              <Link href="/passwort-vergessen" className="text-emerald-300 hover:underline">
                 Passwort vergessen?
               </Link>
             </p>
@@ -389,7 +389,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
         )}
 
         <p className="mt-5 text-center text-xs text-stone-400">
-          Schneller Zugang ohne Seitenwechsel. Passwort ändern kannst du jederzeit eingeloggt im Dashboard oder über <Link href="/passwort-vergessen" className="text-amber-300 hover:underline">Passwort vergessen</Link>.
+          Schneller Zugang ohne Seitenwechsel. Passwort ändern kannst du jederzeit eingeloggt im Dashboard oder über <Link href="/passwort-vergessen" className="text-emerald-300 hover:underline">Passwort vergessen</Link>.
         </p>
       </div>
     </div>

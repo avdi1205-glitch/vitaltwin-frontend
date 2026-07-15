@@ -333,7 +333,7 @@ export default function Dashboard() {
         <header className="rounded-3xl border border-stone-800/80 bg-stone-900/60 p-6 shadow-xl shadow-black/30 md:p-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-amber-300/90">VitalTwin Intelligence</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-emerald-300/90">VitalTwin Intelligence</p>
               <h1 className="mt-2 font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-5xl">Dein Gesundheits-Cockpit</h1>
               <p className="mt-3 text-stone-300">
                 Willkommen{profile?.full_name ? `, ${profile.full_name}` : ''}. Führe neue Berechnungen aus und optimiere deinen Twin Schritt für Schritt.
@@ -341,20 +341,20 @@ export default function Dashboard() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <span className={`rounded-full px-4 py-1 text-sm font-semibold ${profile?.premium ? 'bg-emerald-500/20 text-emerald-200 ring-1 ring-emerald-300/30' : 'bg-orange-500/20 text-orange-200 ring-1 ring-orange-300/30'}`}>
+              <span className={`rounded-full px-4 py-1 text-sm font-semibold ${profile?.premium ? 'bg-emerald-500/20 text-emerald-200 ring-1 ring-emerald-300/30' : 'bg-green-500/20 text-green-200 ring-1 ring-green-300/30'}`}>
                 Plan: {profile?.premium ? 'Beta-Zugang' : 'Starter'}
               </span>
               {!profile?.premium && (
                 <button
                   onClick={() => router.push('/preise')}
-                  className="rounded-full bg-gradient-to-r from-amber-500 to-orange-600 px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+                  className="rounded-full bg-gradient-to-r from-emerald-500 to-green-600 px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"
                 >
                   Beta freischalten
                 </button>
               )}
               <button
                 onClick={() => router.push('/passwort-zuruecksetzen')}
-                className="rounded-full border border-stone-600 px-5 py-2 text-sm font-semibold text-stone-200 transition hover:border-amber-300/50"
+                className="rounded-full border border-stone-600 px-5 py-2 text-sm font-semibold text-stone-200 transition hover:border-emerald-300/50"
               >
                 Passwort ändern
               </button>
@@ -368,7 +368,7 @@ export default function Dashboard() {
           </div>
         </header>
 
-        <div className="mt-6 rounded-2xl border border-amber-400/30 bg-amber-500/10 px-5 py-4 text-sm text-amber-100">
+        <div className="mt-6 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-100">
           Dieses Dashboard ist ein Wellness-Tool zur Gesundheitsorientierung und kein medizinisches Produkt. Die Ergebnisse ersetzen keine ärztliche Diagnose oder Therapie.
         </div>
 
@@ -393,18 +393,18 @@ export default function Dashboard() {
           </article>
           <article className="rounded-2xl border border-stone-800 bg-stone-900/60 p-5">
             <p className="text-sm text-stone-400">Biologisches Alter</p>
-            <p className="mt-2 text-2xl font-bold text-amber-300">{displayedTwin ? `${displayedTwin.biologisches_alter} Jahre` : 'Noch keine Berechnung'}</p>
+            <p className="mt-2 text-2xl font-bold text-emerald-300">{displayedTwin ? `${displayedTwin.biologisches_alter} Jahre` : 'Noch keine Berechnung'}</p>
           </article>
           <article className="rounded-2xl border border-stone-800 bg-stone-900/60 p-5">
             <p className="text-sm text-stone-400">Differenz</p>
-            <p className={`mt-2 text-2xl font-bold ${displayedTwin && displayedTwin.differenz <= 0 ? 'text-emerald-300' : 'text-amber-200'}`}>
+            <p className={`mt-2 text-2xl font-bold ${displayedTwin && displayedTwin.differenz <= 0 ? 'text-emerald-300' : 'text-emerald-200'}`}>
               {displayedTwin ? `${displayedTwin.differenz > 0 ? '+' : ''}${displayedTwin.differenz} Jahre` : '-'}
             </p>
           </article>
         </section>
 
         {!loadingProfile && !profile?.premium && (
-          <div className="mt-3 rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+          <div className="mt-3 rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
             {profile?.starter_calc_remaining === 0
               ? 'Starter-Limit: 1 von 1 Berechnung wurde bereits genutzt.'
               : 'Starter-Limit: Du hast genau 1 von 1 Berechnung verfügbar.'}
@@ -412,7 +412,7 @@ export default function Dashboard() {
         )}
 
         {!loadingProfile && !profile?.premium && (
-          <div className="mt-6 rounded-2xl border border-orange-400/30 bg-orange-500/10 px-5 py-4 text-sm text-orange-100">
+          <div className="mt-6 rounded-2xl border border-green-400/30 bg-green-500/10 px-5 py-4 text-sm text-green-100">
             {profile?.starter_calc_remaining === 0
               ? 'Deine einmalige Starter-Berechnung wurde bereits genutzt. Für weitere Berechnungen, Verlauf und Detailquellen aktiviere den Beta-Zugang.'
               : 'Starter enthält eine einmalige Twin-Berechnung mit Basis-Empfehlungen. Für Verlauf, Detailquellen und unbegrenzte Simulationen aktiviere den Beta-Zugang.'}
@@ -433,7 +433,7 @@ export default function Dashboard() {
                   type="number"
                   value={form.age}
                   onChange={(e) => setForm({ ...form, age: Number(e.target.value) })}
-                  className="w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-amber-400 focus:outline-none"
+                  className="w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none"
                 />
               </label>
               <label className="block">
@@ -441,7 +441,7 @@ export default function Dashboard() {
                 <select
                   value={form.gender}
                   onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                  className="w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-amber-400 focus:outline-none"
+                  className="w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none"
                 >
                   <option value="männlich">Männlich</option>
                   <option value="weiblich">Weiblich</option>
@@ -454,7 +454,7 @@ export default function Dashboard() {
                   step="0.1"
                   value={form.hba1c}
                   onChange={(e) => setForm({ ...form, hba1c: Number(e.target.value) })}
-                  className="w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-amber-400 focus:outline-none"
+                  className="w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none"
                 />
               </label>
               <label className="block">
@@ -464,7 +464,7 @@ export default function Dashboard() {
                   step="0.1"
                   value={form.crp}
                   onChange={(e) => setForm({ ...form, crp: Number(e.target.value) })}
-                  className="w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-amber-400 focus:outline-none"
+                  className="w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none"
                 />
               </label>
               <label className="block">
@@ -473,7 +473,7 @@ export default function Dashboard() {
                   type="number"
                   value={form.vitamin_d}
                   onChange={(e) => setForm({ ...form, vitamin_d: Number(e.target.value) })}
-                  className="w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-amber-400 focus:outline-none"
+                  className="w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none"
                 />
               </label>
               <label className="block">
@@ -482,7 +482,7 @@ export default function Dashboard() {
                   type="number"
                   value={form.apob}
                   onChange={(e) => setForm({ ...form, apob: Number(e.target.value) })}
-                  className="w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-amber-400 focus:outline-none"
+                  className="w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none"
                 />
               </label>
             </div>
@@ -502,7 +502,7 @@ export default function Dashboard() {
                         e.target.checked ? [...current, 'herz_kreislauf'] : current.filter((item) => item !== 'herz_kreislauf'),
                       )
                     }
-                    className="h-4 w-4 rounded border-stone-600 bg-stone-800 accent-amber-500"
+                    className="h-4 w-4 rounded border-stone-600 bg-stone-800 accent-emerald-500"
                   />
                   Herz-Kreislauf in der Familie
                 </label>
@@ -515,7 +515,7 @@ export default function Dashboard() {
                         e.target.checked ? [...current, 'stoffwechsel'] : current.filter((item) => item !== 'stoffwechsel'),
                       )
                     }
-                    className="h-4 w-4 rounded border-stone-600 bg-stone-800 accent-amber-500"
+                    className="h-4 w-4 rounded border-stone-600 bg-stone-800 accent-emerald-500"
                   />
                   Stoffwechsel/Diabetes in der Familie
                 </label>
@@ -525,7 +525,7 @@ export default function Dashboard() {
             <button
               onClick={calculate}
               disabled={loading || loadingProfile || !profile || (!profile.premium && profile.starter_calc_remaining === 0)}
-              className="mt-6 w-full rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 py-4 text-lg font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-6 w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 py-4 text-lg font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {loading
                 ? 'Berechne Twin...'
@@ -537,7 +537,7 @@ export default function Dashboard() {
             </button>
 
             {!loadingProfile && !profile?.premium && profile?.starter_calc_remaining === 1 && (
-              <p className="mt-3 text-sm text-amber-200">Hinweis: Im Starter ist genau eine Berechnung möglich.</p>
+              <p className="mt-3 text-sm text-emerald-200">Hinweis: Im Starter ist genau eine Berechnung möglich.</p>
             )}
 
             {displayedTwin?.methodik && (
@@ -560,22 +560,22 @@ export default function Dashboard() {
 
               {displayedTwin && (
                 <>
-                  <div className="mt-6 rounded-2xl border border-amber-400/20 bg-amber-500/5 p-5">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-amber-300">Auf einen Blick</p>
+                  <div className="mt-6 rounded-2xl border border-emerald-400/20 bg-emerald-500/5 p-5">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">Auf einen Blick</p>
                     <ul className="mt-3 space-y-2 text-sm text-stone-200">
                       {displayedTwin.empfehlungen.slice(0, 3).map((item) => (
                         <li key={item} className="flex gap-2">
-                          <span className="text-amber-300">&bull;</span>
+                          <span className="text-emerald-300">&bull;</span>
                           <span>{item}</span>
                         </li>
                       ))}
                     </ul>
                     {displayedTwin.familienkontext_hinweis && (
-                      <p className="mt-3 text-xs text-amber-200/80">{displayedTwin.familienkontext_hinweis}</p>
+                      <p className="mt-3 text-xs text-emerald-200/80">{displayedTwin.familienkontext_hinweis}</p>
                     )}
                   </div>
 
-                  <p className="mt-6 font-[family-name:var(--font-serif-display)] text-5xl font-semibold text-amber-300">{displayedTwin.biologisches_alter} Jahre</p>
+                  <p className="mt-6 font-[family-name:var(--font-serif-display)] text-5xl font-semibold text-emerald-300">{displayedTwin.biologisches_alter} Jahre</p>
                   <p className="mt-2 text-stone-300">Abweichung vom chronologischen Alter: {displayedTwin.differenz > 0 ? '+' : ''}{displayedTwin.differenz} Jahre</p>
 
                   <div className="mt-6 grid grid-cols-3 gap-3 text-center text-sm">
@@ -589,7 +589,7 @@ export default function Dashboard() {
                     </div>
                     <div className="rounded-xl border border-stone-800 bg-stone-950/70 p-3">
                       <p className="text-stone-400">Aggressiv</p>
-                      <p className="mt-1 text-lg font-semibold text-amber-300">{displayedTwin.scenarios.aggressiv}</p>
+                      <p className="mt-1 text-lg font-semibold text-emerald-300">{displayedTwin.scenarios.aggressiv}</p>
                     </div>
                   </div>
                 </>
@@ -616,7 +616,7 @@ export default function Dashboard() {
               <p className="mt-2 text-sm text-stone-400">Transparente Referenzbereiche aus veröffentlichten Leitlinien und Fachquellen.</p>
 
               {!loadingProfile && !profile?.premium && (
-                <p className="mt-4 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-3 text-orange-100">
+                <p className="mt-4 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-green-100">
                   Detailquellen sind im Beta-Zugang verfügbar.
                 </p>
               )}
@@ -631,11 +631,11 @@ export default function Dashboard() {
                 <div className="mt-4 space-y-3">
                   {displayedTwin.marker_references.map((ref) => (
                     <div key={ref.marker} className="rounded-xl border border-stone-800 bg-stone-950/60 px-4 py-3">
-                      <p className="text-sm font-semibold text-amber-300">
+                      <p className="text-sm font-semibold text-emerald-300">
                         {ref.marker.toUpperCase()} · Zielbereich {ref.target_min ?? '-'} bis {ref.target_max ?? '-'} {ref.unit}
                       </p>
                       <p className="mt-1 text-xs text-stone-300">Population: {ref.population_note} · Evidenz: {ref.evidence_level}</p>
-                      <a href={ref.source_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs text-orange-300 hover:underline">
+                      <a href={ref.source_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs text-green-300 hover:underline">
                         Quelle: {ref.source_name}
                       </a>
                     </div>
@@ -649,7 +649,7 @@ export default function Dashboard() {
               <p className="mt-2 text-sm text-stone-400">Deine letzten gespeicherten Berechnungen.</p>
 
               {!loadingProfile && !profile?.premium && (
-                <p className="mt-4 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-3 text-orange-100">
+                <p className="mt-4 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-green-100">
                   Verlaufsansicht ist im Beta-Zugang freigeschaltet.
                 </p>
               )}
@@ -670,7 +670,7 @@ export default function Dashboard() {
                         <span>{new Date(item.created_at).toLocaleString('de-DE')}</span>
                         <span>{item.differenz > 0 ? '+' : ''}{item.differenz} Jahre</span>
                       </div>
-                      <p className="mt-1 text-lg font-semibold text-amber-300">Biologisches Alter: {item.biologisches_alter} Jahre</p>
+                      <p className="mt-1 text-lg font-semibold text-emerald-300">Biologisches Alter: {item.biologisches_alter} Jahre</p>
                       <p className="mt-1 text-xs text-stone-400">HbA1c {item.hba1c} • CRP {item.crp} • Vitamin D {item.vitamin_d} • ApoB {item.apob}</p>
                     </div>
                   ))}
@@ -689,7 +689,7 @@ export default function Dashboard() {
                 <select
                   value={feedbackScore}
                   onChange={(e) => setFeedbackScore(Number(e.target.value))}
-                  className="rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-amber-400 focus:outline-none"
+                  className="rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none"
                 >
                   <option value={5}>5 - Sehr gut</option>
                   <option value={4}>4 - Gut</option>
@@ -704,14 +704,14 @@ export default function Dashboard() {
                 onChange={(e) => setFeedbackText(e.target.value)}
                 rows={4}
                 placeholder="Z. B. 'Simulation ist stark, aber ich wünsche mir mehr Erklärung zu Marker X.'"
-                className="mt-4 w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white placeholder:text-stone-500 focus:border-amber-400 focus:outline-none"
+                className="mt-4 w-full rounded-xl border border-stone-700 bg-stone-800/90 px-4 py-3 text-white placeholder:text-stone-500 focus:border-emerald-400 focus:outline-none"
               />
 
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <button
                   onClick={submitFeedback}
                   disabled={sendingFeedback}
-                  className="rounded-xl bg-amber-500 px-5 py-2 text-sm font-semibold text-stone-950 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="rounded-xl bg-emerald-500 px-5 py-2 text-sm font-semibold text-stone-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {sendingFeedback ? 'Sende...' : 'Feedback senden'}
                 </button>
@@ -724,11 +724,11 @@ export default function Dashboard() {
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-stone-800 pt-6 text-sm text-stone-400">
           <p>VitalTwin DE Dashboard</p>
           <div className="flex items-center gap-5">
-            <Link href="/preise" className="transition hover:text-amber-300">Preise</Link>
-            <Link href="/impressum" className="transition hover:text-amber-300">Impressum</Link>
-            <Link href="/datenschutz" className="transition hover:text-amber-300">Datenschutz</Link>
-            <Link href="/agb" className="transition hover:text-amber-300">AGB</Link>
-            <Link href="/widerrufsrecht" className="transition hover:text-amber-300">Widerrufsrecht</Link>
+            <Link href="/preise" className="transition hover:text-emerald-300">Preise</Link>
+            <Link href="/impressum" className="transition hover:text-emerald-300">Impressum</Link>
+            <Link href="/datenschutz" className="transition hover:text-emerald-300">Datenschutz</Link>
+            <Link href="/agb" className="transition hover:text-emerald-300">AGB</Link>
+            <Link href="/widerrufsrecht" className="transition hover:text-emerald-300">Widerrufsrecht</Link>
           </div>
         </footer>
       </div>

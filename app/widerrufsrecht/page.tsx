@@ -5,7 +5,7 @@ export default function Widerrufsrecht() {
     <main className="min-h-screen bg-stone-950 text-stone-100">
       <div className="mx-auto max-w-5xl px-6 py-14">
         <div className="rounded-3xl border border-stone-800 bg-stone-900/70 p-8 md:p-10">
-          <p className="text-xs uppercase tracking-[0.18em] text-amber-300">Rechtliches</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-emerald-300">Rechtliches</p>
           <h1 className="mt-3 text-4xl font-bold md:text-5xl">Widerrufsbelehrung</h1>
           <p className="mt-4 text-stone-300">Gilt für Verbraucherinnen und Verbraucher im Sinne des § 13 BGB.</p>
 
@@ -21,7 +21,7 @@ export default function Widerrufsrecht() {
               </p>
               <p className="mt-3 text-stone-300">
                 VitalTwin DE, Avdi Morina, Klepsauerstr. 60, 74677 Dörzbach, E-Mail:{' '}
-                <a href="mailto:info@vitaltwin.de" className="text-amber-300 hover:underline">info@vitaltwin.de</a>
+                <a href="mailto:info@vitaltwin.de" className="text-emerald-300 hover:underline">info@vitaltwin.de</a>
               </p>
               <p className="mt-3 text-stone-300">
                 mittels einer eindeutigen Erklärung (z. B. per Post versandter Brief oder E-Mail) über deinen
@@ -82,10 +82,10 @@ export default function Widerrufsrecht() {
           </div>
 
           <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-stone-800 pt-6 text-sm text-stone-400">
-            <Link href="/" className="transition hover:text-amber-300">Startseite</Link>
-            <Link href="/impressum" className="transition hover:text-amber-300">Impressum</Link>
-            <Link href="/datenschutz" className="transition hover:text-amber-300">Datenschutz</Link>
-            <Link href="/agb" className="transition hover:text-amber-300">AGB</Link>
+            <Link href="/" className="transition hover:text-emerald-300">Startseite</Link>
+            <Link href="/impressum" className="transition hover:text-emerald-300">Impressum</Link>
+            <Link href="/datenschutz" className="transition hover:text-emerald-300">Datenschutz</Link>
+            <Link href="/agb" className="transition hover:text-emerald-300">AGB</Link>
             <p className="ml-auto">Stand: Juli 2026</p>
           </div>
         </div>

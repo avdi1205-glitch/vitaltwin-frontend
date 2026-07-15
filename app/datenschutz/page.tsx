@@ -5,7 +5,7 @@ export default function Datenschutz() {
     <main className="min-h-screen bg-stone-950 text-stone-100">
       <div className="mx-auto max-w-5xl px-6 py-14">
         <div className="rounded-3xl border border-stone-800 bg-stone-900/70 p-8 md:p-10">
-          <p className="text-xs uppercase tracking-[0.18em] text-amber-300">Rechtliches</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-emerald-300">Rechtliches</p>
           <h1 className="mt-3 text-4xl font-bold md:text-5xl">Datenschutzerklärung</h1>
           <p className="mt-4 text-stone-300">Informationen zur Verarbeitung personenbezogener Daten gemäß DSGVO.</p>
 
@@ -83,11 +83,11 @@ export default function Datenschutz() {
           </div>
 
           <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-stone-800 pt-6 text-sm text-stone-400">
-            <Link href="/" className="transition hover:text-amber-300">Startseite</Link>
-            <Link href="/dashboard" className="transition hover:text-amber-300">Dashboard</Link>
-            <Link href="/impressum" className="transition hover:text-amber-300">Impressum</Link>
-            <Link href="/agb" className="transition hover:text-amber-300">AGB</Link>
-            <Link href="/widerrufsrecht" className="transition hover:text-amber-300">Widerrufsrecht</Link>
+            <Link href="/" className="transition hover:text-emerald-300">Startseite</Link>
+            <Link href="/dashboard" className="transition hover:text-emerald-300">Dashboard</Link>
+            <Link href="/impressum" className="transition hover:text-emerald-300">Impressum</Link>
+            <Link href="/agb" className="transition hover:text-emerald-300">AGB</Link>
+            <Link href="/widerrufsrecht" className="transition hover:text-emerald-300">Widerrufsrecht</Link>
             <p className="ml-auto">Stand: Juli 2026</p>
           </div>
         </div>

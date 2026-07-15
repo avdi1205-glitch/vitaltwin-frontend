@@ -75,7 +75,7 @@ export default function Preise() {
       <div className="max-w-5xl mx-auto text-center">
         <h1 className="text-5xl font-bold mb-6">Wähle deinen Zugang</h1>
         <p className="text-xl text-stone-400 mb-4">Beta-Test ohne Kostenfalle: erst testen, Feedback geben, dann in Ruhe entscheiden</p>
-        <p className="text-sm text-amber-300 mb-16">Keine automatische Abbuchung im Beta-Test. Keine Kreditkarte nötig für den Einstieg.</p>
+        <p className="text-sm text-emerald-300 mb-16">Keine automatische Abbuchung im Beta-Test. Keine Kreditkarte nötig für den Einstieg.</p>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <div className="bg-stone-900 p-10 rounded-3xl">
@@ -88,7 +88,7 @@ export default function Preise() {
             <Link href="/?auth=register" className="block text-center py-4 border border-white rounded-2xl font-semibold">Kostenlos starten</Link>
           </div>
 
-          <div className="bg-gradient-to-br from-orange-600 to-amber-600 p-10 rounded-3xl relative scale-105">
+          <div className="bg-gradient-to-br from-green-600 to-emerald-600 p-10 rounded-3xl relative scale-105">
             <div className="absolute -top-4 left-1/2 -transtone-x-1/2 bg-yellow-400 text-black px-8 py-1 rounded-full font-bold">EMPFOHLEN</div>
             <h2 className="text-3xl font-semibold mb-2">Beta-Zugang</h2>
             <p className="text-6xl font-bold mb-2">0 €</p>
@@ -140,11 +140,11 @@ export default function Preise() {
       </div>
 
       <footer className="mx-auto mt-16 flex max-w-5xl flex-wrap items-center justify-center gap-5 border-t border-white/10 pt-6 text-sm text-stone-400">
-        <Link href="/" className="transition hover:text-amber-300">Startseite</Link>
-        <Link href="/impressum" className="transition hover:text-amber-300">Impressum</Link>
-        <Link href="/datenschutz" className="transition hover:text-amber-300">Datenschutz</Link>
-        <Link href="/agb" className="transition hover:text-amber-300">AGB</Link>
-        <Link href="/widerrufsrecht" className="transition hover:text-amber-300">Widerrufsrecht</Link>
+        <Link href="/" className="transition hover:text-emerald-300">Startseite</Link>
+        <Link href="/impressum" className="transition hover:text-emerald-300">Impressum</Link>
+        <Link href="/datenschutz" className="transition hover:text-emerald-300">Datenschutz</Link>
+        <Link href="/agb" className="transition hover:text-emerald-300">AGB</Link>
+        <Link href="/widerrufsrecht" className="transition hover:text-emerald-300">Widerrufsrecht</Link>
       </footer>
     </div>
   );

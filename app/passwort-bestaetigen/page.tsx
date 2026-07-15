@@ -93,14 +93,14 @@ export default function PasswortBestaetigen() {
           <button
             type="submit"
             disabled={loading || !accessToken}
-            className="w-full rounded-2xl bg-orange-600 py-4 text-lg font-semibold text-white disabled:opacity-70"
+            className="w-full rounded-2xl bg-green-600 py-4 text-lg font-semibold text-white disabled:opacity-70"
           >
             {loading ? 'Aktualisiere...' : 'Passwort speichern'}
           </button>
         </form>
 
         <p className="mt-6 text-center text-stone-400">
-          Zurück zum <Link href="/passwort-vergessen" className="text-orange-400 hover:underline">Passwort vergessen</Link>
+          Zurück zum <Link href="/passwort-vergessen" className="text-green-400 hover:underline">Passwort vergessen</Link>
         </p>
       </div>
     </div>

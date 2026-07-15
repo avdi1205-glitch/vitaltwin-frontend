@@ -5,7 +5,7 @@ export default function AGB() {
     <main className="min-h-screen bg-stone-950 text-stone-100">
       <div className="mx-auto max-w-5xl px-6 py-14">
         <div className="rounded-3xl border border-stone-800 bg-stone-900/70 p-8 md:p-10">
-          <p className="text-xs uppercase tracking-[0.18em] text-amber-300">Rechtliches</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-emerald-300">Rechtliches</p>
           <h1 className="mt-3 text-4xl font-bold md:text-5xl">Allgemeine Geschäftsbedingungen</h1>
           <p className="mt-4 text-stone-300">Gültig für die Nutzung der VitalTwin-Plattform (www.vitaltwin.de).</p>
 
@@ -43,7 +43,7 @@ export default function AGB() {
               <h2 className="text-xl font-semibold text-white">4. Preise, Beta-Phase und Zahlung</h2>
               <p className="mt-3 text-stone-300">
                 Während der Beta-Phase ist der Beta-Zugang kostenlos nutzbar, wie auf der{' '}
-                <Link href="/preise" className="text-amber-300 hover:underline">Preise-Seite</Link> beschrieben. Es
+                <Link href="/preise" className="text-emerald-300 hover:underline">Preise-Seite</Link> beschrieben. Es
                 erfolgt keine automatische Abbuchung während der Beta-Phase. Sollten künftig kostenpflichtige Pläne
                 eingeführt werden, gelten die zu diesem Zeitpunkt auf der Preise-Seite veröffentlichten Konditionen;
                 über Preisänderungen wirst du vorab informiert.
@@ -54,7 +54,7 @@ export default function AGB() {
               <h2 className="text-xl font-semibold text-white">5. Laufzeit und Kündigung</h2>
               <p className="mt-3 text-stone-300">
                 Du kannst dein Konto jederzeit ohne Angabe von Gründen kündigen, indem du eine E-Mail an{' '}
-                <a href="mailto:info@vitaltwin.de" className="text-amber-300 hover:underline">info@vitaltwin.de</a>{' '}
+                <a href="mailto:info@vitaltwin.de" className="text-emerald-300 hover:underline">info@vitaltwin.de</a>{' '}
                 sendest. Bei kostenpflichtigen Abonnements gelten die jeweils vereinbarten Kündigungsfristen laut
                 Preise-Seite.
               </p>
@@ -101,10 +101,10 @@ export default function AGB() {
           </div>
 
           <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-stone-800 pt-6 text-sm text-stone-400">
-            <Link href="/" className="transition hover:text-amber-300">Startseite</Link>
-            <Link href="/impressum" className="transition hover:text-amber-300">Impressum</Link>
-            <Link href="/datenschutz" className="transition hover:text-amber-300">Datenschutz</Link>
-            <Link href="/widerrufsrecht" className="transition hover:text-amber-300">Widerrufsrecht</Link>
+            <Link href="/" className="transition hover:text-emerald-300">Startseite</Link>
+            <Link href="/impressum" className="transition hover:text-emerald-300">Impressum</Link>
+            <Link href="/datenschutz" className="transition hover:text-emerald-300">Datenschutz</Link>
+            <Link href="/widerrufsrecht" className="transition hover:text-emerald-300">Widerrufsrecht</Link>
             <p className="ml-auto">Stand: Juli 2026</p>
           </div>
         </div>

@@ -49,14 +49,14 @@ export default function HomeLanding({
     <main className="min-h-screen bg-stone-950 text-stone-100">
       {authMode && <HomeAuthModal mode={authMode} onClose={closeAuth} initialNotice={notice} />}
 
-      <div className="border-b border-amber-400/20 bg-amber-500/10">
+      <div className="border-b border-emerald-400/20 bg-emerald-500/10">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3 text-sm">
-          <p className="text-amber-100">
+          <p className="text-emerald-100">
             Beta läuft: begrenzte Plätze für die erste DACH-Kohorte.
           </p>
           <button
             onClick={() => openAuth('register')}
-            className="rounded-full border border-amber-300/40 px-4 py-1 font-semibold text-amber-200 transition hover:bg-amber-400/10"
+            className="rounded-full border border-emerald-300/40 px-4 py-1 font-semibold text-emerald-200 transition hover:bg-emerald-400/10"
           >
             Platz sichern
           </button>
@@ -75,7 +75,7 @@ export default function HomeLanding({
         <div className="relative mx-auto max-w-6xl px-6 py-20 md:py-28">
           <div className="grid gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
             <div className="max-w-3xl">
-              <p className="inline-flex rounded-full border border-amber-300/20 bg-amber-400/10 px-4 py-1 text-xs font-semibold tracking-widest text-amber-200 uppercase">
+              <p className="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/10 px-4 py-1 text-xs font-semibold tracking-widest text-emerald-200 uppercase">
                 VitalTwin Plattform
               </p>
               <h1 className="mt-6 font-[family-name:var(--font-serif-display)] text-4xl font-semibold leading-[1.1] md:text-6xl">
@@ -93,13 +93,13 @@ export default function HomeLanding({
               <div className="mt-10 flex flex-wrap gap-4">
                 <button
                   onClick={() => openAuth('register')}
-                  className="rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 px-8 py-4 text-base font-semibold text-white transition hover:opacity-90"
+                  className="rounded-2xl bg-gradient-to-r from-green-600 to-emerald-500 px-8 py-4 text-base font-semibold text-white transition hover:opacity-90"
                 >
                   Jetzt zur Beta starten
                 </button>
                 <Link
                   href="/preise"
-                  className="rounded-2xl border border-stone-600 bg-stone-900/60 px-8 py-4 text-base font-semibold text-stone-100 transition hover:border-amber-300/50"
+                  className="rounded-2xl border border-stone-600 bg-stone-900/60 px-8 py-4 text-base font-semibold text-stone-100 transition hover:border-emerald-300/50"
                 >
                   Preise ansehen
                 </Link>
@@ -143,21 +143,21 @@ export default function HomeLanding({
         </p>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           <article className="rounded-3xl border border-stone-800 bg-stone-900/60 p-7">
-            <p className="text-xs font-semibold uppercase tracking-widest text-amber-300">Für Vielbeschäftigte</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">Für Vielbeschäftigte</p>
             <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Manager &amp; Entscheider</h3>
             <p className="mt-3 text-stone-300">
               Wenig Zeit, klare Kennzahlen: 3 Minuten Eingabe, ein kompakter Überblick statt endloser Wellness-Ratgeber.
             </p>
           </article>
           <article className="rounded-3xl border border-stone-800 bg-stone-900/60 p-7">
-            <p className="text-xs font-semibold uppercase tracking-widest text-amber-300">Für Selbstoptimierer</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">Für Selbstoptimierer</p>
             <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Biohacker</h3>
             <p className="mt-3 text-stone-300">
               Marker-Rohdaten, Zielbereiche und Quellen direkt einsehbar &mdash; keine verwässerten Pauschalaussagen.
             </p>
           </article>
           <article className="rounded-3xl border border-stone-800 bg-stone-900/60 p-7">
-            <p className="text-xs font-semibold uppercase tracking-widest text-amber-300">Für vorsorgeorientierte Menschen</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">Für vorsorgeorientierte Menschen</p>
             <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Familienkontext</h3>
             <p className="mt-3 text-stone-300">
               Gib optional an, welche Themen in deiner Familie eine Rolle spielen &mdash; deine Wellness-Empfehlungen werden
@@ -196,17 +196,17 @@ export default function HomeLanding({
           <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">So funktioniert es</h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             <div className="rounded-2xl border border-stone-800 bg-stone-950/70 p-6">
-              <p className="text-amber-300 font-semibold">01</p>
+              <p className="text-emerald-300 font-semibold">01</p>
               <h3 className="mt-2 text-xl font-semibold">Account erstellen</h3>
               <p className="mt-3 text-stone-300">Registriere dich und starte mit deinem persönlichen Profil.</p>
             </div>
             <div className="rounded-2xl border border-stone-800 bg-stone-950/70 p-6">
-              <p className="text-amber-300 font-semibold">02</p>
+              <p className="text-emerald-300 font-semibold">02</p>
               <h3 className="mt-2 text-xl font-semibold">Marker eingeben</h3>
               <p className="mt-3 text-stone-300">Trage relevante Biomarker ein, z. B. HbA1c, CRP, Vitamin D und ApoB.</p>
             </div>
             <div className="rounded-2xl border border-stone-800 bg-stone-950/70 p-6">
-              <p className="text-amber-300 font-semibold">03</p>
+              <p className="text-emerald-300 font-semibold">03</p>
               <h3 className="mt-2 text-xl font-semibold">Twin optimieren</h3>
               <p className="mt-3 text-stone-300">Erhalte klare Empfehlungen und verbessere deinen Score Schritt für Schritt.</p>
             </div>
@@ -215,7 +215,7 @@ export default function HomeLanding({
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
-        <div className="rounded-3xl border border-amber-300/20 bg-gradient-to-r from-orange-600/30 to-amber-500/20 p-8 md:p-12">
+        <div className="rounded-3xl border border-emerald-300/20 bg-gradient-to-r from-green-600/30 to-emerald-500/20 p-8 md:p-12">
           <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">Bereit für deinen VitalTwin?</h2>
           <p className="mt-4 max-w-2xl text-stone-200">
             Starte heute mit deiner ersten Analyse und baue dir eine datenbasierte Gesundheitsstrategie auf.
@@ -261,25 +261,25 @@ export default function HomeLanding({
             <h3 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-white">Wie Premium funktioniert</h3>
             <ol className="mt-6 space-y-4 text-sm text-stone-200">
               <li className="rounded-xl border border-stone-800 bg-stone-950/60 px-4 py-3">
-                <span className="font-semibold text-amber-300">1.</span> Kostenlos registrieren und erste Twin-Berechnung starten.
+                <span className="font-semibold text-emerald-300">1.</span> Kostenlos registrieren und erste Twin-Berechnung starten.
               </li>
               <li className="rounded-xl border border-stone-800 bg-stone-950/60 px-4 py-3">
-                <span className="font-semibold text-amber-300">2.</span> Premium aktivieren für unbegrenzte Simulationen und Verlauf.
+                <span className="font-semibold text-emerald-300">2.</span> Premium aktivieren für unbegrenzte Simulationen und Verlauf.
               </li>
               <li className="rounded-xl border border-stone-800 bg-stone-950/60 px-4 py-3">
-                <span className="font-semibold text-amber-300">3.</span> Wöchentlich Fortschritt tracken und Empfehlungen umsetzen.
+                <span className="font-semibold text-emerald-300">3.</span> Wöchentlich Fortschritt tracken und Empfehlungen umsetzen.
               </li>
             </ol>
             <div className="mt-6 flex flex-wrap gap-3">
               <button
                 onClick={() => openAuth('register')}
-                className="rounded-xl bg-amber-500 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-400"
+                className="rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-emerald-400"
               >
                 Kostenlos starten
               </button>
               <Link
                 href="/preise"
-                className="rounded-xl border border-stone-600 px-5 py-3 text-sm font-semibold text-stone-200 transition hover:border-amber-300"
+                className="rounded-xl border border-stone-600 px-5 py-3 text-sm font-semibold text-stone-200 transition hover:border-emerald-300"
               >
                 Premium ansehen
               </Link>
@@ -292,11 +292,11 @@ export default function HomeLanding({
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-stone-400">
           <p>VitalTwin DE</p>
           <div className="flex flex-wrap items-center gap-5">
-            <Link href="/preise" className="transition hover:text-amber-300">Preise</Link>
-            <Link href="/impressum" className="transition hover:text-amber-300">Impressum</Link>
-            <Link href="/datenschutz" className="transition hover:text-amber-300">Datenschutz</Link>
-            <Link href="/agb" className="transition hover:text-amber-300">AGB</Link>
-            <Link href="/widerrufsrecht" className="transition hover:text-amber-300">Widerrufsrecht</Link>
+            <Link href="/preise" className="transition hover:text-emerald-300">Preise</Link>
+            <Link href="/impressum" className="transition hover:text-emerald-300">Impressum</Link>
+            <Link href="/datenschutz" className="transition hover:text-emerald-300">Datenschutz</Link>
+            <Link href="/agb" className="transition hover:text-emerald-300">AGB</Link>
+            <Link href="/widerrufsrecht" className="transition hover:text-emerald-300">Widerrufsrecht</Link>
           </div>
         </div>
       </footer>
