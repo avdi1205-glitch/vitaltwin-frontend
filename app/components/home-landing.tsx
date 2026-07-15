@@ -287,6 +287,19 @@ export default function HomeLanding({
           </article>
         </div>
       </section>
+
+      <footer className="border-t border-slate-800/80 bg-slate-950">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-slate-400">
+          <p>VitalTwin DE</p>
+          <div className="flex flex-wrap items-center gap-5">
+            <Link href="/preise" className="transition hover:text-cyan-300">Preise</Link>
+            <Link href="/impressum" className="transition hover:text-cyan-300">Impressum</Link>
+            <Link href="/datenschutz" className="transition hover:text-cyan-300">Datenschutz</Link>
+            <Link href="/agb" className="transition hover:text-cyan-300">AGB</Link>
+            <Link href="/widerrufsrecht" className="transition hover:text-cyan-300">Widerrufsrecht</Link>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }

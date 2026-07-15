@@ -39,6 +39,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
   const [errorMessage, setErrorMessage] = useState('');
   const [infoMessage, setInfoMessage] = useState(initialNotice);
   const [googleReady, setGoogleReady] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const router = useRouter();
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() ?? '';
 
@@ -125,6 +126,11 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
     setErrorMessage('');
     setInfoMessage('');
 
+    if (tab === 'register' && !acceptedTerms) {
+      setErrorMessage('Bitte akzeptiere die AGB und Datenschutzerklärung, um ein Konto zu erstellen.');
+      return;
+    }
+
     if (!googleClientId) {
       setErrorMessage('Google-Login ist noch nicht konfiguriert.');
       return;
@@ -170,9 +176,15 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setErrorMessage('');
     setInfoMessage('');
+
+    if (!acceptedTerms) {
+      setErrorMessage('Bitte akzeptiere die AGB und Datenschutzerklärung, um ein Konto zu erstellen.');
+      return;
+    }
+
+    setLoading(true);
     trackEvent('register_submit', { tab: 'register' });
 
     try {
@@ -309,9 +321,23 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               className="w-full rounded-2xl border border-slate-700 bg-slate-800 p-4 text-white"
               required
             />
+            <label className="flex items-start gap-2 text-xs text-slate-300">
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-slate-600 bg-slate-800 accent-cyan-500"
+                required
+              />
+              <span>
+                Ich akzeptiere die{' '}
+                <Link href="/agb" target="_blank" className="text-cyan-300 hover:underline">AGB</Link> und die{' '}
+                <Link href="/datenschutz" target="_blank" className="text-cyan-300 hover:underline">Datenschutzerklärung</Link>.
+              </span>
+            </label>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !acceptedTerms}
               className="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-70"
             >
               {loading ? 'Erstelle Konto...' : 'Konto erstellen'}

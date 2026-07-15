@@ -37,8 +37,31 @@ export default function Datenschutz() {
             <section className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
               <h2 className="text-xl font-semibold text-white">4. Weitergabe und Dienstleister</h2>
               <p className="mt-3 text-slate-300">
-                Eine Weitergabe erfolgt ausschließlich, soweit sie für den Betrieb erforderlich ist, z. B. an Stripe
-                für Zahlungen sowie Hosting- und Infrastruktur-Dienstleister.
+                Wir setzen sorgfältig ausgewählte Auftragsverarbeiter ein, mit denen jeweils ein
+                Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO besteht bzw. Standardvertragsklauseln vereinbart
+                sind:
+              </p>
+              <ul className="mt-3 list-disc space-y-1 pl-6 text-slate-300">
+                <li>Supabase (Datenbank, Authentifizierung)</li>
+                <li>Vercel (Hosting Frontend)</li>
+                <li>Railway (Hosting Backend)</li>
+                <li>Stripe (Zahlungsabwicklung, sobald kostenpflichtige Pläne aktiv sind)</li>
+                <li>Resend (Versand von Transaktions-E-Mails, z. B. Passwort-Reset)</li>
+              </ul>
+              <p className="mt-3 text-slate-300">
+                Einige dieser Dienstleister können Daten auch außerhalb der EU/des EWR verarbeiten (z. B. USA). In
+                diesen Fällen stellen wir ein angemessenes Datenschutzniveau durch EU-Standardvertragsklauseln oder
+                vergleichbare Garantien gemäß Art. 44 ff. DSGVO sicher.
+              </p>
+            </section>
+
+            <section className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
+              <h2 className="text-xl font-semibold text-white">4a. Cookies und lokale Speicherung</h2>
+              <p className="mt-3 text-slate-300">
+                Wir setzen kein Tracking und keine Marketing-Cookies ein. Zur Anmeldung speichern wir ein
+                Sitzungs-Token technisch notwendig im lokalen Speicher (localStorage) deines Browsers, damit du
+                eingeloggt bleibst. Diese Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG zur Bereitstellung des von dir
+                ausdrücklich gewünschten Dienstes erforderlich und bedarf keiner gesonderten Einwilligung.
               </p>
             </section>
 
@@ -63,6 +86,8 @@ export default function Datenschutz() {
             <Link href="/" className="transition hover:text-cyan-300">Startseite</Link>
             <Link href="/dashboard" className="transition hover:text-cyan-300">Dashboard</Link>
             <Link href="/impressum" className="transition hover:text-cyan-300">Impressum</Link>
+            <Link href="/agb" className="transition hover:text-cyan-300">AGB</Link>
+            <Link href="/widerrufsrecht" className="transition hover:text-cyan-300">Widerrufsrecht</Link>
             <p className="ml-auto">Stand: Juli 2026</p>
           </div>
         </div>

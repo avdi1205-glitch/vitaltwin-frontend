@@ -138,6 +138,14 @@ export default function Preise() {
           </div>
         </div>
       </div>
+
+      <footer className="mx-auto mt-16 flex max-w-5xl flex-wrap items-center justify-center gap-5 border-t border-white/10 pt-6 text-sm text-slate-400">
+        <Link href="/" className="transition hover:text-cyan-300">Startseite</Link>
+        <Link href="/impressum" className="transition hover:text-cyan-300">Impressum</Link>
+        <Link href="/datenschutz" className="transition hover:text-cyan-300">Datenschutz</Link>
+        <Link href="/agb" className="transition hover:text-cyan-300">AGB</Link>
+        <Link href="/widerrufsrecht" className="transition hover:text-cyan-300">Widerrufsrecht</Link>
+      </footer>
     </div>
   );
 }

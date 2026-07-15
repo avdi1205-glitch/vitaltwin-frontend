@@ -727,6 +727,8 @@ export default function Dashboard() {
             <Link href="/preise" className="transition hover:text-cyan-300">Preise</Link>
             <Link href="/impressum" className="transition hover:text-cyan-300">Impressum</Link>
             <Link href="/datenschutz" className="transition hover:text-cyan-300">Datenschutz</Link>
+            <Link href="/agb" className="transition hover:text-cyan-300">AGB</Link>
+            <Link href="/widerrufsrecht" className="transition hover:text-cyan-300">Widerrufsrecht</Link>
           </div>
         </footer>
       </div>

@@ -54,6 +54,8 @@ export default function Impressum() {
             <Link href="/" className="transition hover:text-cyan-300">Startseite</Link>
             <Link href="/dashboard" className="transition hover:text-cyan-300">Dashboard</Link>
             <Link href="/datenschutz" className="transition hover:text-cyan-300">Datenschutz</Link>
+            <Link href="/agb" className="transition hover:text-cyan-300">AGB</Link>
+            <Link href="/widerrufsrecht" className="transition hover:text-cyan-300">Widerrufsrecht</Link>
             <p className="ml-auto">Gilt für www.vitaltwin.de</p>
           </div>
         </div>
