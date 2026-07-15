@@ -46,90 +46,82 @@ export default function HomeLanding({
   };
 
   return (
-    <main className="min-h-screen bg-stone-950 text-stone-100">
+    <main className="min-h-screen bg-[#F5EFE1] text-neutral-900">
       {authMode && <HomeAuthModal mode={authMode} onClose={closeAuth} initialNotice={notice} />}
 
-      <div className="border-b border-emerald-400/20 bg-emerald-500/10">
+      <div className="border-b border-neutral-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3 text-sm">
-          <p className="text-emerald-100">
+          <p className="text-neutral-700">
             Beta läuft: begrenzte Plätze für die erste DACH-Kohorte.
           </p>
           <button
             onClick={() => openAuth('register')}
-            className="rounded-full border border-emerald-300/40 px-4 py-1 font-semibold text-emerald-200 transition hover:bg-emerald-400/10"
+            className="rounded-full border border-neutral-900 px-4 py-1 font-semibold text-neutral-900 transition hover:bg-neutral-900 hover:text-white"
           >
             Platz sichern
           </button>
         </div>
       </div>
 
-      <section className="relative overflow-hidden border-b border-stone-800/80">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.22),_transparent_55%)]" />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-          }}
-        />
+      <section className="relative overflow-hidden border-b border-neutral-200">
         <div className="relative mx-auto max-w-6xl px-6 py-20 md:py-28">
           <div className="grid gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
             <div className="max-w-3xl">
-              <p className="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/10 px-4 py-1 text-xs font-semibold tracking-widest text-emerald-200 uppercase">
+              <p className="inline-flex rounded-full border border-neutral-900 px-4 py-1 text-xs font-semibold tracking-widest text-neutral-900 uppercase">
                 VitalTwin Plattform
               </p>
               <h1 className="mt-6 font-[family-name:var(--font-serif-display)] text-4xl font-semibold leading-[1.1] md:text-6xl">
                 3 Minuten Eingabe. Eine klare Wellness-Auswertung für Vielbeschäftigte.
               </h1>
-              <p className="mt-6 text-lg text-stone-300 md:text-xl">
+              <p className="mt-6 text-lg text-neutral-700 md:text-xl">
                 VitalTwin ordnet deine Biomarker ein, zeigt dein biologisches Alter im Vergleich zu heute und optimierten
                 Szenarien &mdash; kompakt genug für den Kalender eines Managers, tief genug für alle, die ihre Werte wirklich
                 verstehen wollen.
               </p>
-              <p className="mt-4 text-sm text-stone-400">
+              <p className="mt-4 text-sm text-neutral-500">
                 &mdash; Avdi Morina, Gründer VitalTwin
               </p>
 
               <div className="mt-10 flex flex-wrap gap-4">
                 <button
                   onClick={() => openAuth('register')}
-                  className="rounded-2xl bg-gradient-to-r from-green-600 to-emerald-500 px-8 py-4 text-base font-semibold text-white transition hover:opacity-90"
+                  className="rounded-2xl bg-black px-8 py-4 text-base font-semibold text-white transition hover:bg-neutral-800"
                 >
                   Jetzt zur Beta starten
                 </button>
                 <Link
                   href="/preise"
-                  className="rounded-2xl border border-stone-600 bg-stone-900/60 px-8 py-4 text-base font-semibold text-stone-100 transition hover:border-emerald-300/50"
+                  className="rounded-2xl border border-neutral-900 bg-white px-8 py-4 text-base font-semibold text-neutral-900 transition hover:bg-neutral-100"
                 >
                   Preise ansehen
                 </Link>
               </div>
             </div>
 
-            <div className="grid gap-3 text-sm text-stone-300">
-              <div className="rounded-2xl border border-stone-800 bg-stone-900/60 p-5">
-                <p className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-white">3 Min</p>
+            <div className="grid gap-3 text-sm text-neutral-700">
+              <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+                <p className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-neutral-900">3 Min</p>
                 <p className="mt-1">bis zur ersten Twin-Analyse</p>
               </div>
-              <div className="rounded-2xl border border-stone-800 bg-stone-900/60 p-5">
-                <p className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-white">100%</p>
+              <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+                <p className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-neutral-900">100%</p>
                 <p className="mt-1">personalisierte Auswertung</p>
               </div>
-              <div className="rounded-2xl border border-stone-800 bg-stone-900/60 p-5">
-                <p className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-white">Abo</p>
+              <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+                <p className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-neutral-900">Abo</p>
                 <p className="mt-1">skalierbares SaaS-Modell</p>
               </div>
             </div>
           </div>
 
-          <div className="mt-10 grid gap-3 text-xs text-stone-300 sm:grid-cols-3">
-            <div className="rounded-xl border border-stone-800 bg-stone-900/50 px-3 py-2">
+          <div className="mt-10 grid gap-3 text-xs text-neutral-700 sm:grid-cols-3">
+            <div className="rounded-xl border border-neutral-200 bg-white px-3 py-2">
               Evidenzbasierte Marker mit Quellen
             </div>
-            <div className="rounded-xl border border-stone-800 bg-stone-900/50 px-3 py-2">
+            <div className="rounded-xl border border-neutral-200 bg-white px-3 py-2">
               Kein medizinisches Produkt, klarer Wellness-Fokus
             </div>
-            <div className="rounded-xl border border-stone-800 bg-stone-900/50 px-3 py-2">
+            <div className="rounded-xl border border-neutral-200 bg-white px-3 py-2">
               Für DACH optimiert, EU-Skalierung geplant
             </div>
           </div>
@@ -138,28 +130,28 @@ export default function HomeLanding({
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
         <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">Für wen VitalTwin gemacht ist</h2>
-        <p className="mt-3 max-w-2xl text-stone-300">
+        <p className="mt-3 max-w-2xl text-neutral-700">
           Kein Wellness-Tool für alle &mdash; sondern für drei ganz konkrete Situationen.
         </p>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          <article className="rounded-3xl border border-stone-800 bg-stone-900/60 p-7">
-            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">Für Vielbeschäftigte</p>
+          <article className="rounded-3xl border border-neutral-200 bg-white p-7">
+            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Für Vielbeschäftigte</p>
             <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Manager &amp; Entscheider</h3>
-            <p className="mt-3 text-stone-300">
+            <p className="mt-3 text-neutral-700">
               Wenig Zeit, klare Kennzahlen: 3 Minuten Eingabe, ein kompakter Überblick statt endloser Wellness-Ratgeber.
             </p>
           </article>
-          <article className="rounded-3xl border border-stone-800 bg-stone-900/60 p-7">
-            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">Für Selbstoptimierer</p>
+          <article className="rounded-3xl border border-neutral-200 bg-white p-7">
+            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Für Selbstoptimierer</p>
             <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Biohacker</h3>
-            <p className="mt-3 text-stone-300">
+            <p className="mt-3 text-neutral-700">
               Marker-Rohdaten, Zielbereiche und Quellen direkt einsehbar &mdash; keine verwässerten Pauschalaussagen.
             </p>
           </article>
-          <article className="rounded-3xl border border-stone-800 bg-stone-900/60 p-7">
-            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">Für vorsorgeorientierte Menschen</p>
+          <article className="rounded-3xl border border-neutral-200 bg-white p-7">
+            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Für vorsorgeorientierte Menschen</p>
             <h3 className="mt-3 font-[family-name:var(--font-serif-display)] text-xl font-semibold">Familienkontext</h3>
-            <p className="mt-3 text-stone-300">
+            <p className="mt-3 text-neutral-700">
               Gib optional an, welche Themen in deiner Familie eine Rolle spielen &mdash; deine Wellness-Empfehlungen werden
               entsprechend priorisiert.
             </p>
@@ -170,66 +162,66 @@ export default function HomeLanding({
       <section className="mx-auto max-w-6xl px-6 pb-16 md:pb-24">
         <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">Warum VitalTwin</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          <article className="rounded-3xl border border-stone-800 bg-stone-900/60 p-7">
+          <article className="rounded-3xl border border-neutral-200 bg-white p-7">
             <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold">Biologisches Alter statt Bauchgefühl</h3>
-            <p className="mt-3 text-stone-300">
+            <p className="mt-3 text-neutral-700">
               Du siehst sofort, wie deine aktuellen Marker dein biologisches Alter beeinflussen.
             </p>
           </article>
-          <article className="rounded-3xl border border-stone-800 bg-stone-900/60 p-7">
+          <article className="rounded-3xl border border-neutral-200 bg-white p-7">
             <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold">Persönliche Szenarien</h3>
-            <p className="mt-3 text-stone-300">
+            <p className="mt-3 text-neutral-700">
               Vergleich von aktuell, optimiert und aggressiv, damit du die Hebel mit dem größten Effekt erkennst.
             </p>
           </article>
-          <article className="rounded-3xl border border-stone-800 bg-stone-900/60 p-7">
+          <article className="rounded-3xl border border-neutral-200 bg-white p-7">
             <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold">Skalierbar für Millionen Nutzer</h3>
-            <p className="mt-3 text-stone-300">
+            <p className="mt-3 text-neutral-700">
               Cloud-ready Architektur mit Subscription-Flow und API-gestützter Auswertung.
             </p>
           </article>
         </div>
       </section>
 
-      <section className="border-y border-stone-800/80 bg-stone-900/40">
+      <section className="border-y border-neutral-200 bg-white">
         <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
           <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">So funktioniert es</h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
-            <div className="rounded-2xl border border-stone-800 bg-stone-950/70 p-6">
-              <p className="text-emerald-300 font-semibold">01</p>
+            <div className="rounded-2xl border border-neutral-200 bg-[#F5EFE1] p-6">
+              <p className="text-neutral-500 font-semibold">01</p>
               <h3 className="mt-2 text-xl font-semibold">Account erstellen</h3>
-              <p className="mt-3 text-stone-300">Registriere dich und starte mit deinem persönlichen Profil.</p>
+              <p className="mt-3 text-neutral-700">Registriere dich und starte mit deinem persönlichen Profil.</p>
             </div>
-            <div className="rounded-2xl border border-stone-800 bg-stone-950/70 p-6">
-              <p className="text-emerald-300 font-semibold">02</p>
+            <div className="rounded-2xl border border-neutral-200 bg-[#F5EFE1] p-6">
+              <p className="text-neutral-500 font-semibold">02</p>
               <h3 className="mt-2 text-xl font-semibold">Marker eingeben</h3>
-              <p className="mt-3 text-stone-300">Trage relevante Biomarker ein, z. B. HbA1c, CRP, Vitamin D und ApoB.</p>
+              <p className="mt-3 text-neutral-700">Trage relevante Biomarker ein, z. B. HbA1c, CRP, Vitamin D und ApoB.</p>
             </div>
-            <div className="rounded-2xl border border-stone-800 bg-stone-950/70 p-6">
-              <p className="text-emerald-300 font-semibold">03</p>
+            <div className="rounded-2xl border border-neutral-200 bg-[#F5EFE1] p-6">
+              <p className="text-neutral-500 font-semibold">03</p>
               <h3 className="mt-2 text-xl font-semibold">Twin optimieren</h3>
-              <p className="mt-3 text-stone-300">Erhalte klare Empfehlungen und verbessere deinen Score Schritt für Schritt.</p>
+              <p className="mt-3 text-neutral-700">Erhalte klare Empfehlungen und verbessere deinen Score Schritt für Schritt.</p>
             </div>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
-        <div className="rounded-3xl border border-emerald-300/20 bg-gradient-to-r from-green-600/30 to-emerald-500/20 p-8 md:p-12">
+        <div className="rounded-3xl border border-neutral-900 bg-black p-8 text-white md:p-12">
           <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">Bereit für deinen VitalTwin?</h2>
-          <p className="mt-4 max-w-2xl text-stone-200">
+          <p className="mt-4 max-w-2xl text-neutral-300">
             Starte heute mit deiner ersten Analyse und baue dir eine datenbasierte Gesundheitsstrategie auf.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <button
               onClick={() => openAuth('register')}
-              className="rounded-2xl bg-white px-8 py-4 font-semibold text-stone-900"
+              className="rounded-2xl bg-white px-8 py-4 font-semibold text-black transition hover:bg-neutral-200"
             >
               Kostenlos in die Beta
             </button>
             <button
               onClick={() => openAuth('login')}
-              className="rounded-2xl border border-white/50 px-8 py-4 font-semibold text-white"
+              className="rounded-2xl border border-white/50 px-8 py-4 font-semibold text-white transition hover:bg-white/10"
             >
               Zum Login
             </button>
@@ -239,47 +231,47 @@ export default function HomeLanding({
 
       <section className="mx-auto max-w-6xl px-6 pb-20 md:pb-24">
         <div className="grid gap-8 lg:grid-cols-2">
-          <article className="rounded-3xl border border-stone-800 bg-stone-900/60 p-7">
-            <h3 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-white">Häufige Fragen</h3>
-            <div className="mt-6 space-y-5 text-stone-200">
+          <article className="rounded-3xl border border-neutral-200 bg-white p-7">
+            <h3 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-neutral-900">Häufige Fragen</h3>
+            <div className="mt-6 space-y-5 text-neutral-800">
               <div>
-                <p className="font-semibold text-white">Ist VitalTwin ein medizinisches Produkt?</p>
-                <p className="mt-1 text-sm text-stone-300">Nein. VitalTwin ist ein Wellness-Tool zur Gesundheitsorientierung und ersetzt keine ärztliche Diagnostik.</p>
+                <p className="font-semibold text-neutral-900">Ist VitalTwin ein medizinisches Produkt?</p>
+                <p className="mt-1 text-sm text-neutral-700">Nein. VitalTwin ist ein Wellness-Tool zur Gesundheitsorientierung und ersetzt keine ärztliche Diagnostik.</p>
               </div>
               <div>
-                <p className="font-semibold text-white">Wie schnell sehe ich erste Ergebnisse?</p>
-                <p className="mt-1 text-sm text-stone-300">In der Regel in unter 3 Minuten nach Eingabe deiner Marker.</p>
+                <p className="font-semibold text-neutral-900">Wie schnell sehe ich erste Ergebnisse?</p>
+                <p className="mt-1 text-sm text-neutral-700">In der Regel in unter 3 Minuten nach Eingabe deiner Marker.</p>
               </div>
               <div>
-                <p className="font-semibold text-white">Kann ich erstmal kostenlos starten?</p>
-                <p className="mt-1 text-sm text-stone-300">Ja. Du kannst kostenlos starten und erst später auf Premium upgraden.</p>
+                <p className="font-semibold text-neutral-900">Kann ich erstmal kostenlos starten?</p>
+                <p className="mt-1 text-sm text-neutral-700">Ja. Du kannst kostenlos starten und erst später auf Premium upgraden.</p>
               </div>
             </div>
           </article>
 
-          <article className="rounded-3xl border border-stone-800 bg-stone-900/60 p-7">
-            <h3 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-white">Wie Premium funktioniert</h3>
-            <ol className="mt-6 space-y-4 text-sm text-stone-200">
-              <li className="rounded-xl border border-stone-800 bg-stone-950/60 px-4 py-3">
-                <span className="font-semibold text-emerald-300">1.</span> Kostenlos registrieren und erste Twin-Berechnung starten.
+          <article className="rounded-3xl border border-neutral-200 bg-white p-7">
+            <h3 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-neutral-900">Wie Premium funktioniert</h3>
+            <ol className="mt-6 space-y-4 text-sm text-neutral-800">
+              <li className="rounded-xl border border-neutral-200 bg-[#F5EFE1] px-4 py-3">
+                <span className="font-semibold text-neutral-900">1.</span> Kostenlos registrieren und erste Twin-Berechnung starten.
               </li>
-              <li className="rounded-xl border border-stone-800 bg-stone-950/60 px-4 py-3">
-                <span className="font-semibold text-emerald-300">2.</span> Premium aktivieren für unbegrenzte Simulationen und Verlauf.
+              <li className="rounded-xl border border-neutral-200 bg-[#F5EFE1] px-4 py-3">
+                <span className="font-semibold text-neutral-900">2.</span> Premium aktivieren für unbegrenzte Simulationen und Verlauf.
               </li>
-              <li className="rounded-xl border border-stone-800 bg-stone-950/60 px-4 py-3">
-                <span className="font-semibold text-emerald-300">3.</span> Wöchentlich Fortschritt tracken und Empfehlungen umsetzen.
+              <li className="rounded-xl border border-neutral-200 bg-[#F5EFE1] px-4 py-3">
+                <span className="font-semibold text-neutral-900">3.</span> Wöchentlich Fortschritt tracken und Empfehlungen umsetzen.
               </li>
             </ol>
             <div className="mt-6 flex flex-wrap gap-3">
               <button
                 onClick={() => openAuth('register')}
-                className="rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-emerald-400"
+                className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800"
               >
                 Kostenlos starten
               </button>
               <Link
                 href="/preise"
-                className="rounded-xl border border-stone-600 px-5 py-3 text-sm font-semibold text-stone-200 transition hover:border-emerald-300"
+                className="rounded-xl border border-neutral-300 px-5 py-3 text-sm font-semibold text-neutral-800 transition hover:border-neutral-900"
               >
                 Premium ansehen
               </Link>
@@ -288,15 +280,15 @@ export default function HomeLanding({
         </div>
       </section>
 
-      <footer className="border-t border-stone-800/80 bg-stone-950">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-stone-400">
+      <footer className="border-t border-neutral-200 bg-white">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-neutral-500">
           <p>VitalTwin DE</p>
           <div className="flex flex-wrap items-center gap-5">
-            <Link href="/preise" className="transition hover:text-emerald-300">Preise</Link>
-            <Link href="/impressum" className="transition hover:text-emerald-300">Impressum</Link>
-            <Link href="/datenschutz" className="transition hover:text-emerald-300">Datenschutz</Link>
-            <Link href="/agb" className="transition hover:text-emerald-300">AGB</Link>
-            <Link href="/widerrufsrecht" className="transition hover:text-emerald-300">Widerrufsrecht</Link>
+            <Link href="/preise" className="transition hover:text-black">Preise</Link>
+            <Link href="/impressum" className="transition hover:text-black">Impressum</Link>
+            <Link href="/datenschutz" className="transition hover:text-black">Datenschutz</Link>
+            <Link href="/agb" className="transition hover:text-black">AGB</Link>
+            <Link href="/widerrufsrecht" className="transition hover:text-black">Widerrufsrecht</Link>
           </div>
         </div>
       </footer>

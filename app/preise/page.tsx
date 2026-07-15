@@ -71,25 +71,25 @@ export default function Preise() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-950 text-white py-20 px-8">
+    <div className="min-h-screen bg-[#F5EFE1] text-neutral-900 py-20 px-8">
       <div className="max-w-5xl mx-auto text-center">
         <h1 className="text-5xl font-bold mb-6">Wähle deinen Zugang</h1>
-        <p className="text-xl text-stone-400 mb-4">Beta-Test ohne Kostenfalle: erst testen, Feedback geben, dann in Ruhe entscheiden</p>
-        <p className="text-sm text-emerald-300 mb-16">Keine automatische Abbuchung im Beta-Test. Keine Kreditkarte nötig für den Einstieg.</p>
+        <p className="text-xl text-neutral-600 mb-4">Beta-Test ohne Kostenfalle: erst testen, Feedback geben, dann in Ruhe entscheiden</p>
+        <p className="text-sm text-neutral-500 mb-16">Keine automatische Abbuchung im Beta-Test. Keine Kreditkarte nötig für den Einstieg.</p>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          <div className="bg-stone-900 p-10 rounded-3xl">
+          <div className="bg-white border border-neutral-200 p-10 rounded-3xl">
             <h2 className="text-3xl font-semibold mb-2">Free</h2>
             <p className="text-6xl font-bold mb-8">0 €</p>
             <ul className="text-left space-y-4 mb-12">
               <li>✓ Einmalige Twin-Berechnung</li>
               <li>✓ Basis-Empfehlungen</li>
             </ul>
-            <Link href="/?auth=register" className="block text-center py-4 border border-white rounded-2xl font-semibold">Kostenlos starten</Link>
+            <Link href="/?auth=register" className="block text-center py-4 border border-neutral-900 rounded-2xl font-semibold transition hover:bg-neutral-900 hover:text-white">Kostenlos starten</Link>
           </div>
 
-          <div className="bg-gradient-to-br from-green-600 to-emerald-600 p-10 rounded-3xl relative scale-105">
-            <div className="absolute -top-4 left-1/2 -transtone-x-1/2 bg-yellow-400 text-black px-8 py-1 rounded-full font-bold">EMPFOHLEN</div>
+          <div className="bg-black text-white p-10 rounded-3xl relative scale-105">
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-1 rounded-full font-bold border border-neutral-200">EMPFOHLEN</div>
             <h2 className="text-3xl font-semibold mb-2">Beta-Zugang</h2>
             <p className="text-6xl font-bold mb-2">0 €</p>
             <p className="mb-8">Kostenlos als Beta-Tester starten</p>
@@ -99,12 +99,12 @@ export default function Preise() {
               <li>✓ Monatliche Updates</li>
               <li>✓ Priorisierte Produktverbesserungen durch dein Feedback</li>
             </ul>
-            <button onClick={handlePremium} className="w-full bg-white text-black py-4 rounded-2xl font-semibold text-lg">
+            <button onClick={handlePremium} className="w-full bg-white text-black py-4 rounded-2xl font-semibold text-lg transition hover:bg-neutral-200">
               Als Beta-Tester starten
             </button>
 
             {confirmCheckout && (
-              <div className="mt-4 rounded-2xl border border-white/35 bg-black/25 p-4 text-left text-sm text-white">
+              <div className="mt-4 rounded-2xl border border-white/35 bg-white/10 p-4 text-left text-sm text-white">
                 <p className="font-semibold">Beta-Start bestätigen</p>
                 <p className="mt-2 text-white/85">Du startest kostenlos als Tester. Keine automatische Zahlung, keine Kreditkarte.</p>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -125,9 +125,9 @@ export default function Preise() {
               </div>
             )}
 
-            {checkoutMessage && <p className="mt-3 text-sm text-red-100">{checkoutMessage}</p>}
+            {checkoutMessage && <p className="mt-3 text-sm text-red-300">{checkoutMessage}</p>}
 
-            <div className="mt-6 rounded-2xl border border-white/30 bg-black/25 p-4 text-left text-sm">
+            <div className="mt-6 rounded-2xl border border-white/30 bg-white/10 p-4 text-left text-sm">
               <p className="font-semibold">Nach der Beta hast du die Wahl:</p>
               <ul className="mt-2 space-y-1 text-white/90">
                 <li>1. Sonderangebot für 6 Monate</li>
@@ -139,12 +139,12 @@ export default function Preise() {
         </div>
       </div>
 
-      <footer className="mx-auto mt-16 flex max-w-5xl flex-wrap items-center justify-center gap-5 border-t border-white/10 pt-6 text-sm text-stone-400">
-        <Link href="/" className="transition hover:text-emerald-300">Startseite</Link>
-        <Link href="/impressum" className="transition hover:text-emerald-300">Impressum</Link>
-        <Link href="/datenschutz" className="transition hover:text-emerald-300">Datenschutz</Link>
-        <Link href="/agb" className="transition hover:text-emerald-300">AGB</Link>
-        <Link href="/widerrufsrecht" className="transition hover:text-emerald-300">Widerrufsrecht</Link>
+      <footer className="mx-auto mt-16 flex max-w-5xl flex-wrap items-center justify-center gap-5 border-t border-neutral-200 pt-6 text-sm text-neutral-500">
+        <Link href="/" className="transition hover:text-black">Startseite</Link>
+        <Link href="/impressum" className="transition hover:text-black">Impressum</Link>
+        <Link href="/datenschutz" className="transition hover:text-black">Datenschutz</Link>
+        <Link href="/agb" className="transition hover:text-black">AGB</Link>
+        <Link href="/widerrufsrecht" className="transition hover:text-black">Widerrufsrecht</Link>
       </footer>
     </div>
   );

@@ -34,10 +34,10 @@ export default function PasswortVergessen() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-950 px-6">
-      <div className="w-full max-w-md rounded-3xl border border-stone-800 bg-stone-900 p-10">
-        <h1 className="text-center text-3xl font-bold text-white">Passwort vergessen</h1>
-        <p className="mt-3 text-center text-stone-400">
+    <div className="min-h-screen flex items-center justify-center bg-[#F5EFE1] px-6">
+      <div className="w-full max-w-md rounded-3xl border border-neutral-200 bg-white shadow-sm p-10">
+        <h1 className="text-center text-3xl font-bold text-neutral-900">Passwort vergessen</h1>
+        <p className="mt-3 text-center text-neutral-500">
           Gib deine E-Mail ein. Wenn ein Konto existiert, senden wir dir einen Link zum Zurücksetzen deines Passworts.
         </p>
 
@@ -47,12 +47,12 @@ export default function PasswortVergessen() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="E-Mail"
-            className="w-full rounded-2xl border border-stone-700 bg-stone-800 p-4 text-white"
+            className="w-full rounded-2xl border border-neutral-300 bg-neutral-50 p-4 text-neutral-900"
             required
           />
 
           {message && (
-            <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+            <div className="rounded-2xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-sm text-neutral-900">
               {message}
             </div>
           )}
@@ -60,14 +60,14 @@ export default function PasswortVergessen() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-2xl bg-green-600 py-4 text-lg font-semibold text-white disabled:opacity-70"
+            className="w-full rounded-2xl bg-black py-4 text-lg font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-70"
           >
             {loading ? 'Sende...' : 'Reset-Link anfordern'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-stone-400">
-          Zurück zum <Link href="/?auth=login" className="text-green-400 hover:underline">Login</Link>
+        <p className="mt-6 text-center text-neutral-500">
+          Zurück zum <Link href="/?auth=login" className="text-neutral-900 hover:underline">Login</Link>
         </p>
       </div>
     </div>

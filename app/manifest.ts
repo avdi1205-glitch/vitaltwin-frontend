@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       'Dein digitaler Gesundheits-Zwilling für ein längeres, besseres Leben.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#0c0a09',
-    theme_color: '#0c0a09',
+    background_color: '#F5EFE1',
+    theme_color: '#F5EFE1',
     lang: 'de',
     icons: [
       {
