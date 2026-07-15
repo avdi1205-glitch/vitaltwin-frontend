@@ -1,11 +1,9 @@
 'use client';
 import Link from 'next/link';
 import { apiUrl } from '@/lib/api';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function Preise() {
-  const router = useRouter();
   const [confirmCheckout, setConfirmCheckout] = useState(false);
   const [checkoutMessage, setCheckoutMessage] = useState('');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -47,7 +45,7 @@ export default function Preise() {
     setCheckoutMessage('');
     const token = localStorage.getItem('token');
     if (!token) {
-      router.push('/?auth=register&premium=1');
+      window.location.href = '/?auth=register&premium=1';
       return;
     }
 
@@ -66,7 +64,7 @@ export default function Preise() {
         return;
       }
 
-      router.push('/dashboard?beta=activated');
+      window.location.href = '/dashboard?beta=activated';
     } catch {
       setCheckoutMessage('Beta-Aktivierung gerade nicht erreichbar. Bitte später erneut versuchen.');
     } finally {
@@ -78,7 +76,7 @@ export default function Preise() {
     setPremiumMessage('');
     const token = localStorage.getItem('token');
     if (!token) {
-      router.push('/?auth=register&premium=1');
+      window.location.href = '/?auth=register&premium=1';
       return;
     }
 
