@@ -98,30 +98,41 @@ export default function Dashboard() {
   const router = useRouter();
 
   const fetchProfile = useCallback(async (token: string) => {
-    try {
-      const response = await fetch(apiUrl('/api/users/me'), {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    // A blocked/failed request (e.g. browser extensions, transient network issues) should not
+    // make the UI briefly claim "Starter" for a Beta/Premium account, so we retry once silently
+    // before giving up.
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const response = await fetch(apiUrl('/api/users/me'), {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      const data = (await response.json().catch(() => null)) as ProfileResponse | { detail?: string } | null;
+        const data = (await response.json().catch(() => null)) as ProfileResponse | { detail?: string } | null;
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem('token');
-          router.push('/?auth=login');
+        if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.removeItem('token');
+            router.push('/?auth=login');
+            return;
+          }
+          setErrorMessage(data && 'detail' in data ? data.detail ?? 'Profil konnte nicht geladen werden.' : 'Profil konnte nicht geladen werden.');
+          setLoadingProfile(false);
           return;
         }
-        setErrorMessage(data && 'detail' in data ? data.detail ?? 'Profil konnte nicht geladen werden.' : 'Profil konnte nicht geladen werden.');
-        return;
-      }
 
-      setProfile(data as ProfileResponse);
-    } catch {
-      setErrorMessage('Backend nicht erreichbar. Bitte versuche es in wenigen Sekunden erneut.');
-    } finally {
-      setLoadingProfile(false);
+        setProfile(data as ProfileResponse);
+        setLoadingProfile(false);
+        return;
+      } catch {
+        if (attempt === 0) {
+          await new Promise((resolve) => window.setTimeout(resolve, 1200));
+          continue;
+        }
+        setErrorMessage('Backend nicht erreichbar. Bitte versuche es in wenigen Sekunden erneut.');
+        setLoadingProfile(false);
+      }
     }
   }, [router]);
 
@@ -357,9 +368,9 @@ export default function Dashboard() {
 
             <div className="flex flex-wrap items-center gap-3">
               <span className={`rounded-full px-4 py-1 text-sm font-semibold ${profile?.premium ? 'bg-black text-white' : 'border border-neutral-300 text-neutral-700'}`}>
-                Plan: {loadingProfile ? 'Lädt...' : profile?.premium ? 'Beta-Zugang' : 'Starter'}
+                Plan: {loadingProfile ? 'Lädt...' : !profile ? 'Unbekannt' : profile.premium ? 'Beta-Zugang' : 'Starter'}
               </span>
-              {!loadingProfile && !profile?.premium && (
+              {!loadingProfile && profile && !profile.premium && (
                 <button
                   onClick={() => router.push('/preise')}
                   className="rounded-full bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800"
@@ -418,7 +429,7 @@ export default function Dashboard() {
           </article>
         </section>
 
-        {!loadingProfile && !profile?.premium && (
+        {!loadingProfile && profile && !profile.premium && (
           <div className="mt-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-800">
             {profile?.starter_calc_remaining === 0
               ? 'Starter-Limit: 1 von 1 Berechnung wurde bereits genutzt.'
@@ -426,7 +437,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {!loadingProfile && !profile?.premium && (
+        {!loadingProfile && profile && !profile.premium && (
           <div className="mt-6 rounded-2xl border border-neutral-200 bg-white px-5 py-4 text-sm text-neutral-800">
             {profile?.starter_calc_remaining === 0
               ? 'Deine einmalige Starter-Berechnung wurde bereits genutzt. Für weitere Berechnungen, Verlauf und Detailquellen aktiviere den Beta-Zugang.'
@@ -705,7 +716,7 @@ export default function Dashboard() {
                     : 'Twin neu berechnen'}
             </button>
 
-            {!loadingProfile && !profile?.premium && profile?.starter_calc_remaining === 1 && (
+            {!loadingProfile && profile && !profile.premium && profile?.starter_calc_remaining === 1 && (
               <p className="mt-3 text-sm text-neutral-600">Hinweis: Im Starter ist genau eine Berechnung möglich.</p>
             )}
 
@@ -784,7 +795,7 @@ export default function Dashboard() {
               <h3 className="text-xl font-semibold text-neutral-900">Referenzdaten & Quellen</h3>
               <p className="mt-2 text-sm text-neutral-500">Transparente Referenzbereiche aus veröffentlichten Leitlinien und Fachquellen.</p>
 
-              {!loadingProfile && !profile?.premium && (
+              {!loadingProfile && profile && !profile.premium && (
                 <p className="mt-4 rounded-xl border border-neutral-200 bg-[#F5EFE1] px-4 py-3 text-neutral-800">
                   Detailquellen sind im Beta-Zugang verfügbar.
                 </p>
@@ -817,7 +828,7 @@ export default function Dashboard() {
               <h3 className="text-xl font-semibold text-neutral-900">Verlauf</h3>
               <p className="mt-2 text-sm text-neutral-500">Deine letzten gespeicherten Berechnungen.</p>
 
-              {!loadingProfile && !profile?.premium && (
+              {!loadingProfile && profile && !profile.premium && (
                 <p className="mt-4 rounded-xl border border-neutral-200 bg-[#F5EFE1] px-4 py-3 text-neutral-800">
                   Verlaufsansicht ist im Beta-Zugang freigeschaltet.
                 </p>
