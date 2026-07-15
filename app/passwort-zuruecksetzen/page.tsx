@@ -63,10 +63,10 @@ export default function PasswortAendern() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-6">
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-10">
+    <div className="min-h-screen flex items-center justify-center bg-stone-950 px-6">
+      <div className="w-full max-w-md rounded-3xl border border-stone-800 bg-stone-900 p-10">
         <h1 className="text-center text-3xl font-bold text-white">Passwort ändern</h1>
-        <p className="mt-3 text-center text-slate-400">
+        <p className="mt-3 text-center text-stone-400">
           Gib dein aktuelles Passwort und ein neues Passwort ein, um dein Konto-Passwort zu aktualisieren.
         </p>
 
@@ -76,7 +76,7 @@ export default function PasswortAendern() {
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             placeholder="Aktuelles Passwort"
-            className="w-full rounded-2xl border border-slate-700 bg-slate-800 p-4 text-white"
+            className="w-full rounded-2xl border border-stone-700 bg-stone-800 p-4 text-white"
             required
           />
           <input
@@ -84,7 +84,7 @@ export default function PasswortAendern() {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Neues Passwort (mind. 8 Zeichen)"
-            className="w-full rounded-2xl border border-slate-700 bg-slate-800 p-4 text-white"
+            className="w-full rounded-2xl border border-stone-700 bg-stone-800 p-4 text-white"
             required
             minLength={8}
           />
@@ -104,14 +104,14 @@ export default function PasswortAendern() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-2xl bg-blue-600 py-4 text-lg font-semibold text-white disabled:opacity-70"
+            className="w-full rounded-2xl bg-orange-600 py-4 text-lg font-semibold text-white disabled:opacity-70"
           >
             {loading ? 'Aktualisiere...' : 'Passwort aktualisieren'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-slate-400">
-          Zurück zum <Link href="/dashboard" className="text-blue-400 hover:underline">Dashboard</Link>
+        <p className="mt-6 text-center text-stone-400">
+          Zurück zum <Link href="/dashboard" className="text-orange-400 hover:underline">Dashboard</Link>
         </p>
       </div>
     </div>
