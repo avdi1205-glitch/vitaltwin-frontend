@@ -5,6 +5,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
 
+// Force dynamic rendering: this page's content is entirely driven by
+// client-side auth/chat state, and a previous static/cached build of this
+// exact route caused a stale edge-cached HTML shell to be served after
+// deploys (visible as a React hydration mismatch, error #418). Opting out of
+// static optimization avoids that class of stale-cache bug going forward.
+export const dynamic = 'force-dynamic';
+
 const EXAMPLE_QUESTIONS = [
   'Wie war meine Woche?',
   'Was kann ich heute verbessern?',
