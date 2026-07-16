@@ -403,6 +403,12 @@ export default function Dashboard() {
                 </button>
               )}
               <button
+                onClick={() => router.push('/profil')}
+                className="rounded-full border border-neutral-300 px-5 py-2 text-sm font-semibold text-neutral-700 transition hover:border-neutral-900"
+              >
+                Profil
+              </button>
+              <button
                 onClick={() => router.push('/passwort-zuruecksetzen')}
                 className="rounded-full border border-neutral-300 px-5 py-2 text-sm font-semibold text-neutral-700 transition hover:border-neutral-900"
               >
