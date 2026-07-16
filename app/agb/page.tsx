@@ -1,4 +1,10 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'AGB | VitalTwin',
+  description: 'Allgemeine Geschäftsbedingungen für die Nutzung der VitalTwin-Plattform.',
+};
 
 export default function AGB() {
   return (
@@ -105,6 +111,8 @@ export default function AGB() {
             <Link href="/impressum" className="transition hover:text-black">Impressum</Link>
             <Link href="/datenschutz" className="transition hover:text-black">Datenschutz</Link>
             <Link href="/widerrufsrecht" className="transition hover:text-black">Widerrufsrecht</Link>
+            <Link href="/cookie-einstellungen" className="transition hover:text-black">Cookie-Einstellungen</Link>
+            <Link href="/ki-hinweise" className="transition hover:text-black">KI-Hinweise</Link>
             <p className="ml-auto">Stand: Juli 2026</p>
           </div>
         </div>

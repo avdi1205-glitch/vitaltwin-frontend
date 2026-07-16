@@ -19,3 +19,15 @@ body {
   font-family: var(--font-geist-sans), sans-serif;
 }
 
+/* Visible keyboard focus state across the app (accessibility: keyboard
+   navigation must always show a clear focus indicator). */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+

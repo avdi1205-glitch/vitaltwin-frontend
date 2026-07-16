@@ -1,4 +1,10 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Datenschutz | VitalTwin',
+  description: 'Datenschutzerklärung von VitalTwin gemäß DSGVO.',
+};
 
 export default function Datenschutz() {
   return (
@@ -20,6 +26,8 @@ export default function Datenschutz() {
               <ul className="mt-3 list-disc space-y-1 pl-6 text-neutral-700">
                 <li>Accountdaten wie Name und E-Mail-Adresse</li>
                 <li>Biomarker und Eingaben aus dem Dashboard</li>
+                <li>Freiwillige Profil-, Ziele-, Alltags- und Gewohnheitsangaben</li>
+                <li>Nachrichten an &quot;Frag deinen Twin&quot; (nur zur Erzeugung der Antwort, siehe KI-Hinweise) sowie die Anzahl deiner täglichen Anfragen</li>
                 <li>Technische Logdaten zur Stabilität und Sicherheit</li>
                 <li>Zahlungsinformationen bei Premium-Abschluss über Stripe</li>
               </ul>
@@ -47,6 +55,12 @@ export default function Datenschutz() {
                 <li>Railway (Hosting Backend)</li>
                 <li>Stripe (Zahlungsabwicklung, sobald kostenpflichtige Pläne aktiv sind)</li>
                 <li>Resend (Versand von Transaktions-E-Mails, z. B. Passwort-Reset)</li>
+                <li>
+                  Ein KI-Sprachmodell-Anbieter (z. B. OpenAI), ausschließlich für die Funktion &quot;Frag deinen
+                  Twin&quot; und nur mit deiner Nachricht sowie einer kompakten Zusammenfassung deiner eigenen
+                  Wellness-Daten — siehe{' '}
+                  <Link href="/ki-hinweise" className="text-neutral-900 hover:underline">KI-Hinweise</Link>.
+                </li>
               </ul>
               <p className="mt-3 text-neutral-700">
                 Einige dieser Dienstleister können Daten auch außerhalb der EU/des EWR verarbeiten (z. B. USA). In
@@ -88,6 +102,8 @@ export default function Datenschutz() {
             <Link href="/impressum" className="transition hover:text-black">Impressum</Link>
             <Link href="/agb" className="transition hover:text-black">AGB</Link>
             <Link href="/widerrufsrecht" className="transition hover:text-black">Widerrufsrecht</Link>
+            <Link href="/cookie-einstellungen" className="transition hover:text-black">Cookie-Einstellungen</Link>
+            <Link href="/ki-hinweise" className="transition hover:text-black">KI-Hinweise</Link>
             <p className="ml-auto">Stand: Juli 2026</p>
           </div>
         </div>

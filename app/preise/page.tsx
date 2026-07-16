@@ -394,6 +394,8 @@ export default function Preise() {
           <Link href="/datenschutz" className="transition hover:text-black">Datenschutz</Link>
           <Link href="/agb" className="transition hover:text-black">AGB (Nutzungsbedingungen)</Link>
           <Link href="/widerrufsrecht" className="transition hover:text-black">Widerrufsrecht</Link>
+          <Link href="/cookie-einstellungen" className="transition hover:text-black">Cookie-Einstellungen</Link>
+          <Link href="/ki-hinweise" className="transition hover:text-black">KI-Hinweise</Link>
           <Link href="/impressum" className="transition hover:text-black">Impressum</Link>
         </div>
       </div>

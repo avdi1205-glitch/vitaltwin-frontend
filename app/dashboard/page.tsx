@@ -1027,6 +1027,8 @@ export default function Dashboard() {
             <Link href="/datenschutz" className="transition hover:text-black">Datenschutz</Link>
             <Link href="/agb" className="transition hover:text-black">AGB</Link>
             <Link href="/widerrufsrecht" className="transition hover:text-black">Widerrufsrecht</Link>
+            <Link href="/cookie-einstellungen" className="transition hover:text-black">Cookie-Einstellungen</Link>
+            <Link href="/ki-hinweise" className="transition hover:text-black">KI-Hinweise</Link>
           </div>
         </footer>
       </div>

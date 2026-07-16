@@ -19,11 +19,30 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "VitalTwin | Digitaler Gesundheits-Zwilling",
+  title: {
+    default: "VitalTwin | Digitaler Wellness-Zwilling",
+    template: "%s | VitalTwin",
+  },
   description:
-    "VitalTwin analysiert Biomarker, berechnet dein biologisches Alter und gibt personalisierte Empfehlungen für ein längeres, besseres Leben.",
+    "VitalTwin ordnet deine freiwillig eingetragenen Biomarker ein und gibt allgemeine Wellness-Impulse zur Orientierung für mehr Wohlbefinden im Alltag.",
   manifest: "/manifest.webmanifest",
   applicationName: "VitalTwin",
+  metadataBase: new URL("https://www.vitaltwin.de"),
+  openGraph: {
+    type: "website",
+    locale: "de_DE",
+    siteName: "VitalTwin",
+    title: "VitalTwin | Digitaler Wellness-Zwilling",
+    description:
+      "Wellness-Orientierung auf Basis deiner freiwillig eingetragenen Biomarker und Gewohnheiten. Kein medizinisches Produkt.",
+    url: "https://www.vitaltwin.de",
+  },
+  twitter: {
+    card: "summary",
+    title: "VitalTwin | Digitaler Wellness-Zwilling",
+    description:
+      "Wellness-Orientierung auf Basis deiner freiwillig eingetragenen Biomarker und Gewohnheiten. Kein medizinisches Produkt.",
+  },
 };
 
 export const viewport: Viewport = {
