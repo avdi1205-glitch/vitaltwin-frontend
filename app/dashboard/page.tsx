@@ -3,6 +3,16 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
+import DashboardNav from '../components/dashboard-nav';
+import DashboardHabits from '../components/dashboard-habits';
+import { DomainCard, TodayActionsCard } from '../components/dashboard-cards';
+
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 11) return 'Guten Morgen';
+  if (hour < 18) return 'Guten Tag';
+  return 'Guten Abend';
+}
 
 type TwinResponse = {
   biologisches_alter: number;
@@ -85,6 +95,7 @@ export default function Dashboard() {
   const [twin, setTwin] = useState<TwinResponse | null>(null);
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [progressCounts, setProgressCounts] = useState({ week: 0, month: 0 });
   const [loading, setLoading] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingHistory, setLoadingHistory] = useState(true);
@@ -96,6 +107,17 @@ export default function Dashboard() {
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const autoStarterTriggeredRef = useRef(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Derives week/month calculation counts from history. Kept in an effect
+    // (rather than computed directly during render) because it depends on
+    // the current wall-clock time (Date.now()), which is an impure value.
+    const now = Date.now();
+    const week = history.filter((item) => now - new Date(item.created_at).getTime() <= 7 * 24 * 60 * 60 * 1000).length;
+    const month = history.filter((item) => now - new Date(item.created_at).getTime() <= 30 * 24 * 60 * 60 * 1000).length;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setProgressCounts({ week, month });
+  }, [history]);
 
   const fetchProfile = useCallback(async (token: string) => {
     // A blocked/failed request (e.g. browser extensions, transient network issues) should not
@@ -356,15 +378,17 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#F5EFE1] text-neutral-900">
       <div className="mx-auto max-w-7xl px-6 py-8 md:py-10">
+        <DashboardNav />
         <header className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm md:p-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-neutral-500">VitalTwin Intelligence</p>
-              <h1 className="mt-2 font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-5xl">Dein digitaler Gesundheits-Zwilling</h1>
-              <p className="mt-3 text-neutral-700">
-                Willkommen{profile?.full_name ? `, ${profile.full_name}` : ''}. Führe neue Berechnungen aus und optimiere deinen Zwilling Schritt für Schritt.
-              </p>
+              <h1 className="mt-2 font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-5xl">
+                {getGreeting()}{profile?.full_name ? `, ${profile.full_name}` : ''}
+              </h1>
+              <p className="mt-3 text-neutral-700">Hier ist dein heutiger VitalTwin-Überblick.</p>
             </div>
+
 
             <div className="flex flex-wrap items-center gap-3">
               <span className={`rounded-full px-4 py-1 text-sm font-semibold ${profile?.premium ? 'bg-black text-white' : 'border border-neutral-300 text-neutral-700'}`}>
@@ -394,40 +418,103 @@ export default function Dashboard() {
           </div>
         </header>
 
-        <div className="mt-6 rounded-2xl border border-neutral-200 bg-white px-5 py-4 text-sm text-neutral-700">
-          Dieses Dashboard ist ein Wellness-Tool zur Gesundheitsorientierung und kein medizinisches Produkt. Die Ergebnisse ersetzen keine ärztliche Diagnose oder Therapie.
-        </div>
-
-        {paymentMessage && (
-          <div className="mt-6 rounded-2xl border border-neutral-200 bg-white px-5 py-4 text-neutral-900">
-            {paymentMessage}
+        <section id="uebersicht" className="scroll-mt-24">
+          <div className="mt-6 rounded-2xl border border-neutral-200 bg-white px-5 py-4 text-sm text-neutral-700">
+            Dieses Dashboard ist ein Wellness-Tool zur Gesundheitsorientierung und kein medizinisches Produkt. Die Ergebnisse ersetzen keine ärztliche Diagnose oder Therapie.
           </div>
-        )}
 
-        {errorMessage && (
-          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-700">
-            {errorMessage}
+          {paymentMessage && (
+            <div className="mt-6 rounded-2xl border border-neutral-200 bg-white px-5 py-4 text-neutral-900">
+              {paymentMessage}
+            </div>
+          )}
+
+          {errorMessage && (
+            <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-700">
+              {errorMessage}
+            </div>
+          )}
+
+          <h2 className="mt-8 font-[family-name:var(--font-serif-display)] text-xl font-semibold text-neutral-900">
+            Tagesübersicht
+          </h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            <DomainCard label="Schlaf" hint="Noch keine Schlafdaten erfasst." detailHref="#mein-twin" />
+            <DomainCard label="Bewegung" hint="Noch keine Bewegungsdaten erfasst." detailHref="#gewohnheiten" />
+            <DomainCard label="Ernährung" hint="Noch keine Ernährungsdaten erfasst." detailHref="#gewohnheiten" />
+            <DomainCard label="Stress" hint="Noch keine Stressdaten erfasst." detailHref="#mein-twin" />
+            <DomainCard label="Energie" hint="Noch keine Energiedaten erfasst." detailHref="#gewohnheiten" />
+            <DomainCard label="Erholung" hint="Noch keine Erholungsdaten erfasst." detailHref="#mein-twin" />
           </div>
-        )}
 
-        <section className="mt-8 grid gap-4 md:grid-cols-3">
-          <article className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <p className="text-sm text-neutral-500">Status</p>
-            <p className="mt-2 text-2xl font-bold text-neutral-900">
-              {loadingProfile ? 'Lade...' : profile?.premium ? 'Beta-Zugang aktiv' : 'Starter aktiv'}
-            </p>
-          </article>
-          <article className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <p className="text-sm text-neutral-500">Biologisches Alter</p>
-            <p className="mt-2 text-2xl font-bold text-neutral-900">{displayedTwin ? `${displayedTwin.biologisches_alter} Jahre` : 'Noch keine Berechnung'}</p>
-          </article>
-          <article className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <p className="text-sm text-neutral-500">Differenz</p>
-            <p className="mt-2 text-2xl font-bold text-neutral-900">
-              {displayedTwin ? `${displayedTwin.differenz > 0 ? '+' : ''}${displayedTwin.differenz} Jahre` : '-'}
-            </p>
-          </article>
+          <h2 className="mt-10 font-[family-name:var(--font-serif-display)] text-xl font-semibold text-neutral-900">
+            VitalTwin-Gesamtstatus
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-neutral-600">
+            Dein Status basiert ausschließlich auf den Biomarkern, die du im Bereich „Mein Twin&quot; einträgst. Es handelt
+            sich um keine medizinische Risikobewertung und keine wissenschaftlich exakte Messung, sondern um eine grobe
+            Wellness-Orientierung.
+          </p>
+          <section className="mt-4 grid gap-4 md:grid-cols-3">
+            <article className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <p className="text-sm text-neutral-500">Status</p>
+              <p className="mt-2 text-2xl font-bold text-neutral-900">
+                {loadingProfile ? 'Lade...' : profile?.premium ? 'Beta-Zugang aktiv' : 'Starter aktiv'}
+              </p>
+            </article>
+            <article className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <p className="text-sm text-neutral-500">Biologisches Alter</p>
+              <p className="mt-2 text-2xl font-bold text-neutral-900">{displayedTwin ? `${displayedTwin.biologisches_alter} Jahre` : 'Noch keine Berechnung'}</p>
+            </article>
+            <article className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <p className="text-sm text-neutral-500">Differenz</p>
+              <p className="mt-2 text-2xl font-bold text-neutral-900">
+                {displayedTwin ? `${displayedTwin.differenz > 0 ? '+' : ''}${displayedTwin.differenz} Jahre` : '-'}
+              </p>
+            </article>
+          </section>
+          <p className="mt-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-xs text-neutral-600">
+            Diese Schätzung dient ausschließlich der Wellness-Orientierung und ist keine medizinische Bewertung.
+            Einfließende Daten: Alter, Geschlecht, HbA1c, CRP, Vitamin D, ApoB und die weiteren von dir eingetragenen
+            Marker.
+          </p>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <TodayActionsCard title="Heute für dich" actions={displayedTwin?.empfehlungen ?? []} />
+
+            <article className="rounded-2xl border border-neutral-200 bg-white p-6">
+              <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-neutral-900">Frag deinen Twin</h3>
+              <p className="mt-2 text-sm text-neutral-600">Stelle deinem digitalen Zwilling Fragen zu deiner Entwicklung.</p>
+              <ul className="mt-4 space-y-2 text-sm text-neutral-700">
+                <li>„Wie lief meine Woche?&quot;</li>
+                <li>„Was kann ich heute verbessern?&quot;</li>
+                <li>„Welche Gewohnheit hat den größten Einfluss?&quot;</li>
+              </ul>
+              <Link
+                href="/frag-deinen-twin"
+                className="mt-4 inline-block rounded-full bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800"
+              >
+                Twin fragen
+              </Link>
+            </article>
+          </div>
+
+          {!loadingProfile && profile && !profile.premium && (
+            <div className="mt-6 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-600">
+              Du nutzt aktuell Free.{' '}
+              <Link href="/preise" className="font-semibold text-neutral-900 underline hover:text-black">
+                Mehr Möglichkeiten mit Premium ansehen
+              </Link>
+              .
+            </div>
+          )}
+          {!loadingProfile && profile?.premium && (
+            <div className="mt-6 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-600">
+              Aktueller Tarif: <span className="font-semibold text-neutral-900">Beta-Zugang</span>
+            </div>
+          )}
         </section>
+
 
         {!loadingProfile && profile && !profile.premium && (
           <div className="mt-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-800">
@@ -445,7 +532,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        <section className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <section id="mein-twin" className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr] scroll-mt-24">
           <div className="rounded-3xl border border-neutral-200 bg-white p-7">
             <div className="mb-6">
               <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-neutral-900">Marker-Eingabe</h2>
@@ -824,7 +911,7 @@ export default function Dashboard() {
               )}
             </div>
 
-            <div className="rounded-3xl border border-neutral-200 bg-white p-7">
+            <div id="verlauf" className="rounded-3xl border border-neutral-200 bg-white p-7 scroll-mt-24">
               <h3 className="text-xl font-semibold text-neutral-900">Verlauf</h3>
               <p className="mt-2 text-sm text-neutral-500">Deine letzten gespeicherten Berechnungen.</p>
 
@@ -899,6 +986,31 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+        </section>
+
+        <section id="gewohnheiten" className="mt-8 scroll-mt-24">
+          <DashboardHabits storageKey={profile?.email ?? 'anon'} />
+        </section>
+
+        <section className="mt-8">
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-neutral-900">Fortschritt</h2>
+          <div className="mt-4 grid gap-4 md:grid-cols-3">
+            <article className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <p className="text-sm text-neutral-500">Berechnungen diese Woche</p>
+              <p className="mt-2 text-2xl font-bold text-neutral-900">{progressCounts.week}</p>
+            </article>
+            <article className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <p className="text-sm text-neutral-500">Berechnungen diesen Monat</p>
+              <p className="mt-2 text-2xl font-bold text-neutral-900">{progressCounts.month}</p>
+            </article>
+            <article className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <p className="text-sm text-neutral-500">Zielerreichung</p>
+              <p className="mt-2 text-2xl font-bold text-neutral-900">Noch kein Ziel gesetzt</p>
+            </article>
+          </div>
+          <Link href="#verlauf" className="mt-4 inline-block text-sm font-semibold text-neutral-900 underline hover:text-black">
+            Zum vollständigen Verlauf
+          </Link>
         </section>
 
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-neutral-200 pt-6 text-sm text-neutral-500">
