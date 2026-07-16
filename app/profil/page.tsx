@@ -88,6 +88,17 @@ export default function Profil() {
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
+  const extractErrorMessage = (data: unknown, fallback: string): string => {
+    if (!data || typeof data !== 'object') return fallback;
+    const payload = data as { detail?: unknown };
+    if (typeof payload.detail === 'string' && payload.detail.trim()) return payload.detail;
+    if (Array.isArray(payload.detail) && payload.detail.length > 0) {
+      const first = payload.detail[0] as { msg?: string };
+      if (typeof first?.msg === 'string' && first.msg.trim()) return first.msg;
+    }
+    return fallback;
+  };
+
   const loadProfile = useCallback(async (authToken: string) => {
     try {
       const res = await fetch(apiUrl('/api/profile/me'), {
@@ -166,7 +177,7 @@ export default function Profil() {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setErrorMessage(data?.detail ?? 'Profil konnte nicht gespeichert werden.');
+        setErrorMessage(extractErrorMessage(data, 'Profil konnte nicht gespeichert werden.'));
         return;
       }
       setProfile(data);
@@ -195,7 +206,7 @@ export default function Profil() {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setDailyMessage(data?.detail ?? 'Konnte nicht gespeichert werden.');
+        setDailyMessage(extractErrorMessage(data, 'Konnte nicht gespeichert werden.'));
         return;
       }
       setDailyMessage('Heutiger Alltag gespeichert.');
@@ -220,7 +231,7 @@ export default function Profil() {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setHabitMessage(data?.detail ?? 'Gewohnheit konnte nicht angelegt werden.');
+        setHabitMessage(extractErrorMessage(data, 'Gewohnheit konnte nicht angelegt werden.'));
         return;
       }
       setHabitName('');
