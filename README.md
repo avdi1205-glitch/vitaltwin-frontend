@@ -1,3 +1,7 @@
+WICHTIG
+
+Vor jeder Änderung am Projekt muss zuerst `docs/VITALTWIN_CONSTITUTION.md` gelesen werden.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
