@@ -3,20 +3,116 @@
 :root {
   --background: #F5EFE1;
   --foreground: #171717;
+
+  /* VitalTwin Brand Identity 1.0 — "Im Takt" (see docs/BRAND_GUIDE.md) */
+  --brand-gold: #C9A24B;
+  --brand-sand: #E8DCC4;
+  --brand-beige: #F5EFE1;
+  --brand-teal: #1F8A8C;
+  --brand-anthracite: #2A2E2E;
+  --brand-graphite: #3D4242;
+  --brand-heart-glow: rgba(255, 255, 255, 0.65);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-sand: var(--brand-sand);
+  --color-brand-beige: var(--brand-beige);
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-anthracite: var(--brand-anthracite);
+  --color-brand-graphite: var(--brand-graphite);
+  --font-sans: var(--font-sans-body);
+  --font-mono: var(--font-mono-technical);
   --font-serif-display: var(--font-serif-display);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: var(--font-sans-body), sans-serif;
+}
+
+/* VitalTwin Brand Identity — "Im Takt" mark animation (see docs/BRAND_GUIDE.md).
+   Human (gold) line draws in from the left, AI (teal) line draws in from the
+   right, they meet, a heart forms and beats once, then the wordmark fades in.
+   Total duration ~2s. Static (non-animated) usage is unaffected. */
+.vitaltwin-mark__human,
+.vitaltwin-mark__ai {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 0;
+}
+
+.vitaltwin-mark__heart {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.vitaltwin-mark--animated .vitaltwin-mark__human,
+.vitaltwin-mark--animated .vitaltwin-mark__ai {
+  stroke-dashoffset: 300;
+  animation: vitaltwin-draw-in 0.8s ease-out forwards;
+}
+
+.vitaltwin-mark--animated .vitaltwin-mark__heart {
+  opacity: 0;
+  transform: scale(0.6);
+  animation:
+    vitaltwin-heart-form 0.4s ease-out 0.75s forwards,
+    vitaltwin-heartbeat 0.5s ease-in-out 1.2s 1;
+}
+
+.vitaltwin-mark--animated text {
+  opacity: 0;
+  animation: vitaltwin-fade-in 0.4s ease-out 1.6s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vitaltwin-mark--animated .vitaltwin-mark__human,
+  .vitaltwin-mark--animated .vitaltwin-mark__ai,
+  .vitaltwin-mark--animated .vitaltwin-mark__heart,
+  .vitaltwin-mark--animated text {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@keyframes vitaltwin-draw-in {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes vitaltwin-heart-form {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes vitaltwin-heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.15);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  70% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes vitaltwin-fade-in {
+  to {
+    opacity: 1;
+  }
 }
 
 /* Visible keyboard focus state across the app (accessibility: keyboard

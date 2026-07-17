@@ -13,12 +13,17 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: 'de',
     icons: [
       {
-        src: '/globe.svg',
-        sizes: 'any',
-        type: 'image/svg+xml',
+        src: '/icon',
+        sizes: '32x32',
+        type: 'image/png',
       },
       {
-        src: '/next.svg',
+        src: '/apple-icon',
+        sizes: '180x180',
+        type: 'image/png',
+      },
+      {
+        src: '/vitaltwin-mark.svg',
         sizes: 'any',
         type: 'image/svg+xml',
       },

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import VitalTwinMark from './brand/VitalTwinMark';
 
 type SiteNavProps = {
   onOpenLogin: () => void;
@@ -16,12 +17,8 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-200 bg-[#F5EFE1]/95 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link
-          href="/"
-          onClick={closeMenu}
-          className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-neutral-900"
-        >
-          VitalTwin
+        <Link href="/" onClick={closeMenu} className="flex items-center" aria-label="VitalTwin Startseite">
+          <VitalTwinMark variant="icon" className="h-7 w-auto" />
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">

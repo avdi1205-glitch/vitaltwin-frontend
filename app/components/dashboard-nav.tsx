@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import VitalTwinMark from './brand/VitalTwinMark';
 
 export default function DashboardNav() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -19,7 +20,8 @@ export default function DashboardNav() {
   return (
     <nav className="sticky top-0 z-30 -mx-6 mb-6 border-b border-neutral-200 bg-[#F5EFE1]/95 px-6 py-3 backdrop-blur md:mx-0 md:rounded-2xl md:border md:bg-white">
       <div className="flex items-center justify-between">
-        <span className="font-[family-name:var(--font-serif-display)] text-sm font-semibold text-neutral-900">
+        <span className="flex items-center gap-2 font-[family-name:var(--font-serif-display)] text-sm font-semibold text-neutral-900">
+          <VitalTwinMark variant="icon" className="h-5 w-auto" />
           VitalTwin Cockpit
         </span>
         <button

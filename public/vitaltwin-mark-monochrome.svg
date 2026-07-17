@@ -1,0 +1,10 @@
+<svg viewBox="0 0 220 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="VitalTwin — Im Takt (monochrome)">
+  <title>VitalTwin — Im Takt (monochrome)</title>
+  <g fill="none" stroke="currentColor">
+    <path d="M10 50 Q45 10 80 50 T150 50" stroke-width="5" stroke-linecap="round" />
+    <path d="M310 50 L290 50 L290 25 L270 25 L270 75 L250 75 L250 50 L220 50" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+  <g transform="translate(85, 0) scale(0.7)">
+    <path d="M50 66 C50 66 24 48 24 30 C24 20 32 12 42 12 C46 12 50 15 50 15 C50 15 54 12 58 12 C68 12 76 20 76 30 C76 48 50 66 50 66 Z" fill="currentColor" />
+  </g>
+</svg>
