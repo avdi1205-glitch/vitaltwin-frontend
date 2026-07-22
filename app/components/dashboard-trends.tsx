@@ -25,6 +25,7 @@ const FIELD_LABELS: Record<string, string> = {
 export default function DashboardTrends() {
   const [data, setData] = useState<TrendsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const authHeader = useCallback((): Record<string, string> => {
     const token = localStorage.getItem('token');
@@ -36,16 +37,37 @@ export default function DashboardTrends() {
       try {
         const response = await fetch(apiUrl('/api/profile/trends'), { headers: authHeader() });
         const json = await response.json().catch(() => null);
-        if (response.ok) setData(json as TrendsResponse);
+        if (response.ok) {
+          setData(json as TrendsResponse);
+        } else {
+          setErrorMessage('Trends konnten nicht geladen werden.');
+        }
       } catch {
-        // Trends are a nice-to-have widget — a failed fetch just hides it.
+        setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
       } finally {
         setLoading(false);
       }
     })();
   }, [authHeader]);
 
-  if (loading || !data) {
+  if (loading) {
+    return (
+      <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+        <p className="text-sm text-[#8E969F]">Lade Trends...</p>
+      </article>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Trends (7 Tage)</h3>
+        <p className="mt-2 text-sm text-red-300">{errorMessage}</p>
+      </article>
+    );
+  }
+
+  if (!data) {
     return null;
   }
 

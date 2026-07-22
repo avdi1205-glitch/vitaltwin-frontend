@@ -1,9 +1,11 @@
 # VitalTwin — Twin Intelligence Architecture (TWIN_INTELLIGENCE_ARCHITECTURE.md)
 
-> Erstellt in **Etappe 7 (Twin Intelligence Core)**. Beschreibt, wie die
-> Twin Context Engine, die AI-Provider-Abstraktion und der
-> Twin-Conversation-Layer zusammenspielen — die technische Architektur
-> hinter "Frag deinen Twin".
+> Erstellt in **Etappe 7 (Twin Intelligence Core)**, erweitert in
+> **Etappe 8**. Beschreibt, wie die Twin Context Engine, die
+> AI-Provider-Abstraktion und der Twin-Conversation-Layer zusammenspielen —
+> die technische Architektur hinter "Frag deinen Twin" — sowie, seit
+> Etappe 8, wie alle Twin-Intelligence-Bausteine (Etappen 2–7) im Dashboard
+> zur "Du und dein KI-Zwilling"-Ansicht zusammengeführt werden.
 
 ## 1. Überblick
 
@@ -101,3 +103,68 @@ durchrutscht, während sie auf der anderen erkannt würde.
 Siehe [TWIN_BETA_LIMITATIONS.md](./TWIN_BETA_LIMITATIONS.md) für die
 vollständige Tabelle und bekannte Einschränkungen (insbesondere: PRO/FAMILY
 sind in der Datenbank aktuell nicht von PREMIUM unterscheidbar).
+
+## 6. Dashboard-Integration: "Du und dein KI-Zwilling" (Etappe 8)
+
+Alle in Etappe 2–7 gebauten Twin-Intelligence-Komponenten werden im
+Dashboard (`frontend/app/dashboard/page.tsx`, Abschnitt
+`#gewohnheiten`/"Du und dein KI-Zwilling") in einer festen, markenkonsistenten
+Struktur zusammengeführt — **kein neuer Code in der UI verdoppelt bestehende
+Geschäftslogik**, jede Karte ruft ausschließlich ihren bereits in der
+jeweiligen Etappe gebauten Endpunkt auf.
+
+```mermaid
+flowchart TB
+    Header["Kopfzeile: 'Du und dein KI-Zwilling' + Datenschutz-Link"]
+    Plan["Tagesplan (bridging, Etappe 6)"]
+    subgraph Du["Linke Spalte: Du"]
+        Checkin["Check-in (Etappe 3)"]
+        Goals["Ziele (Etappe 3)"]
+        Habits["Gewohnheiten (Etappe 3)"]
+    end
+    subgraph Zwilling["Rechte Spalte: Dein KI-Zwilling"]
+        Recs["Empfehlungen + Warum? + Bewerten (Etappe 4)"]
+        Trends["Trends (Etappe 3)"]
+        Progress["Wochenrückblick + Monatsübersicht + Reifegrad (Etappe 6)"]
+        Memory["Memories + Muster (Etappe 5)"]
+    end
+    Chat["Frag deinen Twin (bridging, Etappe 7)"]
+
+    Header --> Plan --> Du
+    Plan --> Zwilling
+    Du --> Chat
+    Zwilling --> Chat
+```
+
+### Warum genau diese Aufteilung?
+
+Etappe 8 §2 definiert die linke Seite ("Du") als *subjektive Angaben,
+Check-in, Gefühle, Ziele, Gewohnheiten* und die rechte Seite ("Dein
+KI-Zwilling") als *Trends, Erinnerungen, Empfehlungen, erkannte mögliche
+Muster, Fortschritt*. Tagesplan und "Frag deinen Twin" gehören zu keiner
+Seite allein — beide sind der Ort, an dem Mensch und Twin "im Takt"
+zusammenarbeiten (Tagesplan: der Twin schlägt vor, der Mensch entscheidet;
+Chat: der Mensch fragt, der Twin antwortet auf Basis der eigenen Daten) —
+deshalb stehen sie als eigene, volle Breite einnehmende Karten oberhalb
+bzw. unterhalb der zweispaltigen Ansicht, nicht in einer der beiden Spalten.
+
+### Wiederverwendete Komponenten (keine neue Geschäftslogik)
+
+| Karte | Komponente | Endpunkt(e) | Etappe |
+|---|---|---|---|
+| Check-in | `dashboard-checkin.tsx` | `PUT`/`GET`/`DELETE /api/profile/daily` | 3 |
+| Tagesplan | `dashboard-daily-plan.tsx` | `/api/planning/today`, `/actions/{id}/...`, `/reflection` | 6 |
+| Ziele | `dashboard-goals.tsx` | `/api/profile/goals` | 3 |
+| Gewohnheiten | `dashboard-habits.tsx` | `/api/profile/habits` | 3 |
+| Empfehlungen | `dashboard-recommendations.tsx` | `/api/recommendations`, `/why`, `/feedback` | 4 |
+| Trends | `dashboard-trends.tsx` | `/api/profile/trends` | 3 |
+| Wochenrückblick/Monat/Reifegrad | `dashboard-twin-progress.tsx` | `/api/planning/weekly`, `/monthly`, `/maturity` | 6 |
+| Memories/Muster | `dashboard-twin-memory.tsx` | `/api/memory`, `/api/memory/patterns` | 5 |
+| Frag deinen Twin | eigene Seite `frag-deinen-twin/page.tsx` | `/api/chat/ask`, `/status` | 7 |
+
+Einzige in Etappe 8 vorgenommene Code-Änderungen an bestehenden Komponenten:
+ein "Eintrag löschen"-Button in `dashboard-checkin.tsx` (nutzt den bereits
+in Etappe 3 dokumentierten `DELETE /api/profile/daily/{entry_date}`-Endpunkt
+— kein neuer Backend-Code) und explizite Lade-/Fehlerzustände in
+`dashboard-trends.tsx` (vorher: stiller Fehlschlag). Alles andere ist reine
+Anordnung (JSX/Layout), keine neue Datenbanklogik in der UI.

@@ -505,23 +505,8 @@ export default function Dashboard() {
 
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
             <TodayActionsCard title="Heute für dich" actions={displayedTwin?.empfehlungen ?? []} />
-
-            <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Frag deinen Twin</h3>
-              <p className="mt-2 text-sm text-[#B7BDC4]">Stelle deinem digitalen Zwilling Fragen zu deiner Entwicklung.</p>
-              <ul className="mt-4 space-y-2 text-sm text-[#B7BDC4]">
-                <li>„Wie lief meine Woche?&quot;</li>
-                <li>„Was kann ich heute verbessern?&quot;</li>
-                <li>„Welche Gewohnheit hat den größten Einfluss?&quot;</li>
-              </ul>
-              <Link
-                href="/frag-deinen-twin"
-                className="mt-4 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
-              >
-                Twin fragen
-              </Link>
-            </article>
           </div>
+
 
           {!loadingProfile && profile && !profile.premium && (
             <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#B7BDC4]">
@@ -1012,16 +997,70 @@ export default function Dashboard() {
           </div>
         </section>
 
-        <section id="gewohnheiten" className="mt-8 space-y-6 scroll-mt-24">
-          <DashboardCheckin />
-          <DashboardDailyPlan />
-          <DashboardRecommendations />
-          <DashboardHabits />
-          <DashboardGoals />
-          <DashboardTrends />
-          <DashboardTwinProgress />
-          <DashboardTwinMemory />
+        <section id="gewohnheiten" className="mt-8 scroll-mt-24">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">
+                Du und dein KI-Zwilling
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm text-[#B7BDC4]">
+                Mensch und Twin arbeiten im Takt: Du bringst deine Angaben ein — dein Twin erkennt Trends, Erinnerungen
+                und mögliche Muster daraus. Keine medizinische Bewertung, nur Wellness-Orientierung.
+              </p>
+            </div>
+            <Link
+              href="/profil#datenschutz"
+              className="inline-block shrink-0 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-[#B7BDC4] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
+            >
+              Datenschutz, Export &amp; Löschung
+            </Link>
+          </div>
+
+          <div className="mt-6">
+            <DashboardDailyPlan />
+          </div>
+
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
+            <div className="min-w-0 space-y-6">
+              <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">
+                Du
+              </p>
+              <DashboardCheckin />
+              <DashboardGoals />
+              <DashboardHabits />
+            </div>
+
+            <div className="min-w-0 space-y-6">
+              <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">
+                Dein KI-Zwilling
+              </p>
+              <DashboardRecommendations />
+              <DashboardTrends />
+              <DashboardTwinProgress />
+              <DashboardTwinMemory />
+            </div>
+          </div>
+
+          <article className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+            <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Frag deinen Twin</h3>
+            <p className="mt-2 text-sm text-[#B7BDC4]">
+              Stelle deinem digitalen Zwilling Fragen zu deiner Entwicklung — er antwortet auf Basis deiner eigenen
+              Daten, immer mit Quellenangabe und „Warum?&quot;.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm text-[#B7BDC4]">
+              <li>„Wie lief meine Woche?&quot;</li>
+              <li>„Was kann ich heute verbessern?&quot;</li>
+              <li>„Welche Gewohnheit hat den größten Einfluss?&quot;</li>
+            </ul>
+            <Link
+              href="/frag-deinen-twin"
+              className="mt-4 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
+            >
+              Twin fragen
+            </Link>
+          </article>
         </section>
+
 
         <section className="mt-8">
           <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Fortschritt</h2>

@@ -1,13 +1,14 @@
 # VitalTwin — Twin Explainability (TWIN_EXPLAINABILITY.md)
 
 > Erstellt in **Etappe 4 (Twin Intelligence Core)**, erweitert in
-> **Etappe 5**, **Etappe 6** und **Etappe 7**. Dokumentiert die
-> "Warum?"-Erklärungsstruktur für Empfehlungen
+> **Etappe 5**, **Etappe 6**, **Etappe 7** und **Etappe 8**. Dokumentiert
+> die "Warum?"-Erklärungsstruktur für Empfehlungen
 > (`backend/app/services/explainability.py`, Endpunkt
 > `GET /api/recommendations/{id}/why`), die Herkunfts-/Konfidenz-Anzeige für
 > Memories und Patterns (Etappe 5), die Begründungen im Tagesplan und die
 > Datengrundlage von Wochenrückblick/Monatsvorschau/Twin-Reifegrad
-> (Etappe 6) sowie die Quellenkennzeichnung im Twin-Chat (Etappe 7).
+> (Etappe 6), die Quellenkennzeichnung im Twin-Chat (Etappe 7) sowie deren
+> durchgängige Verfügbarkeit im integrierten Dashboard (Etappe 8).
 
 ## 1. Grundprinzip
 
@@ -144,3 +145,25 @@ muss laut Systemprompt exakt dieses JSON-Schema liefern
 (`services/ai_provider.py::TwinAIResponse`); eine Antwort ohne gültige
 `sources` besteht die Schema-Validierung nicht und wird nie ausgeliefert
 (siehe [TWIN_SAFETY.md](./TWIN_SAFETY.md) §3).
+
+## 9. "Warum?" im integrierten Dashboard (Etappe 8)
+
+Etappe 8 §5 verlangt: "Bei relevanten Inhalten muss 'Warum?' verfügbar
+sein." Im zusammengeführten Dashboard ist das für jede Karte der Fall —
+ohne dass Etappe 8 dafür neue Erklärungs-Logik bauen musste, da jede Karte
+ihre eigene, bereits in ihrer jeweiligen Etappe gebaute Erklärung mitbringt:
+
+| Karte | Wo die Erklärung sichtbar ist |
+|---|---|
+| Empfehlungen | expliziter "Warum?"-Button pro Empfehlung (§2, Etappe 4) |
+| Tagesplan-Aktion | `reasoning`/`estimated_effort` direkt in der Karte (§6, Etappe 6) |
+| Memories/Muster | Herkunft/Konfidenz/`contradicting` direkt in der Karte (§6, Etappe 5) |
+| Wochenrückblick/Monat/Reifegrad | Datenpunkte, Schwellen und `missing_data` direkt in der Karte (§7, Etappe 6) |
+| Twin-Chat | "Warum?"-Toggle pro Antwort mit Quellen (§8, Etappe 7) |
+
+Keine Karte zeigt eine Aussage, ohne zugleich (mindestens auf Nachfrage) zu
+zeigen, worauf sie beruht — verwendete Daten, Zeitraum, Datenqualität,
+Unsicherheit und Ziel-/Gewohnheitsbezug, wo zutreffend. Keine falsche
+Präzision: jede Konfidenz-/Datenqualitätsangabe stammt aus einer der bereits
+dokumentierten deterministischen Berechnungen, nie aus einer neuen, in
+Etappe 8 erfundenen Kennzahl.

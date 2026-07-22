@@ -593,7 +593,7 @@ export default function Profil() {
         </section>
 
         {/* Datenschutzkontrollen */}
-        <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+        <section id="datenschutz" className="mt-6 scroll-mt-24 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
           <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Datenschutzkontrollen</h2>
           <p className="mt-3 text-sm text-[#B7BDC4]">
             Bei dir gespeichert: Grundprofil, Wellness-Ziele, tägliche Alltagswerte und Gewohnheiten — jeweils

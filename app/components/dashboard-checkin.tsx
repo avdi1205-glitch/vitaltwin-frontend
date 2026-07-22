@@ -37,8 +37,10 @@ const OPTIONAL_SCALE_FIELDS: { key: keyof CheckinEntry; label: string }[] = [
  */
 export default function DashboardCheckin() {
   const [entry, setEntry] = useState<CheckinEntry>({ entry_date: new Date().toISOString().slice(0, 10) });
+  const [hasSavedEntry, setHasSavedEntry] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [showMore, setShowMore] = useState(false);
@@ -55,6 +57,7 @@ export default function DashboardCheckin() {
         const data = await response.json().catch(() => null);
         if (response.ok && data?.item) {
           setEntry(data.item as CheckinEntry);
+          setHasSavedEntry(true);
         }
       } catch {
         // Silently keep the empty form — not a blocking error for a first-time check-in.
@@ -89,11 +92,37 @@ export default function DashboardCheckin() {
         );
         return;
       }
+      setHasSavedEntry(true);
       setMessage('Check-in gespeichert.');
     } catch {
       setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const deleteEntry = async () => {
+    if (!window.confirm('Diesen heutigen Check-in wirklich löschen?')) return;
+    setDeleting(true);
+    setMessage('');
+    setErrorMessage('');
+    try {
+      const response = await fetch(apiUrl(`/api/profile/daily/${entry.entry_date}`), {
+        method: 'DELETE',
+        headers: authHeader(),
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        setErrorMessage(data?.detail ?? 'Check-in konnte nicht gelöscht werden.');
+        return;
+      }
+      setEntry({ entry_date: new Date().toISOString().slice(0, 10) });
+      setHasSavedEntry(false);
+      setMessage('Check-in gelöscht.');
+    } catch {
+      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -214,6 +243,15 @@ export default function DashboardCheckin() {
         >
           {saving ? 'Speichere...' : 'Check-in speichern'}
         </button>
+        {hasSavedEntry && (
+          <button
+            onClick={() => void deleteEntry()}
+            disabled={deleting}
+            className="rounded-xl border border-red-400/25 px-5 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {deleting ? 'Lösche...' : 'Eintrag löschen'}
+          </button>
+        )}
         {message && <p className="text-sm text-[#B7BDC4]">{message}</p>}
         {errorMessage && <p className="text-sm text-red-300">{errorMessage}</p>}
       </div>
