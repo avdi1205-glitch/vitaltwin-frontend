@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
+import PrivacyControls from '../components/privacy-controls';
 
 const WELLNESS_GOALS: { id: string; label: string }[] = [
   { id: 'besser_schlafen', label: 'Besser schlafen' },
@@ -625,6 +626,10 @@ export default function Profil() {
             Aus Sicherheitsgründen wird eine Löschung manuell geprüft und nicht automatisch sofort ausgeführt. Du
             erreichst uns jederzeit auch direkt unter info@vitaltwin.de.
           </p>
+
+          <div className="mt-6 border-t border-white/10 pt-6">
+            <PrivacyControls />
+          </div>
         </section>
       </div>
     </div>

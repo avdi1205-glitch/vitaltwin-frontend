@@ -1,11 +1,14 @@
 # VitalTwin — Twin Intelligence Architecture (TWIN_INTELLIGENCE_ARCHITECTURE.md)
 
 > Erstellt in **Etappe 7 (Twin Intelligence Core)**, erweitert in
-> **Etappe 8**. Beschreibt, wie die Twin Context Engine, die
-> AI-Provider-Abstraktion und der Twin-Conversation-Layer zusammenspielen —
-> die technische Architektur hinter "Frag deinen Twin" — sowie, seit
-> Etappe 8, wie alle Twin-Intelligence-Bausteine (Etappen 2–7) im Dashboard
-> zur "Du und dein KI-Zwilling"-Ansicht zusammengeführt werden.
+> **Etappe 8** und **Etappe 9**. Beschreibt, wie die Twin Context Engine,
+> die AI-Provider-Abstraktion und der Twin-Conversation-Layer
+> zusammenspielen — die technische Architektur hinter "Frag deinen Twin"
+> — sowie, seit Etappe 8, wie alle Twin-Intelligence-Bausteine (Etappen
+> 2–7) im Dashboard zur "Du und dein KI-Zwilling"-Ansicht zusammengeführt
+> werden, und seit Etappe 9 den neuen `privacy`-Router für Export,
+> Löschung und Einwilligungen (siehe
+> [PRIVACY_CONTROLS.md](./PRIVACY_CONTROLS.md)).
 
 ## 1. Überblick
 
@@ -168,3 +171,13 @@ in Etappe 3 dokumentierten `DELETE /api/profile/daily/{entry_date}`-Endpunkt
 — kein neuer Backend-Code) und explizite Lade-/Fehlerzustände in
 `dashboard-trends.tsx` (vorher: stiller Fehlschlag). Alles andere ist reine
 Anordnung (JSX/Layout), keine neue Datenbanklogik in der UI.
+
+## 7. Privacy-Router (Etappe 9)
+
+Ein neuer, eigener Router `app/routers/privacy.py` (mounted unter
+`/api/privacy`) bündelt Export/Löschung/Einwilligungen — bewusst getrennt
+von `routers/profile.py` (das bereits den vollen JSON-Export und die
+Kontolöschungsanfrage hält und in Etappe 9 nur inhaltlich erweitert, nicht
+umgezogen wurde, um die bestehende Frontend-Verdrahtung aus Etappe 8 nicht
+zu brechen). Vollständige Details:
+[PRIVACY_CONTROLS.md](./PRIVACY_CONTROLS.md).

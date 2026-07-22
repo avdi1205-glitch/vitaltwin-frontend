@@ -1,9 +1,12 @@
 # VitalTwin — Twin Context (TWIN_CONTEXT.md)
 
-> Erstellt in **Etappe 7 (Twin Intelligence Core)**. Dokumentiert die Twin
-> Context Engine (`backend/app/services/twin_context.py`), die vor jedem
-> KI-Aufruf einen minimalen, auf die Frage zugeschnittenen Kontext baut —
-> nie die gesamte Datenbank.
+> Erstellt in **Etappe 7 (Twin Intelligence Core)**, ergänzt in
+> **Etappe 9**. Dokumentiert die Twin Context Engine
+> (`backend/app/services/twin_context.py`), die vor jedem KI-Aufruf einen
+> minimalen, auf die Frage zugeschnittenen Kontext baut — nie die gesamte
+> Datenbank — sowie, seit Etappe 9, wie gelöschte Daten strukturell nie
+> wieder in diesem Kontext auftauchen können (siehe
+> [PRIVACY_CONTROLS.md](./PRIVACY_CONTROLS.md)).
 
 ## 1. Grundprinzip
 

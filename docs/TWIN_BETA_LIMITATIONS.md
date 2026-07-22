@@ -1,10 +1,12 @@
 # VitalTwin — Twin Beta Limitations (TWIN_BETA_LIMITATIONS.md)
 
 > Erstellt in **Etappe 7 (Twin Intelligence Core)**, erweitert in
-> **Etappe 8**. Zentrale, ehrliche Übersicht der bekannten Grenzen des
-> Twin-Conversation-Features, der Tarifstruktur und (seit Etappe 8) der
-> Dashboard-Integration — damit "keine erfundene Sicherheit" (Etappe 7 §6)
-> auch für das Gesamtsystem gilt, nicht nur für einzelne Antworten.
+> **Etappe 8** und **Etappe 9**. Zentrale, ehrliche Übersicht der
+> bekannten Grenzen des Twin-Conversation-Features, der Tarifstruktur, der
+> Dashboard-Integration (Etappe 8) und der Privacy-/Export-/
+> Lösch-Funktionen (Etappe 9) — damit "keine erfundene Sicherheit"
+> (Etappe 7 §6) auch für das Gesamtsystem gilt, nicht nur für einzelne
+> Antworten.
 
 ## 1. Tariflimits (Etappe 7 §7)
 
@@ -92,3 +94,23 @@ siehe die durchgängigen medizinischen Grenzen in
   (z. B. 7-Tage-Trends statt der vollständigen Historie) — Etappe 8 hat
   keine bestehende Ladegrenze geändert oder eine echte Seitennavigation
   ergänzt, da keine Karte aktuell unbegrenzt wachsende Listen anzeigt.
+
+## 5. Privacy, Export, Löschung (Etappe 9)
+
+- **Kein echter Background-Job für große Exporte:** `MAX_SYNC_EXPORT_ROWS`
+  begrenzt den synchronen Export, verweist aber nur auf eine manuelle
+  Kontaktaufnahme — eine tatsächliche asynchrone Export-Pipeline (Job-Queue,
+  E-Mail-Benachrichtigung bei Fertigstellung) ist nicht Teil dieser Etappe,
+  siehe [PRIVACY_CONTROLS.md](./PRIVACY_CONTROLS.md) §1.
+- **Keine automatisierte Aufbewahrungs-Bereinigung:** Audit-Log-Rotation,
+  Soft-Delete-Bereinigung und Chat-Usage-Bereinigung sind als Zielwerte in
+  [DATA_RETENTION.md](./DATA_RETENTION.md) dokumentiert, aber noch nicht als
+  Cronjob umgesetzt.
+- **Kein verifizierter Wiederherstellungstest:** siehe
+  [BACKUP_AND_RESTORE.md](./BACKUP_AND_RESTORE.md) — kein
+  Infrastrukturzugriff in dieser Session.
+- **Getrennte Dev-/Prod-Datenbank nicht bestätigt:** organisatorischer,
+  nicht code-seitiger offener Punkt (siehe
+  [BACKUP_AND_RESTORE.md](./BACKUP_AND_RESTORE.md) §4).
+- **Migration 008 nicht ausgeführt:** wie alle bisherigen Migrationen in
+  dieser Umgebung — sie fügt ohnehin nur Indizes hinzu, kein Schema-Risiko.

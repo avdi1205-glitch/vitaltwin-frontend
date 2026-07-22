@@ -1,8 +1,9 @@
 # VitalTwin — Twin Learning Rules (TWIN_LEARNING_RULES.md)
 
 > Erstellt in **Etappe 4 (Twin Intelligence Core)**, erweitert in
-> **Etappe 5** und **Etappe 6**. Dokumentiert die regelbasierte
-> Empfehlungslogik (`backend/app/services/recommendation_rules.py`), die
+> **Etappe 5**, **Etappe 6** und **Etappe 9**. Dokumentiert die
+> regelbasierte Empfehlungslogik
+> (`backend/app/services/recommendation_rules.py`), die
 > Beta-Personalisierungsheuristiken
 > (`backend/app/services/personalization.py`), die Memory-Detektoren
 > (`backend/app/services/twin_memory.py`), die transparente

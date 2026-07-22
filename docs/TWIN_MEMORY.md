@@ -1,6 +1,7 @@
 # VitalTwin — Twin Memory (TWIN_MEMORY.md)
 
-> Erstellt in **Etappe 5 (Twin Intelligence Core)**. Dokumentiert das
+> Erstellt in **Etappe 5 (Twin Intelligence Core)**, ergänzt in
+> **Etappe 9** um die Kategorie-Löschung. Dokumentiert das
 > Memory-Modell, den Lebenszyklus, die Pattern-Detection-Regeln und die
 > Twin Learning Events aus
 > `backend/app/services/twin_memory.py`,
@@ -214,3 +215,13 @@ konsistent mit `core/auth.py` und Etappe 4).
   `POST /api/memory`-Endpunkt gespeichert werden — es gibt noch keine
   dedizierte UI (z. B. ein Kommunikationsstil-Einstellungsmenü), die diesen
   Typ automatisch anlegt.
+
+## 10. Kategorie-Löschung (Etappe 9)
+
+Neben der einzelnen Memory-/Pattern-Löschung (§2, §3) kann der Nutzer über
+`DELETE /api/privacy/data/memories` bzw. `.../patterns` **alle** eigenen
+Memories/Patterns auf einmal hart löschen (siehe
+[PRIVACY_CONTROLS.md](./PRIVACY_CONTROLS.md)). Danach sind sie sofort aus
+dem Twin-Kontext, aus Empfehlungen und aus künftigen Mustererkennungen
+verschwunden — dieselbe strukturelle Garantie wie bei der Einzel-Löschung
+(§2 „Nach Löschung“), da jede spätere Abfrage die Tabelle erneut liest.

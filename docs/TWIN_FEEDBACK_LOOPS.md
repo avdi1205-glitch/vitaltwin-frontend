@@ -1,13 +1,15 @@
 # VitalTwin — Twin Feedback Loops (TWIN_FEEDBACK_LOOPS.md)
 
 > Erstellt in **Etappe 3 (Twin Intelligence Core)**, erweitert in
-> **Etappe 4**, **Etappe 5** und **Etappe 6**. Dokumentiert die in diesen
-> Etappen **echt implementierten** Loops (Daily Check-in, Sleep/Movement/
-> Stress-Recovery, Habit, Goal, Recommendation-/Decision-/Outcome-/
-> Feedback-Loop, Memory Loop, sowie in Etappe 6 Daily Planning, Evening/
-> Weekly Reflection, Monthly-Progress-Grundlage und Twin-Reifegrad) — mit
-> echter Datenbankanbindung, nicht nur als Konzept wie im
-> Constitution-Kapitel "Core Learning Loops".
+> **Etappe 4**, **Etappe 5**, **Etappe 6** und **Etappe 9**. Dokumentiert
+> die in diesen Etappen **echt implementierten** Loops (Daily Check-in,
+> Sleep/Movement/Stress-Recovery, Habit, Goal, Recommendation-/Decision-/
+> Outcome-/Feedback-Loop, Memory Loop, sowie in Etappe 6 Daily Planning,
+> Evening/Weekly Reflection, Monthly-Progress-Grundlage und Twin-Reifegrad)
+> — mit echter Datenbankanbindung, nicht nur als Konzept wie im
+> Constitution-Kapitel "Core Learning Loops". Etappe 9 ergänzt, wie jeder
+> dieser Loops von Export, Löschung und Einwilligungen betroffen ist —
+> siehe [PRIVACY_CONTROLS.md](./PRIVACY_CONTROLS.md).
 
 ## 1. Daily Check-in Loop
 

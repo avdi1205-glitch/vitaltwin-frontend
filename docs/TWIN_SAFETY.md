@@ -1,10 +1,12 @@
 # VitalTwin — Twin Safety (TWIN_SAFETY.md)
 
-> Erstellt in **Etappe 7 (Twin Intelligence Core)**. Dokumentiert die
-> medizinischen Grenzen, die Prompt-Injection-Verteidigung und die
-> Ausgabe-Validierung des Twin-Conversation-Layers
-> (`backend/app/services/twin_conversation.py`,
-> `backend/app/services/ai_provider.py`).
+> Erstellt in **Etappe 7 (Twin Intelligence Core)**, ergänzt in
+> **Etappe 9**. Dokumentiert die medizinischen Grenzen, die
+> Prompt-Injection-Verteidigung und die Ausgabe-Validierung des
+> Twin-Conversation-Layers (`backend/app/services/twin_conversation.py`,
+> `backend/app/services/ai_provider.py`) sowie, seit Etappe 9, die
+> Consent-/Export-/Lösch-Sicherheitsregeln (siehe
+> [PRIVACY_CONTROLS.md](./PRIVACY_CONTROLS.md)).
 
 ## 1. Medizinische Grenzen (Etappe 7 §4)
 
@@ -64,3 +66,19 @@ regelbasiert, nie KI-generiert" (`recommendation_rules.py`,
 `source_type="rule_based"`) bleibt unverändert — der Twin-Conversation-Layer
 aus Etappe 7 ist ein **separates** Feature ("Frag deinen Twin"), das nicht in
 die Empfehlungslogik eingreift.
+
+## 5. Zugriffs- und Löschsicherheit (Etappe 9)
+
+- **Nutzertrennung** gilt unverändert auch für alle neuen Privacy-Endpunkte
+  (`routers/privacy.py`): jede Abfrage/Löschung ist `.eq("email", email)`
+  skopiert, `email` wird ausschließlich serverseitig aus dem Session-Token
+  aufgelöst — nie aus einem Request-Body oder Query-Parameter (§5 "Zugriff
+  auf fremde Nutzerdaten"/"Manipulation von userId" gilt hier identisch).
+- **Kategorie-Löschung ist irreversibel** (hartes Löschen, kein
+  Undo-Endpunkt) — die Frontend-UI fragt vor der Ausführung eine
+  Bestätigung ab (`window.confirm(...)`), serverseitig gibt es bewusst
+  keine "sind Sie sicher?"-Zwischenstufe, um die API selbst einfach zu
+  halten; die Verantwortung für die Bestätigung liegt in der UI-Schicht.
+- **Export-Größenbegrenzung** (`MAX_SYNC_EXPORT_ROWS`) ist auch eine
+  Absicherung gegen versehentliche oder böswillige Ressourcenerschöpfung
+  durch wiederholte sehr große Export-Anfragen.

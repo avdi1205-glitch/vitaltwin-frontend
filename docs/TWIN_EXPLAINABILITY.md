@@ -1,14 +1,16 @@
 # VitalTwin — Twin Explainability (TWIN_EXPLAINABILITY.md)
 
 > Erstellt in **Etappe 4 (Twin Intelligence Core)**, erweitert in
-> **Etappe 5**, **Etappe 6**, **Etappe 7** und **Etappe 8**. Dokumentiert
-> die "Warum?"-Erklärungsstruktur für Empfehlungen
+> **Etappe 5**, **Etappe 6**, **Etappe 7**, **Etappe 8** und **Etappe 9**.
+> Dokumentiert die "Warum?"-Erklärungsstruktur für Empfehlungen
 > (`backend/app/services/explainability.py`, Endpunkt
 > `GET /api/recommendations/{id}/why`), die Herkunfts-/Konfidenz-Anzeige für
 > Memories und Patterns (Etappe 5), die Begründungen im Tagesplan und die
 > Datengrundlage von Wochenrückblick/Monatsvorschau/Twin-Reifegrad
 > (Etappe 6), die Quellenkennzeichnung im Twin-Chat (Etappe 7) sowie deren
-> durchgängige Verfügbarkeit im integrierten Dashboard (Etappe 8).
+> durchgängige Verfügbarkeit im integrierten Dashboard (Etappe 8) und die
+> Sichtbarkeit dieser Datengrundlagen in der Privacy-Übersicht (Etappe 9,
+> siehe [PRIVACY_CONTROLS.md](./PRIVACY_CONTROLS.md)).
 
 ## 1. Grundprinzip
 
