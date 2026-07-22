@@ -34,10 +34,10 @@ export default function PasswortVergessen() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F5EFE1] px-6">
-      <div className="w-full max-w-md rounded-3xl border border-neutral-200 bg-white shadow-sm p-10">
-        <h1 className="text-center text-3xl font-bold text-neutral-900">Passwort vergessen</h1>
-        <p className="mt-3 text-center text-neutral-500">
+    <div className="min-h-screen flex items-center justify-center bg-[#0B1118] px-6">
+      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.03] p-10">
+        <h1 className="text-center text-3xl font-bold text-[#F5F2EA]">Passwort vergessen</h1>
+        <p className="mt-3 text-center text-[#8E969F]">
           Gib deine E-Mail ein. Wenn ein Konto existiert, senden wir dir einen Link zum Zurücksetzen deines Passworts.
         </p>
 
@@ -47,12 +47,12 @@ export default function PasswortVergessen() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="E-Mail"
-            className="w-full rounded-2xl border border-neutral-300 bg-neutral-50 p-4 text-neutral-900"
+            className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
             required
           />
 
           {message && (
-            <div className="rounded-2xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-sm text-neutral-900">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#F5F2EA]">
               {message}
             </div>
           )}
@@ -60,14 +60,14 @@ export default function PasswortVergessen() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-2xl bg-black py-4 text-lg font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-70"
+            className="w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-4 text-lg font-semibold text-[#0B1118] transition hover:brightness-110 disabled:opacity-70"
           >
             {loading ? 'Sende...' : 'Reset-Link anfordern'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-neutral-500">
-          Zurück zum <Link href="/?auth=login" className="text-neutral-900 hover:underline">Login</Link>
+        <p className="mt-6 text-center text-[#8E969F]">
+          Zurück zum <Link href="/?auth=login" className="text-[#58D7D4] hover:underline">Login</Link>
         </p>
       </div>
     </div>

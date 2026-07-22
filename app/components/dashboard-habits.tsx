@@ -100,12 +100,12 @@ export default function DashboardHabits({ storageKey }: DashboardHabitsProps) {
   };
 
   return (
-    <article className="rounded-2xl border border-neutral-200 bg-white p-6">
+    <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-neutral-900">Gewohnheiten</h3>
+        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Gewohnheiten</h3>
         <button
           onClick={() => setShowAddForm((current) => !current)}
-          className="rounded-full bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800"
+          className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
         >
           Gewohnheit hinzufügen
         </button>
@@ -121,11 +121,11 @@ export default function DashboardHabits({ storageKey }: DashboardHabitsProps) {
               if (e.key === 'Enter') addHabit();
             }}
             placeholder="z. B. 20 Minuten spazieren"
-            className="flex-1 rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2 text-sm text-neutral-900 focus:border-neutral-900 focus:outline-none"
+            className="flex-1 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
           />
           <button
             onClick={addHabit}
-            className="rounded-xl border border-neutral-900 px-4 py-2 text-sm font-semibold transition hover:bg-neutral-900 hover:text-white"
+            className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
           >
             Speichern
           </button>
@@ -134,9 +134,9 @@ export default function DashboardHabits({ storageKey }: DashboardHabitsProps) {
 
       <div className="mt-5 space-y-3">
         {!hydrated ? (
-          <p className="text-sm text-neutral-500">Lade Gewohnheiten...</p>
+          <p className="text-sm text-[#8E969F]">Lade Gewohnheiten...</p>
         ) : habits.length === 0 ? (
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-[#B7BDC4]">
             Noch keine Gewohnheiten angelegt. Füge deine erste Gewohnheit hinzu, um deine Serie zu starten.
           </p>
         ) : (
@@ -146,28 +146,28 @@ export default function DashboardHabits({ storageKey }: DashboardHabitsProps) {
             return (
               <div
                 key={habit.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 px-4 py-3"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3"
               >
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => toggleToday(habit.id)}
                     aria-label={done ? 'Als offen markieren' : 'Als erledigt markieren'}
                     className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm font-bold transition ${
-                      done ? 'border-black bg-black text-white' : 'border-neutral-300 text-neutral-400'
+                      done ? 'border-[#58D7D4] bg-[#46C8C8] text-[#0B1118]' : 'border-white/20 text-[#6B7480]'
                     }`}
                   >
                     {done ? '✓' : ''}
                   </button>
                   <div>
-                    <p className="text-sm font-semibold text-neutral-900">{habit.label}</p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-sm font-semibold text-[#F5F2EA]">{habit.label}</p>
+                    <p className="text-xs text-[#8E969F]">
                       {done ? 'Heute erledigt' : 'Heute offen'} · Serie: {streak} {streak === 1 ? 'Tag' : 'Tage'}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => removeHabit(habit.id)}
-                  className="text-xs text-neutral-400 underline hover:text-red-600"
+                  className="text-xs text-[#8E969F] underline hover:text-red-300"
                 >
                   Entfernen
                 </button>
@@ -176,7 +176,7 @@ export default function DashboardHabits({ storageKey }: DashboardHabitsProps) {
           })
         )}
       </div>
-      <p className="mt-4 text-xs text-neutral-500">
+      <p className="mt-4 text-xs text-[#8E969F]">
         Gewohnheiten werden aktuell lokal auf diesem Gerät gespeichert.
       </p>
     </article>

@@ -52,12 +52,12 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
       {children}
       {phase !== 'hidden' && (
         <div
-          className={`fixed inset-0 z-[999] flex items-center justify-center bg-[#F5EFE1] transition-opacity duration-300 ${
+          className={`fixed inset-0 z-[999] flex items-center justify-center bg-[#0B1118] transition-opacity duration-300 ${
             phase === 'hiding' ? 'opacity-0' : 'opacity-100'
           }`}
           aria-hidden="true"
         >
-          <VitalTwinMark animated variant="horizontal" className="h-16 w-auto md:h-20" />
+          <VitalTwinMark animated variant="horizontal" theme="dark" className="h-16 w-auto md:h-20" />
         </div>
       )}
     </>

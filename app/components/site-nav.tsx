@@ -15,20 +15,20 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-neutral-200 bg-[#F5EFE1]/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B1118]/95 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/" onClick={closeMenu} className="flex items-center" aria-label="VitalTwin Startseite">
-          <VitalTwinMark variant="icon" className="h-7 w-auto" />
+          <VitalTwinMark variant="icon" theme="dark" className="h-7 w-auto" />
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
-          <Link href="/" className="text-sm font-medium text-neutral-700 transition hover:text-black">
+          <Link href="/" className="text-sm font-medium text-[#B7BDC4] transition hover:text-[#58D7D4]">
             Startseite
           </Link>
-          <a href="#funktionen" className="text-sm font-medium text-neutral-700 transition hover:text-black">
+          <a href="#funktionen" className="text-sm font-medium text-[#B7BDC4] transition hover:text-[#58D7D4]">
             Funktionen
           </a>
-          <Link href="/preise" className="text-sm font-medium text-neutral-700 transition hover:text-black">
+          <Link href="/preise" className="text-sm font-medium text-[#B7BDC4] transition hover:text-[#58D7D4]">
             Preise
           </Link>
         </div>
@@ -36,13 +36,13 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
         <div className="hidden items-center gap-3 md:flex">
           <button
             onClick={onOpenLogin}
-            className="rounded-full border border-neutral-300 px-5 py-2 text-sm font-semibold text-neutral-800 transition hover:border-neutral-900"
+            className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
           >
             Anmelden
           </button>
           <button
             onClick={onOpenRegister}
-            className="rounded-full bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800"
+            className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
           >
             Kostenlos starten
           </button>
@@ -52,7 +52,7 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
           onClick={() => setMenuOpen((open) => !open)}
           aria-expanded={menuOpen}
           aria-label={menuOpen ? 'Menü schließen' : 'Menü öffnen'}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-300 text-neutral-900 md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-[#F5F2EA] md:hidden"
         >
           {menuOpen ? (
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -67,8 +67,8 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
       </nav>
 
       {menuOpen && (
-        <div className="border-t border-neutral-200 bg-[#F5EFE1] px-6 py-4 md:hidden">
-          <div className="flex flex-col gap-1 text-sm font-medium text-neutral-800">
+        <div className="border-t border-white/10 bg-[#0B1118] px-6 py-4 md:hidden">
+          <div className="flex flex-col gap-1 text-sm font-medium text-[#F5F2EA]">
             <Link href="/" onClick={closeMenu} className="rounded-xl px-2 py-3">
               Startseite
             </Link>
@@ -84,7 +84,7 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
                   closeMenu();
                   onOpenLogin();
                 }}
-                className="rounded-full border border-neutral-300 px-5 py-3 text-center font-semibold"
+                className="rounded-full border border-white/20 px-5 py-3 text-center font-semibold text-[#F5F2EA]"
               >
                 Anmelden
               </button>
@@ -93,7 +93,7 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
                   closeMenu();
                   onOpenRegister();
                 }}
-                className="rounded-full bg-black px-5 py-3 text-center font-semibold text-white"
+                className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-3 text-center font-semibold text-[#0B1118]"
               >
                 Kostenlos starten
               </button>

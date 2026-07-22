@@ -8,22 +8,22 @@ export const metadata: Metadata = {
 
 export default function Datenschutz() {
   return (
-    <main className="min-h-screen bg-[#F5EFE1] text-neutral-900">
+    <main className="min-h-screen bg-[#0B1118] text-[#F5F2EA]">
       <div className="mx-auto max-w-5xl px-6 py-14">
-        <div className="rounded-3xl border border-neutral-200 bg-white shadow-sm p-8 md:p-10">
-          <p className="text-xs uppercase tracking-[0.18em] text-neutral-900">Rechtliches</p>
-          <h1 className="mt-3 text-4xl font-bold md:text-5xl">Datenschutzerklärung</h1>
-          <p className="mt-4 text-neutral-700">Informationen zur Verarbeitung personenbezogener Daten gemäß DSGVO.</p>
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 md:p-10">
+          <p className="text-xs uppercase tracking-[0.18em] text-[#8E969F]">Rechtliches</p>
+          <h1 className="mt-3 text-4xl font-bold text-[#F5F2EA] md:text-5xl">Datenschutzerklärung</h1>
+          <p className="mt-4 text-[#B7BDC4]">Informationen zur Verarbeitung personenbezogener Daten gemäß DSGVO.</p>
 
           <div className="mt-10 space-y-6">
-            <section className="rounded-2xl border border-neutral-200 bg-[#F5EFE1] p-6">
-              <h2 className="text-xl font-semibold text-neutral-900">1. Verantwortliche Stelle</h2>
-              <p className="mt-3 text-neutral-700">VitalTwin DE, Avdi Morina, info@vitaltwin.de</p>
+            <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+              <h2 className="text-xl font-semibold text-[#F5F2EA]">1. Verantwortliche Stelle</h2>
+              <p className="mt-3 text-[#B7BDC4]">VitalTwin DE, Avdi Morina, info@vitaltwin.de</p>
             </section>
 
-            <section className="rounded-2xl border border-neutral-200 bg-[#F5EFE1] p-6">
-              <h2 className="text-xl font-semibold text-neutral-900">2. Verarbeitete Daten</h2>
-              <ul className="mt-3 list-disc space-y-1 pl-6 text-neutral-700">
+            <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+              <h2 className="text-xl font-semibold text-[#F5F2EA]">2. Verarbeitete Daten</h2>
+              <ul className="mt-3 list-disc space-y-1 pl-6 text-[#B7BDC4]">
                 <li>Accountdaten wie Name und E-Mail-Adresse</li>
                 <li>Biomarker und Eingaben aus dem Dashboard</li>
                 <li>Freiwillige Profil-, Ziele-, Alltags- und Gewohnheitsangaben</li>
@@ -33,23 +33,23 @@ export default function Datenschutz() {
               </ul>
             </section>
 
-            <section className="rounded-2xl border border-neutral-200 bg-[#F5EFE1] p-6">
-              <h2 className="text-xl font-semibold text-neutral-900">3. Zweck und Rechtsgrundlagen</h2>
-              <p className="mt-3 text-neutral-700">
+            <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+              <h2 className="text-xl font-semibold text-[#F5F2EA]">3. Zweck und Rechtsgrundlagen</h2>
+              <p className="mt-3 text-[#B7BDC4]">
                 Die Verarbeitung erfolgt zur Bereitstellung der Plattform, zur Berechnung deines Digital Twins, zur
                 Vertragserfüllung sowie zur sicheren Zahlungsabwicklung. Rechtsgrundlagen sind insbesondere Art. 6
                 Abs. 1 lit. b und lit. f DSGVO.
               </p>
             </section>
 
-            <section className="rounded-2xl border border-neutral-200 bg-[#F5EFE1] p-6">
-              <h2 className="text-xl font-semibold text-neutral-900">4. Weitergabe und Dienstleister</h2>
-              <p className="mt-3 text-neutral-700">
+            <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+              <h2 className="text-xl font-semibold text-[#F5F2EA]">4. Weitergabe und Dienstleister</h2>
+              <p className="mt-3 text-[#B7BDC4]">
                 Wir setzen sorgfältig ausgewählte Auftragsverarbeiter ein, mit denen jeweils ein
                 Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO besteht bzw. Standardvertragsklauseln vereinbart
                 sind:
               </p>
-              <ul className="mt-3 list-disc space-y-1 pl-6 text-neutral-700">
+              <ul className="mt-3 list-disc space-y-1 pl-6 text-[#B7BDC4]">
                 <li>Supabase (Datenbank, Authentifizierung)</li>
                 <li>Vercel (Hosting Frontend)</li>
                 <li>Railway (Hosting Backend)</li>
@@ -59,19 +59,19 @@ export default function Datenschutz() {
                   Ein KI-Sprachmodell-Anbieter (z. B. OpenAI), ausschließlich für die Funktion &quot;Frag deinen
                   Twin&quot; und nur mit deiner Nachricht sowie einer kompakten Zusammenfassung deiner eigenen
                   Wellness-Daten — siehe{' '}
-                  <Link href="/ki-hinweise" className="text-neutral-900 hover:underline">KI-Hinweise</Link>.
+                  <Link href="/ki-hinweise" className="text-[#58D7D4] hover:underline">KI-Hinweise</Link>.
                 </li>
               </ul>
-              <p className="mt-3 text-neutral-700">
+              <p className="mt-3 text-[#B7BDC4]">
                 Einige dieser Dienstleister können Daten auch außerhalb der EU/des EWR verarbeiten (z. B. USA). In
                 diesen Fällen stellen wir ein angemessenes Datenschutzniveau durch EU-Standardvertragsklauseln oder
                 vergleichbare Garantien gemäß Art. 44 ff. DSGVO sicher.
               </p>
             </section>
 
-            <section className="rounded-2xl border border-neutral-200 bg-[#F5EFE1] p-6">
-              <h2 className="text-xl font-semibold text-neutral-900">4a. Cookies und lokale Speicherung</h2>
-              <p className="mt-3 text-neutral-700">
+            <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+              <h2 className="text-xl font-semibold text-[#F5F2EA]">4a. Cookies und lokale Speicherung</h2>
+              <p className="mt-3 text-[#B7BDC4]">
                 Wir setzen kein Tracking und keine Marketing-Cookies ein. Zur Anmeldung speichern wir ein
                 Sitzungs-Token technisch notwendig im lokalen Speicher (localStorage) deines Browsers, damit du
                 eingeloggt bleibst. Diese Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG zur Bereitstellung des von dir
@@ -79,31 +79,31 @@ export default function Datenschutz() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-neutral-200 bg-[#F5EFE1] p-6">
-              <h2 className="text-xl font-semibold text-neutral-900">5. Speicherdauer</h2>
-              <p className="mt-3 text-neutral-700">
+            <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+              <h2 className="text-xl font-semibold text-[#F5F2EA]">5. Speicherdauer</h2>
+              <p className="mt-3 text-[#B7BDC4]">
                 Daten werden nur so lange gespeichert, wie es für die jeweiligen Zwecke notwendig ist oder gesetzliche
                 Aufbewahrungsfristen bestehen.
               </p>
             </section>
 
-            <section className="rounded-2xl border border-neutral-200 bg-[#F5EFE1] p-6">
-              <h2 className="text-xl font-semibold text-neutral-900">6. Deine Rechte</h2>
-              <p className="mt-3 text-neutral-700">
+            <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+              <h2 className="text-xl font-semibold text-[#F5F2EA]">6. Deine Rechte</h2>
+              <p className="mt-3 text-[#B7BDC4]">
                 Du hast Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und
                 Widerspruch. Zudem besteht ein Beschwerderecht bei einer Datenschutzaufsichtsbehörde.
               </p>
             </section>
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-neutral-200 pt-6 text-sm text-neutral-500">
-            <Link href="/" className="transition hover:text-black">Startseite</Link>
-            <Link href="/dashboard" className="transition hover:text-black">Dashboard</Link>
-            <Link href="/impressum" className="transition hover:text-black">Impressum</Link>
-            <Link href="/agb" className="transition hover:text-black">AGB</Link>
-            <Link href="/widerrufsrecht" className="transition hover:text-black">Widerrufsrecht</Link>
-            <Link href="/cookie-einstellungen" className="transition hover:text-black">Cookie-Einstellungen</Link>
-            <Link href="/ki-hinweise" className="transition hover:text-black">KI-Hinweise</Link>
+          <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-white/10 pt-6 text-sm text-[#8E969F]">
+            <Link href="/" className="transition hover:text-[#58D7D4]">Startseite</Link>
+            <Link href="/dashboard" className="transition hover:text-[#58D7D4]">Dashboard</Link>
+            <Link href="/impressum" className="transition hover:text-[#58D7D4]">Impressum</Link>
+            <Link href="/agb" className="transition hover:text-[#58D7D4]">AGB</Link>
+            <Link href="/widerrufsrecht" className="transition hover:text-[#58D7D4]">Widerrufsrecht</Link>
+            <Link href="/cookie-einstellungen" className="transition hover:text-[#58D7D4]">Cookie-Einstellungen</Link>
+            <Link href="/ki-hinweise" className="transition hover:text-[#58D7D4]">KI-Hinweise</Link>
             <p className="ml-auto">Stand: Juli 2026</p>
           </div>
         </div>

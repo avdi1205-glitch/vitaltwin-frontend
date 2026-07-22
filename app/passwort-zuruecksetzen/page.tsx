@@ -63,10 +63,10 @@ export default function PasswortAendern() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F5EFE1] px-6">
-      <div className="w-full max-w-md rounded-3xl border border-neutral-200 bg-white shadow-sm p-10">
-        <h1 className="text-center text-3xl font-bold text-neutral-900">Passwort ändern</h1>
-        <p className="mt-3 text-center text-neutral-500">
+    <div className="min-h-screen flex items-center justify-center bg-[#0B1118] px-6">
+      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.03] p-10">
+        <h1 className="text-center text-3xl font-bold text-[#F5F2EA]">Passwort ändern</h1>
+        <p className="mt-3 text-center text-[#8E969F]">
           Gib dein aktuelles Passwort und ein neues Passwort ein, um dein Konto-Passwort zu aktualisieren.
         </p>
 
@@ -76,7 +76,7 @@ export default function PasswortAendern() {
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             placeholder="Aktuelles Passwort"
-            className="w-full rounded-2xl border border-neutral-300 bg-neutral-50 p-4 text-neutral-900"
+            className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
             required
           />
           <input
@@ -84,19 +84,19 @@ export default function PasswortAendern() {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Neues Passwort (mind. 8 Zeichen)"
-            className="w-full rounded-2xl border border-neutral-300 bg-neutral-50 p-4 text-neutral-900"
+            className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
             required
             minLength={8}
           />
 
           {errorMessage && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-2xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
               {errorMessage}
             </div>
           )}
 
           {successMessage && (
-            <div className="rounded-2xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-sm text-neutral-900">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#F5F2EA]">
               {successMessage}
             </div>
           )}
@@ -104,14 +104,14 @@ export default function PasswortAendern() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-2xl bg-black py-4 text-lg font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-70"
+            className="w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-4 text-lg font-semibold text-[#0B1118] transition hover:brightness-110 disabled:opacity-70"
           >
             {loading ? 'Aktualisiere...' : 'Passwort aktualisieren'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-neutral-500">
-          Zurück zum <Link href="/dashboard" className="text-neutral-900 hover:underline">Dashboard</Link>
+        <p className="mt-6 text-center text-[#8E969F]">
+          Zurück zum <Link href="/dashboard" className="text-[#58D7D4] hover:underline">Dashboard</Link>
         </p>
       </div>
     </div>

@@ -231,18 +231,18 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 backdrop-blur-sm sm:items-center"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm sm:items-center"
       onClick={onClose}
     >
       <div
-        className="my-4 w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto rounded-3xl border border-neutral-200 bg-white p-5 shadow-2xl sm:my-6 sm:max-h-[calc(100vh-3rem)] sm:p-7"
+        className="my-4 w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto rounded-3xl border border-white/10 bg-[#0B1118] p-5 shadow-2xl sm:my-6 sm:max-h-[calc(100vh-3rem)] sm:p-7"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between sm:mb-6">
-          <h2 className="text-xl font-bold text-neutral-900 sm:text-2xl">Schnell starten</h2>
+          <h2 className="text-xl font-bold text-[#F5F2EA] sm:text-2xl">Schnell starten</h2>
           <button
             onClick={onClose}
-            className="rounded-full border border-neutral-300 px-3 py-1 text-sm text-neutral-700 transition hover:border-neutral-900"
+            className="rounded-full border border-white/20 px-3 py-1 text-sm text-[#F5F2EA] transition hover:border-[#58D7D4]/60"
           >
             Schließen
           </button>
@@ -252,7 +252,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm font-semibold text-neutral-900 transition hover:border-neutral-900 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={loading}
           >
             Mit Google
@@ -260,22 +260,22 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
           <button
             type="button"
             disabled
-            className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm font-semibold text-neutral-500 opacity-70"
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-[#8E969F] opacity-70"
             title="Bald verfügbar"
           >
             Mit Apple
           </button>
-          <p className="col-span-2 text-center text-xs text-neutral-500">Social Login folgt in einem der nächsten Releases.</p>
+          <p className="col-span-2 text-center text-xs text-[#8E969F]">Social Login folgt in einem der nächsten Releases.</p>
         </div>
 
-        <div className="mb-6 grid grid-cols-2 rounded-2xl border border-neutral-200 bg-neutral-50 p-1">
+        <div className="mb-6 grid grid-cols-2 rounded-2xl border border-white/10 bg-white/5 p-1">
           <button
             onClick={() => {
               setTab('register');
               setErrorMessage('');
               setInfoMessage('');
             }}
-            className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${tab === 'register' ? 'bg-black text-white' : 'text-neutral-600 hover:text-black'}`}
+            className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${tab === 'register' ? 'bg-gradient-to-r from-[#F3C979] to-[#C9913D] text-[#0B1118]' : 'text-[#B7BDC4] hover:text-[#58D7D4]'}`}
           >
             Registrieren
           </button>
@@ -285,13 +285,13 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               setErrorMessage('');
               setInfoMessage('');
             }}
-            className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${tab === 'login' ? 'bg-black text-white' : 'text-neutral-600 hover:text-black'}`}
+            className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${tab === 'login' ? 'bg-gradient-to-r from-[#F3C979] to-[#C9913D] text-[#0B1118]' : 'text-[#B7BDC4] hover:text-[#58D7D4]'}`}
           >
             Anmelden
           </button>
         </div>
 
-        <div className="mb-5 rounded-2xl border border-neutral-200 bg-[#F5EFE1] px-4 py-3 text-sm text-neutral-800">
+        <div className="mb-5 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#F5F2EA]">
           Starter enthält genau 1 Berechnung. Für weitere Simulationen kannst du danach kostenlos als Beta-Tester freischalten (ohne automatische Abbuchung).
         </div>
 
@@ -302,7 +302,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Vollständiger Name"
-              className="w-full rounded-2xl border border-neutral-300 bg-neutral-50 p-4 text-neutral-900"
+              className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
               required
             />
             <input
@@ -310,7 +310,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="E-Mail"
-              className="w-full rounded-2xl border border-neutral-300 bg-neutral-50 p-4 text-neutral-900"
+              className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
               required
             />
             <input
@@ -318,27 +318,27 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Passwort"
-              className="w-full rounded-2xl border border-neutral-300 bg-neutral-50 p-4 text-neutral-900"
+              className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
               required
             />
-            <label className="flex items-start gap-2 text-xs text-neutral-700">
+            <label className="flex items-start gap-2 text-xs text-[#B7BDC4]">
               <input
                 type="checkbox"
                 checked={acceptedTerms}
                 onChange={(e) => setAcceptedTerms(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-neutral-300 bg-neutral-50 accent-black"
+                className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 accent-[#58D7D4]"
                 required
               />
               <span>
                 Ich akzeptiere die{' '}
-                <Link href="/agb" target="_blank" className="text-neutral-900 hover:underline">AGB</Link> und die{' '}
-                <Link href="/datenschutz" target="_blank" className="text-neutral-900 hover:underline">Datenschutzerklärung</Link>.
+                <Link href="/agb" target="_blank" className="text-[#58D7D4] hover:underline">AGB</Link> und die{' '}
+                <Link href="/datenschutz" target="_blank" className="text-[#58D7D4] hover:underline">Datenschutzerklärung</Link>.
               </span>
             </label>
             <button
               type="submit"
               disabled={loading || !acceptedTerms}
-              className="w-full rounded-2xl bg-black py-3 font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-70"
+              className="w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-3 font-semibold text-[#0B1118] transition hover:brightness-110 disabled:opacity-70"
             >
               {loading ? 'Erstelle Konto...' : 'Konto erstellen'}
             </button>
@@ -350,7 +350,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="E-Mail"
-              className="w-full rounded-2xl border border-neutral-300 bg-neutral-50 p-4 text-neutral-900"
+              className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
               required
             />
             <input
@@ -358,18 +358,18 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Passwort"
-              className="w-full rounded-2xl border border-neutral-300 bg-neutral-50 p-4 text-neutral-900"
+              className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
               required
             />
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-2xl bg-black py-3 font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-70"
+              className="w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-3 font-semibold text-[#0B1118] transition hover:brightness-110 disabled:opacity-70"
             >
               {loading ? 'Anmeldung läuft...' : 'Jetzt anmelden'}
             </button>
-            <p className="text-right text-sm text-neutral-500">
-              <Link href="/passwort-vergessen" className="text-neutral-900 hover:underline">
+            <p className="text-right text-sm text-[#8E969F]">
+              <Link href="/passwort-vergessen" className="text-[#58D7D4] hover:underline">
                 Passwort vergessen?
               </Link>
             </p>
@@ -377,19 +377,19 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
         )}
 
         {infoMessage && (
-          <div className="mt-4 rounded-2xl border border-neutral-200 bg-[#F5EFE1] px-4 py-3 text-sm text-neutral-800">
+          <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#F5F2EA]">
             {infoMessage}
           </div>
         )}
 
         {errorMessage && (
-          <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mt-4 rounded-2xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
             {errorMessage}
           </div>
         )}
 
-        <p className="mt-5 text-center text-xs text-neutral-500">
-          Schneller Zugang ohne Seitenwechsel. Passwort ändern kannst du jederzeit eingeloggt im Dashboard oder über <Link href="/passwort-vergessen" className="text-neutral-900 hover:underline">Passwort vergessen</Link>.
+        <p className="mt-5 text-center text-xs text-[#8E969F]">
+          Schneller Zugang ohne Seitenwechsel. Passwort ändern kannst du jederzeit eingeloggt im Dashboard oder über <Link href="/passwort-vergessen" className="text-[#58D7D4] hover:underline">Passwort vergessen</Link>.
         </p>
       </div>
     </div>

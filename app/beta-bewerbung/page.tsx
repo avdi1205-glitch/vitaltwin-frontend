@@ -50,37 +50,37 @@ export default function BetaBewerbung() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5EFE1] px-6 py-16">
+    <div className="min-h-screen bg-[#0B1118] px-6 py-16">
       <div className="mx-auto max-w-xl">
-        <p className="text-center text-xs uppercase tracking-[0.22em] text-neutral-500">VitalTwin Beta-Kohorte</p>
-        <h1 className="mt-2 text-center font-[family-name:var(--font-serif-display)] text-4xl font-semibold text-neutral-900">
+        <p className="font-[family-name:var(--font-mono-technical)] text-center text-xs uppercase tracking-[0.22em] text-[#8E969F]">VitalTwin Beta-Kohorte</p>
+        <h1 className="mt-2 text-center font-[family-name:var(--font-serif-display)] text-4xl font-semibold text-[#F5F2EA]">
           Bewirb dich für die Beta
         </h1>
-        <p className="mt-4 text-center text-neutral-600">
+        <p className="mt-4 text-center text-[#B7BDC4]">
           Wir starten mit einer kleinen, ausgewählten DACH-Kohorte. Beta-Zugang ist kostenlos: unbegrenzte
           Simulationen, Verlauf und direkter Einfluss auf das Produkt.
         </p>
 
-        <div className="mt-10 rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm sm:p-10">
+        <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">
           {success ? (
-            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6 text-center">
-              <p className="text-lg font-semibold text-neutral-900">Bewerbung eingegangen</p>
-              <p className="mt-2 text-neutral-600">{message}</p>
-              <Link href="/" className="mt-6 inline-block rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
+              <p className="text-lg font-semibold text-[#F5F2EA]">Bewerbung eingegangen</p>
+              <p className="mt-2 text-[#B7BDC4]">{message}</p>
+              <Link href="/" className="mt-6 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-6 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110">
                 Zurück zur Startseite
               </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm text-neutral-700" htmlFor="full_name">Vollständiger Name</label>
+                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="full_name">Vollständiger Name</label>
                 <input
                   id="full_name"
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Vor- und Nachname"
-                  className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                  className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   required
                   minLength={2}
                   maxLength={200}
@@ -88,20 +88,20 @@ export default function BetaBewerbung() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-neutral-700" htmlFor="email">E-Mail</label>
+                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="email">E-Mail</label>
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="du@beispiel.de"
-                  className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                  className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-neutral-700" htmlFor="age">Alter (optional)</label>
+                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="age">Alter (optional)</label>
                 <input
                   id="age"
                   type="number"
@@ -110,12 +110,12 @@ export default function BetaBewerbung() {
                   value={age}
                   onChange={(e) => setAge(e.target.value)}
                   placeholder="z. B. 42"
-                  className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                  className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-neutral-700" htmlFor="motivation">
+                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="motivation">
                   Warum möchtest du teilnehmen?
                 </label>
                 <textarea
@@ -123,7 +123,7 @@ export default function BetaBewerbung() {
                   value={motivation}
                   onChange={(e) => setMotivation(e.target.value)}
                   placeholder="Was interessiert dich an VitalTwin? Welche Gesundheitsziele hast du?"
-                  className="min-h-[120px] w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                  className="min-h-[120px] w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   required
                   minLength={10}
                   maxLength={2000}
@@ -144,7 +144,7 @@ export default function BetaBewerbung() {
               </div>
 
               {message && !success && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
                   {message}
                 </div>
               )}
@@ -152,23 +152,23 @@ export default function BetaBewerbung() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-full bg-black py-4 text-base font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-70"
+                className="w-full rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-4 text-base font-semibold text-[#0B1118] transition hover:brightness-110 disabled:opacity-70"
               >
                 {loading ? 'Sende Bewerbung...' : 'Jetzt bewerben'}
               </button>
 
-              <p className="text-center text-xs text-neutral-500">
+              <p className="text-center text-xs text-[#8E969F]">
                 Mit dem Absenden akzeptierst du unsere{' '}
-                <Link href="/agb" className="underline hover:text-black">AGB</Link> und{' '}
-                <Link href="/datenschutz" className="underline hover:text-black">Datenschutzerklärung</Link>.
+                <Link href="/agb" className="underline hover:text-[#58D7D4]">AGB</Link> und{' '}
+                <Link href="/datenschutz" className="underline hover:text-[#58D7D4]">Datenschutzerklärung</Link>.
               </p>
             </form>
           )}
         </div>
 
-        <p className="mt-8 text-center text-sm text-neutral-500">
+        <p className="mt-8 text-center text-sm text-[#8E969F]">
           Schon ein Konto?{' '}
-          <Link href="/?auth=login" className="text-neutral-900 underline hover:text-black">Anmelden</Link>
+          <Link href="/?auth=login" className="text-[#58D7D4] underline hover:text-[#F3C979]">Anmelden</Link>
         </p>
       </div>
     </div>

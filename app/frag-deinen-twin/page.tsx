@@ -126,48 +126,48 @@ export default function FragDeinenTwin() {
   const limitReached = status ? status.remaining_today <= 0 : false;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F5EFE1] text-neutral-900">
+    <div className="flex min-h-screen flex-col bg-[#0B1118] text-[#F5F2EA]">
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8 md:px-6">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-neutral-500">VitalTwin Intelligence</p>
-            <h1 className="mt-1 font-[family-name:var(--font-serif-display)] text-2xl font-semibold md:text-3xl">Frag deinen Twin</h1>
+            <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">VitalTwin Intelligence</p>
+            <h1 className="mt-1 font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA] md:text-3xl">Frag deinen Twin</h1>
           </div>
-          <Link href="/dashboard" className="text-sm font-semibold text-neutral-900 underline hover:text-black">
+          <Link href="/dashboard" className="text-sm font-semibold text-[#58D7D4] underline hover:text-[#F3C979]">
             Dashboard
           </Link>
         </div>
-        <p className="mt-2 text-sm text-neutral-700">
+        <p className="mt-2 text-sm text-[#B7BDC4]">
           Erhalte persönliche Impulse auf Basis deiner freiwillig gespeicherten Wellness-Daten.
         </p>
 
-        <div className="mt-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-xs text-neutral-600">
+        <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-[#B7BDC4]">
           KI-Antworten können Fehler enthalten und sind keine medizinische Beratung. Du entscheidest selbst, welche
           Empfehlungen du umsetzt.
         </div>
 
         {!loadingStatus && status && (
-          <p className="mt-2 text-xs text-neutral-500">
+          <p className="mt-2 text-xs text-[#8E969F]">
             {status.remaining_today} von {status.daily_limit} Anfragen heute übrig.{' '}
             {limitReached && (
-              <Link href="/preise" className="underline hover:text-black">
+              <Link href="/preise" className="text-[#58D7D4] underline hover:text-[#F3C979]">
                 Für mehr Anfragen upgraden
               </Link>
             )}
           </p>
         )}
 
-        <div className="mt-4 flex-1 space-y-4 overflow-y-auto rounded-3xl border border-neutral-200 bg-white p-5">
+        <div className="mt-4 flex-1 space-y-4 overflow-y-auto rounded-3xl border border-white/10 bg-white/[0.03] p-5">
           {messages.length === 0 && (
             <div>
-              <p className="text-sm text-neutral-600">Stell deinem Twin eine Frage, zum Beispiel:</p>
+              <p className="text-sm text-[#B7BDC4]">Stell deinem Twin eine Frage, zum Beispiel:</p>
               <ul className="mt-3 space-y-2">
                 {EXAMPLE_QUESTIONS.map((question) => (
                   <li key={question}>
                     <button
                       onClick={() => sendMessage(question)}
                       disabled={sending || limitReached}
-                      className="w-full rounded-xl border border-neutral-200 bg-[#F5EFE1] px-4 py-3 text-left text-sm text-neutral-800 transition hover:border-neutral-900 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-left text-sm text-[#F5F2EA] transition hover:border-[#58D7D4]/60 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {question}
                     </button>
@@ -181,7 +181,7 @@ export default function FragDeinenTwin() {
             <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${
-                  msg.role === 'user' ? 'bg-black text-white' : 'border border-neutral-200 bg-[#F5EFE1] text-neutral-900'
+                  msg.role === 'user' ? 'bg-gradient-to-r from-[#F3C979] to-[#C9913D] text-[#0B1118]' : 'border border-white/10 bg-white/[0.02] text-[#F5F2EA]'
                 }`}
               >
                 {msg.text}
@@ -191,14 +191,14 @@ export default function FragDeinenTwin() {
 
           {sending && (
             <div className="flex justify-start">
-              <div className="rounded-2xl border border-neutral-200 bg-[#F5EFE1] px-4 py-3 text-sm text-neutral-500">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-[#8E969F]">
                 Twin denkt nach...
               </div>
             </div>
           )}
 
           {errorMessage && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{errorMessage}</div>
+            <div className="rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">{errorMessage}</div>
           )}
           <div ref={messagesEndRef} />
         </div>
@@ -217,12 +217,12 @@ export default function FragDeinenTwin() {
             placeholder={limitReached ? 'Tageslimit erreicht' : 'Deine Frage an deinen Twin...'}
             disabled={sending || limitReached}
             maxLength={MAX_INPUT_LENGTH}
-            className="flex-1 rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm focus:border-neutral-900 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex-1 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
           />
           <button
             type="submit"
             disabled={sending || limitReached || !input.trim()}
-            className="rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Senden
           </button>

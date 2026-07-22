@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
+import TwinEmptyState from '../components/brand/TwinEmptyState';
 
 const WELLNESS_GOALS: { id: string; label: string }[] = [
   { id: 'besser_schlafen', label: 'Besser schlafen' },
@@ -311,62 +312,68 @@ export default function Profil() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5EFE1] px-6 py-16 text-center text-neutral-600">
+      <div className="min-h-screen bg-[#0B1118] px-6 py-16 text-center text-[#B7BDC4]">
         Profil wird geladen...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5EFE1] px-6 py-12 text-neutral-900">
+    <div className="min-h-screen bg-[#0B1118] px-6 py-12 text-[#F5F2EA]">
       <div className="mx-auto max-w-3xl">
-        <p className="text-xs uppercase tracking-[0.22em] text-neutral-500">VitalTwin</p>
-        <h1 className="mt-2 font-[family-name:var(--font-serif-display)] text-4xl font-semibold">Dein Profil</h1>
-        <p className="mt-2 text-sm text-neutral-600">
+        <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">VitalTwin</p>
+        <h1 className="mt-2 font-[family-name:var(--font-serif-display)] text-4xl font-semibold text-[#F5F2EA]">Dein Profil</h1>
+        <p className="mt-2 text-sm text-[#B7BDC4]">
           Zuletzt geändert: {profile?.updated_at ? new Date(profile.updated_at).toLocaleString('de-DE') : 'noch nie'}
         </p>
-        <Link href="/dashboard" className="mt-2 inline-block text-sm font-semibold text-neutral-900 underline hover:text-black">
+        <Link href="/dashboard" className="mt-2 inline-block text-sm font-semibold text-[#B7BDC4] underline hover:text-[#F5F2EA]">
           Zurück zum Dashboard
         </Link>
 
-        {message && <p className="mt-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-800">{message}</p>}
-        {errorMessage && <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{errorMessage}</p>}
+        {message && (
+          <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#F5F2EA]">{message}</p>
+        )}
+        {errorMessage && (
+          <div className="mt-4">
+            <TwinEmptyState subtext={errorMessage} />
+          </div>
+        )}
 
         {/* Grundprofil */}
-        <section className="mt-8 rounded-3xl border border-neutral-200 bg-white p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold">Grundprofil</h2>
+        <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Grundprofil</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">Anzeigename</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">Anzeigename</span>
               <input
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 maxLength={80}
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">Geburtsjahr (optional)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">Geburtsjahr (optional)</span>
               <input
                 type="number"
                 value={birthYear}
                 onChange={(e) => setBirthYear(e.target.value)}
                 placeholder="z. B. 1985"
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">
+              <span className="mb-2 block text-sm text-[#B7BDC4]">
                 Geschlecht (optional)
-                <span className="block text-xs font-normal text-neutral-500">
+                <span className="block text-xs font-normal text-[#8E969F]">
                   Nur zur Priorisierung passender Wellness-Hinweise — keine Pflichtangabe.
                 </span>
               </span>
               <select
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               >
                 <option value="">Keine Angabe</option>
                 <option value="weiblich">Weiblich</option>
@@ -375,65 +382,65 @@ export default function Profil() {
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">Einheitensystem</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">Einheitensystem</span>
               <select
                 value={unitSystem}
                 onChange={(e) => setUnitSystem(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               >
                 <option value="metric">Metrisch (cm, kg)</option>
                 <option value="imperial">Imperial (ft, lb)</option>
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">Größe (cm, optional)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">Größe (cm, optional)</span>
               <input
                 type="number"
                 value={heightCm}
                 onChange={(e) => setHeightCm(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">Gewicht (kg, optional)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">Gewicht (kg, optional)</span>
               <input
                 type="number"
                 value={weightKg}
                 onChange={(e) => setWeightKg(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">Sprache</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">Sprache</span>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               >
                 <option value="de">Deutsch</option>
                 <option value="en">English</option>
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">Zeitzone</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">Zeitzone</span>
               <input
                 type="text"
                 value={tz}
                 onChange={(e) => setTz(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               />
             </label>
           </div>
         </section>
 
         {/* Wellness-Ziele */}
-        <section className="mt-6 rounded-3xl border border-neutral-200 bg-white p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold">Wellness-Ziele</h2>
-          <p className="mt-2 text-sm text-neutral-600">Mehrfachauswahl möglich.</p>
+        <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Wellness-Ziele</h2>
+          <p className="mt-2 text-sm text-[#B7BDC4]">Mehrfachauswahl möglich.</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             {WELLNESS_GOALS.map((goal) => (
-              <label key={goal.id} className="flex items-center gap-2 rounded-xl border border-neutral-200 px-3 py-2 text-sm">
-                <input type="checkbox" checked={goals.includes(goal.id)} onChange={() => toggleGoal(goal.id)} />
+              <label key={goal.id} className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-[#F5F2EA]">
+                <input type="checkbox" checked={goals.includes(goal.id)} onChange={() => toggleGoal(goal.id)} className="accent-[#58D7D4]" />
                 {goal.label}
               </label>
             ))}
@@ -443,51 +450,51 @@ export default function Profil() {
         <button
           onClick={saveProfile}
           disabled={saving}
-          className="mt-6 w-full rounded-2xl bg-black py-3 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-70"
+          className="mt-6 w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {saving ? 'Speichere...' : 'Profil speichern'}
         </button>
 
         {/* Alltag */}
-        <section className="mt-8 rounded-3xl border border-neutral-200 bg-white p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold">Alltag (heute)</h2>
+        <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Alltag (heute)</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">Schlafdauer (Stunden, optional)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">Schlafdauer (Stunden, optional)</span>
               <input
                 type="number"
                 step="0.5"
                 value={sleepHours}
                 onChange={(e) => setSleepHours(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">Bewegungstage pro Woche (optional)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">Bewegungstage pro Woche (optional)</span>
               <input
                 type="number"
                 min={0}
                 max={7}
                 value={movementDays}
                 onChange={(e) => setMovementDays(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">Schritte heute (optional)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">Schritte heute (optional)</span>
               <input
                 type="number"
                 value={steps}
                 onChange={(e) => setSteps(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">Stress-Selbsteinschätzung (1-5)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">Stress-Selbsteinschätzung (1-5)</span>
               <select
                 value={stressLevel}
                 onChange={(e) => setStressLevel(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               >
                 {[1, 2, 3, 4, 5].map((n) => (
                   <option key={n} value={n}>{n}</option>
@@ -495,11 +502,11 @@ export default function Profil() {
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-neutral-700">Energie-Selbsteinschätzung (1-5)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">Energie-Selbsteinschätzung (1-5)</span>
               <select
                 value={energyLevel}
                 onChange={(e) => setEnergyLevel(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               >
                 {[1, 2, 3, 4, 5].map((n) => (
                   <option key={n} value={n}>{n}</option>
@@ -509,28 +516,28 @@ export default function Profil() {
           </div>
           <button
             onClick={saveDaily}
-            className="mt-4 rounded-xl border border-neutral-900 px-5 py-2 text-sm font-semibold transition hover:bg-neutral-900 hover:text-white"
+            className="mt-4 rounded-xl border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
           >
             Heutigen Alltag speichern
           </button>
-          {dailyMessage && <p className="mt-2 text-sm text-neutral-700">{dailyMessage}</p>}
+          {dailyMessage && <p className="mt-2 text-sm text-[#B7BDC4]">{dailyMessage}</p>}
         </section>
 
         {/* Gewohnheiten */}
-        <section className="mt-6 rounded-3xl border border-neutral-200 bg-white p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold">Gewohnheiten</h2>
+        <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Gewohnheiten</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <input
               type="text"
               value={habitName}
               onChange={(e) => setHabitName(e.target.value)}
               placeholder="Name, z. B. 20 Min. spazieren"
-              className="rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+              className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             />
             <select
               value={habitCategory}
               onChange={(e) => setHabitCategory(e.target.value)}
-              className="rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+              className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             >
               {HABIT_CATEGORIES.map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
@@ -539,7 +546,7 @@ export default function Profil() {
             <select
               value={habitFrequency}
               onChange={(e) => setHabitFrequency(e.target.value)}
-              className="rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+              className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             >
               {HABIT_FREQUENCIES.map((freq) => (
                 <option key={freq.id} value={freq.id}>{freq.label}</option>
@@ -550,33 +557,33 @@ export default function Profil() {
               value={habitTarget}
               onChange={(e) => setHabitTarget(e.target.value)}
               placeholder="Ziel (optional)"
-              className="rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 focus:border-neutral-900 focus:outline-none"
+              className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             />
           </div>
           <button
             onClick={addHabit}
-            className="mt-3 rounded-xl bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800"
+            className="mt-3 rounded-xl bg-[#46C8C8] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:bg-[#58D7D4]"
           >
             Gewohnheit hinzufügen
           </button>
-          {habitMessage && <p className="mt-2 text-sm text-red-600">{habitMessage}</p>}
+          {habitMessage && <p className="mt-2 text-sm text-red-300">{habitMessage}</p>}
 
           <div className="mt-5 space-y-2">
-            {habits.length === 0 && <p className="text-sm text-neutral-600">Noch keine Gewohnheiten angelegt.</p>}
+            {habits.length === 0 && <p className="text-sm text-[#B7BDC4]">Noch keine Gewohnheiten angelegt.</p>}
             {habits.map((habit) => (
-              <div key={habit.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-neutral-200 px-4 py-3 text-sm">
+              <div key={habit.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm">
                 <div>
-                  <p className="font-semibold text-neutral-900">{habit.name}</p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="font-semibold text-[#F5F2EA]">{habit.name}</p>
+                  <p className="text-xs text-[#8E969F]">
                     {habit.category} · {habit.frequency} {habit.target ? `· Ziel: ${habit.target}` : ''} ·{' '}
                     {habit.active ? 'aktiv' : 'inaktiv'}
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => toggleHabitActive(habit)} className="rounded-lg border border-neutral-300 px-3 py-1 text-xs font-semibold">
+                  <button onClick={() => toggleHabitActive(habit)} className="rounded-lg border border-white/15 px-3 py-1 text-xs font-semibold text-[#F5F2EA]">
                     {habit.active ? 'Deaktivieren' : 'Aktivieren'}
                   </button>
-                  <button onClick={() => removeHabit(habit.id)} className="rounded-lg border border-red-200 px-3 py-1 text-xs font-semibold text-red-600">
+                  <button onClick={() => removeHabit(habit.id)} className="rounded-lg border border-red-400/30 px-3 py-1 text-xs font-semibold text-red-300">
                     Löschen
                   </button>
                 </div>
@@ -586,35 +593,35 @@ export default function Profil() {
         </section>
 
         {/* Datenschutzkontrollen */}
-        <section className="mt-6 rounded-3xl border border-neutral-200 bg-white p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold">Datenschutzkontrollen</h2>
-          <p className="mt-3 text-sm text-neutral-700">
+        <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Datenschutzkontrollen</h2>
+          <p className="mt-3 text-sm text-[#B7BDC4]">
             Bei dir gespeichert: Grundprofil, Wellness-Ziele, tägliche Alltagswerte und Gewohnheiten — jeweils
             ausschließlich verknüpft mit deinem Konto. Keine medizinischen Diagnosen, keine Genetik- oder Laborwerte.
           </p>
-          <p className="mt-2 text-sm text-neutral-700">
+          <p className="mt-2 text-sm text-[#B7BDC4]">
             Zuletzt geändert: {profile?.updated_at ? new Date(profile.updated_at).toLocaleString('de-DE') : 'noch nie'}
           </p>
-          <p className="mt-2 text-sm text-neutral-700">
+          <p className="mt-2 text-sm text-[#B7BDC4]">
             Bearbeiten kannst du deine Daten jederzeit direkt auf dieser Seite.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <button
               onClick={exportData}
-              className="rounded-xl border border-neutral-900 px-5 py-2 text-sm font-semibold transition hover:bg-neutral-900 hover:text-white"
+              className="rounded-xl border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
             >
               Meine Daten exportieren
             </button>
             <button
               onClick={requestDeletion}
-              className="rounded-xl border border-red-300 px-5 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+              className="rounded-xl border border-red-400/30 px-5 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-400/10"
             >
               Löschung von Konto/Daten anfordern
             </button>
           </div>
-          {exportMessage && <p className="mt-2 text-sm text-neutral-700">{exportMessage}</p>}
-          {deletionMessage && <p className="mt-2 text-sm text-neutral-700">{deletionMessage}</p>}
-          <p className="mt-3 text-xs text-neutral-500">
+          {exportMessage && <p className="mt-2 text-sm text-[#B7BDC4]">{exportMessage}</p>}
+          {deletionMessage && <p className="mt-2 text-sm text-[#B7BDC4]">{deletionMessage}</p>}
+          <p className="mt-3 text-xs text-[#8E969F]">
             Aus Sicherheitsgründen wird eine Löschung manuell geprüft und nicht automatisch sofort ausgeführt. Du
             erreichst uns jederzeit auch direkt unter info@vitaltwin.de.
           </p>

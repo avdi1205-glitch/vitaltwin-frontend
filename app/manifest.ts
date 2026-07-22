@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       'Dein digitaler Wellness-Zwilling für allgemeine Orientierung und mehr Wohlbefinden im Alltag.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#F5EFE1',
-    theme_color: '#F5EFE1',
+    background_color: '#0B1118',
+    theme_color: '#0B1118',
     lang: 'de',
     icons: [
       {

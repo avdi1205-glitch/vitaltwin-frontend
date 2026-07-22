@@ -63,12 +63,12 @@ export default function PasswortBestaetigen() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F5EFE1] px-6">
-      <div className="w-full max-w-md rounded-3xl border border-neutral-200 bg-white shadow-sm p-10">
-        <h1 className="text-center text-3xl font-bold text-neutral-900">Neues Passwort setzen</h1>
+    <div className="min-h-screen flex items-center justify-center bg-[#0B1118] px-6">
+      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.03] p-10">
+        <h1 className="text-center text-3xl font-bold text-[#F5F2EA]">Neues Passwort setzen</h1>
 
         {linkChecked && !accessToken && (
-          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mt-6 rounded-2xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
             Dieser Link ist ungültig oder abgelaufen. Bitte fordere einen neuen Reset-Link an.
           </div>
         )}
@@ -79,13 +79,13 @@ export default function PasswortBestaetigen() {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Neues Passwort (mind. 8 Zeichen)"
-            className="w-full rounded-2xl border border-neutral-300 bg-neutral-50 p-4 text-neutral-900"
+            className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
             required
             minLength={8}
           />
 
           {errorMessage && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-2xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
               {errorMessage}
             </div>
           )}
@@ -93,14 +93,14 @@ export default function PasswortBestaetigen() {
           <button
             type="submit"
             disabled={loading || !accessToken}
-            className="w-full rounded-2xl bg-black py-4 text-lg font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-70"
+            className="w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-4 text-lg font-semibold text-[#0B1118] transition hover:brightness-110 disabled:opacity-70"
           >
             {loading ? 'Aktualisiere...' : 'Passwort speichern'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-neutral-500">
-          Zurück zum <Link href="/passwort-vergessen" className="text-neutral-900 hover:underline">Passwort vergessen</Link>
+        <p className="mt-6 text-center text-[#8E969F]">
+          Zurück zum <Link href="/passwort-vergessen" className="text-[#58D7D4] hover:underline">Passwort vergessen</Link>
         </p>
       </div>
     </div>
