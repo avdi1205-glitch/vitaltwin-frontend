@@ -115,60 +115,77 @@ body {
   }
 }
 
-/* Hero-scene pulse lines and heart — a slow, continuous, premium-feeling
-   loop (~7s) rather than a one-time intro. Respects prefers-reduced-motion. */
-.twin-pulse--animated path {
-  stroke-dasharray: 12 10;
-  animation: twin-pulse-flow 7s linear infinite;
+/* VitalTwin hero pulse scene ("Im Takt") — human + AI waves flowing toward a
+   synchronized heart, with faint expanding sync rings. Slow, continuous loop
+   (~7s wave flow / ~6s heartbeat / ~6s rings) rather than a one-time intro.
+   All rendered as SVG/CSS (transform, opacity, stroke-dashoffset only — no
+   raster images, no layout-affecting properties). Fully disabled under
+   prefers-reduced-motion. */
+.vt-pulse-scene .vt-wave {
+  stroke-dasharray: 10 8;
+  animation: vt-wave-flow 7s linear infinite;
 }
 
-@keyframes twin-pulse-flow {
+.vt-pulse-scene .vt-wave--ai {
+  animation-direction: reverse;
+}
+
+@keyframes vt-wave-flow {
   to {
-    stroke-dashoffset: -220;
+    stroke-dashoffset: -180;
   }
 }
 
-.twin-heart--animated {
-  animation: twin-heartbeat-loop 3.5s ease-in-out infinite;
+.vt-pulse-scene .vt-heart {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: vt-heartbeat 6s ease-in-out infinite;
 }
 
-.twin-heart--animated .twin-heart__glow {
-  animation: twin-heart-glow-loop 3.5s ease-in-out infinite;
-}
-
-@keyframes twin-heartbeat-loop {
+@keyframes vt-heartbeat {
   0%,
   100% {
     transform: scale(1);
   }
-  15% {
-    transform: scale(1.08);
+  8% {
+    transform: scale(1.1);
   }
-  30% {
+  16% {
     transform: scale(1);
   }
 }
 
-@keyframes twin-heart-glow-loop {
-  0%,
+.vt-pulse-scene .vt-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: vt-ring-pulse 6s ease-out infinite;
+}
+
+@keyframes vt-ring-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.22;
+  }
+  70% {
+    opacity: 0;
+  }
   100% {
-    opacity: 0.12;
-  }
-  15% {
-    opacity: 0.28;
-  }
-  30% {
-    opacity: 0.12;
+    transform: scale(1.15);
+    opacity: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .twin-pulse--animated path {
+  .vt-pulse-scene .vt-wave,
+  .vt-pulse-scene .vt-heart,
+  .vt-pulse-scene .vt-ring {
     animation: none !important;
   }
-  .twin-heart--animated,
-  .twin-heart--animated .twin-heart__glow {
-    animation: none !important;
+  .vt-pulse-scene .vt-ring {
+    opacity: 0.14 !important;
   }
 }
 

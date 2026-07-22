@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import HomeAuthModal from './home-auth-modal';
 import SiteNav from './site-nav';
-import HeroScene from './brand/HeroScene';
+import VitalTwinHero from './hero/VitalTwinHero';
 
 type AuthMode = 'login' | 'register' | null;
 
@@ -53,7 +53,7 @@ export default function HomeLanding({
 
       <SiteNav onOpenLogin={() => openAuth('login')} onOpenRegister={() => openAuth('register')} />
 
-      <HeroScene onOpenRegister={() => openAuth('register')} onOpenLogin={() => openAuth('login')} />
+      <VitalTwinHero onOpenRegister={() => openAuth('register')} />
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
         <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">So funktioniert VitalTwin</h2>
