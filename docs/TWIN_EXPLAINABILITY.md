@@ -1,10 +1,12 @@
 # VitalTwin — Twin Explainability (TWIN_EXPLAINABILITY.md)
 
 > Erstellt in **Etappe 4 (Twin Intelligence Core)**, erweitert in
-> **Etappe 5**. Dokumentiert die "Warum?"-Erklärungsstruktur für
-> Empfehlungen (`backend/app/services/explainability.py`, Endpunkt
-> `GET /api/recommendations/{id}/why`) sowie die Herkunfts-/Konfidenz-
-> Anzeige für Memories und Patterns (Etappe 5, `routers/twin_memory.py`).
+> **Etappe 5** und **Etappe 6**. Dokumentiert die "Warum?"-Erklärungsstruktur
+> für Empfehlungen (`backend/app/services/explainability.py`, Endpunkt
+> `GET /api/recommendations/{id}/why`), die Herkunfts-/Konfidenz-Anzeige für
+> Memories und Patterns (Etappe 5) sowie die Begründungen im Tagesplan und
+> die Datengrundlage von Wochenrückblick/Monatsvorschau/Twin-Reifegrad
+> (Etappe 6).
 
 ## 1. Grundprinzip
 
@@ -62,6 +64,30 @@ Die Explainability-Antwort ist bewusst read-only und hat keine Nebenwirkung
 auf Status, Personalisierung oder Historie — sie kann beliebig oft abgerufen
 werden (z. B. durch mehrfaches Klicken auf "Warum?" im Dashboard), ohne den
 Empfehlungs- oder Personalisierungszustand zu verändern.
+
+## 6. Tagesplan-Begründungen (Etappe 6)
+
+Jede vom Daily Planning Loop erzeugte Aktion (`vt_daily_plan_actions`) trägt
+ihre eigene `reasoning` (z. B. "Laufen ist diese Woche zu 40% erledigt. Jetzt
+ist etwa deine übliche Zeit dafür (07:00 Uhr).") und einen `estimated_effort`
+— direkt im Frontend sichtbar, ohne eigenen "Warum?"-Endpunkt, da die
+Begründung schon Teil der Aktion selbst ist (siehe
+`services/daily_planning.py`). Es gibt keinen internen Score, der dem Nutzer
+verborgen bliebe und den er erst erfragen müsste.
+
+## 7. Datengrundlage von Wochenrückblick, Monatsvorschau und Twin-Reifegrad (Etappe 6)
+
+- **Wochenrückblick:** jede Aussage (`positive_developments`,
+  `potential_areas`, ...) ist ein direkter Vergleich echter Wochenwerte —
+  nie eine Interpretation. Unter der Mindestdatengrenze erscheint
+  ausschließlich der feste Hinweistext, nie eine unsichere Teilaussage.
+- **Monatsvorschau:** bleibt `available: false` mit einer konkreten,
+  nachvollziehbaren Begründung ("aktuell X von benötigten Y Tagen"), bis
+  genug Daten vorliegen.
+- **Twin-Reifegrad:** jede Stufe liefert `present_data` (alle verwendeten
+  Zähler) und `missing_data` (die exakte Lücke zur nächsten Stufe) mit —
+  der Nutzer sieht immer, warum der Twin gerade auf dieser Stufe steht, nie
+  nur eine Zahl oder ein Label ohne Begründung.
 
 ## 6. Memory- und Pattern-Explainability (Etappe 5)
 

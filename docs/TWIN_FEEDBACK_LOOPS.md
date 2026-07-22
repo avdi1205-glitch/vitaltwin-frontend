@@ -1,12 +1,13 @@
 # VitalTwin — Twin Feedback Loops (TWIN_FEEDBACK_LOOPS.md)
 
 > Erstellt in **Etappe 3 (Twin Intelligence Core)**, erweitert in
-> **Etappe 4** und **Etappe 5**. Dokumentiert die in diesen Etappen
-> **echt implementierten** Loops (Daily Check-in, Sleep/Movement/
+> **Etappe 4**, **Etappe 5** und **Etappe 6**. Dokumentiert die in diesen
+> Etappen **echt implementierten** Loops (Daily Check-in, Sleep/Movement/
 > Stress-Recovery, Habit, Goal, Recommendation-/Decision-/Outcome-/
-> Feedback-Loop, sowie in Etappe 5 der Memory Loop) — mit echter
-> Datenbankanbindung, nicht nur als Konzept wie im Constitution-Kapitel
-> "Core Learning Loops".
+> Feedback-Loop, Memory Loop, sowie in Etappe 6 Daily Planning, Evening/
+> Weekly Reflection, Monthly-Progress-Grundlage und Twin-Reifegrad) — mit
+> echter Datenbankanbindung, nicht nur als Konzept wie im
+> Constitution-Kapitel "Core Learning Loops".
 
 ## 1. Daily Check-in Loop
 
@@ -242,5 +243,75 @@ die Speicherung, Kontrolle und Erkennung; kein automatisches Löschen
 abgelaufener Memories über `expires_at` (Feld reserviert, noch ungenutzt).
 
 **Bekannte Einschränkung:** Migration `006_twin_memory_patterns_learning.sql`
+ist geschrieben, aber **nicht gegen eine echte Datenbank ausgeführt** — wie
+alle bisherigen Migrationen in dieser Umgebung.
+
+## 9. Daily Planning Loop (Etappe 6, Constitution-Loop Nr. 11)
+
+**Endpunkte** (neuer Router `app/routers/daily_planning.py`, montiert unter
+`/api/planning`):
+
+| Endpunkt | Zweck |
+|---|---|
+| `GET /api/planning/today` | Tagesplan laden — wird einmal pro lokalem Tag generiert, danach idempotent |
+| `PATCH /actions/{id}` | Nutzeranpassung einer Aktion |
+| `POST /actions/{id}/decision` | Übernehmen/Ablehnen |
+| `POST /actions/{id}/complete` | Aktion erledigen |
+
+**Der Loop:** aktive Ziele + offene Gewohnheiten + aktive Empfehlungen
+(check-in-basiert, Etappe 4) + gestriger, noch offener Plan + bestätigte
+"bevorzugte Aktivitätszeit"-Memories (Etappe 5) →
+`services/daily_planning.py::generate_daily_plan_actions` → höchstens 3
+priorisierte Aktionen mit Begründung, Aufwand und Ziel-/Gewohnheitsbezug →
+Nutzerentscheidung (übernehmen/anpassen/ablehnen) → Umsetzung (erledigt) →
+fließt am nächsten Tag als "gestern noch offen" wieder ein. Details zur
+Priorisierung: [TWIN_LEARNING_RULES.md](./TWIN_LEARNING_RULES.md).
+
+## 10. Evening Reflection Loop (Etappe 6 §3)
+
+**Endpunkte:** `POST /api/planning/reflection` (ein Eintrag pro lokalem Tag,
+wie `/api/profile/daily`), `GET /api/planning/reflection/today`.
+
+Fragt genau die fünf in Etappe 6 §3 geforderten Punkte ab (erledigt,
+hilfreich, schwierig, aktuelles Befinden über die bestehenden `mood`/`energy`-
+Felder, Wunsch für morgen) und speichert zusätzlich das Ergebnis des
+Tagesplans (`plan_outcome`: erledigte/gesamte Aktionen) sowie mögliche
+Memory-Kandidaten (`memory_candidate_notes`) als transparente Textnotizen —
+**keine** automatische Memory-Erstellung hier, das bleibt Aufgabe des
+Memory Loops (Etappe 5).
+
+## 11. Weekly Reflection Loop (Etappe 6 §4, Constitution-Loop Nr. 12)
+
+**Endpunkt:** `GET /api/planning/weekly` — wird bei jedem Aufruf neu
+berechnet (wie die Empfehlungsgenerierung in Etappe 4) und persistiert.
+
+Verwendet echte Daten der aktuellen und der Vorwoche (Check-ins, Gewohnheiten,
+Ziele, Empfehlungshistorie, bestätigte Muster) und zeigt positive
+Entwicklungen, stabile Routinen, Bereiche mit Potenzial, Zielfortschritt,
+hilfreichste/nicht hilfreiche Empfehlungen und Vorschläge für die nächste
+Woche. Unter `MIN_CHECKIN_DAYS_FOR_WEEKLY = 3` Check-in-Tagen erscheint
+ausschließlich der feste Hinweis "Noch nicht genügend Daten für einen
+zuverlässigen Wochenrückblick." — **keine erfundenen Muster.**
+
+## 12. Monthly Progress — Grundlage (Etappe 6 §5, Constitution-Loop Nr. 13)
+
+**Endpunkt:** `GET /api/planning/monthly` — bewusst **ohne eigene Tabelle**,
+da Etappe 6 nur die Vorbereitung verlangt (30-Tage-Trends, Zielentwicklung,
+Gewohnheiten, veränderte Präferenzen, bestätigte Muster,
+Memory-Entwicklung, Vorschläge für den nächsten Monat). Der Bereich bleibt
+`available: false` mit Begründung, solange weniger als
+`MIN_CHECKIN_DAYS_FOR_MONTHLY = 10` Tage mit Daten in den letzten 30 Tagen
+vorliegen. Die volle Monthly Progress Loop (inkl. eigenem Speichermodell)
+ist einer späteren Etappe vorbehalten.
+
+## 13. Twin-Reifegrad (Etappe 6 §6)
+
+**Endpunkt:** `GET /api/planning/maturity` — optional, rein aus realen
+Datenzählungen abgeleitet (Check-in-Tage, Kontoalter, bestätigte Memories,
+erkannte Routinen/Muster, vollständige Wochenrückblicke), niemals aus einer
+KI-Einschätzung. Details zu den fünf Stufen und ihren Schwellenwerten:
+[TWIN_LEARNING_RULES.md](./TWIN_LEARNING_RULES.md).
+
+**Bekannte Einschränkung:** Migration `007_daily_planning_reflection_loops.sql`
 ist geschrieben, aber **nicht gegen eine echte Datenbank ausgeführt** — wie
 alle bisherigen Migrationen in dieser Umgebung.

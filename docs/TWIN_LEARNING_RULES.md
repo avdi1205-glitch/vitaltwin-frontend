@@ -1,12 +1,15 @@
 # VitalTwin — Twin Learning Rules (TWIN_LEARNING_RULES.md)
 
 > Erstellt in **Etappe 4 (Twin Intelligence Core)**, erweitert in
-> **Etappe 5**. Dokumentiert die regelbasierte Empfehlungslogik
-> (`backend/app/services/recommendation_rules.py`), die
+> **Etappe 5** und **Etappe 6**. Dokumentiert die regelbasierte
+> Empfehlungslogik (`backend/app/services/recommendation_rules.py`), die
 > Beta-Personalisierungsheuristiken
 > (`backend/app/services/personalization.py`), die Memory-Detektoren
-> (`backend/app/services/twin_memory.py`) und die transparente
-> Pattern-Detection (`backend/app/services/pattern_detection.py`).
+> (`backend/app/services/twin_memory.py`), die transparente
+> Pattern-Detection (`backend/app/services/pattern_detection.py`), die
+> Priorisierungsregeln des Daily Planning Loop
+> (`backend/app/services/daily_planning.py`) und die Twin-Reifegrad-Regeln
+> (`backend/app/services/twin_maturity.py`).
 >
 > **Wichtiger Hinweis (Ehrlichkeit, siehe Constitution):** Nichts hier ist ein
 > trainiertes Machine-Learning-Modell. Es gibt keine Gewichte, kein Training,
@@ -151,4 +154,42 @@ sich möglicherweise..." und endet mit "...keine Ursache"/"...keine feste
 Regel" — nie mit einer Kausalaussage ("X verursacht bei dir Y"). Dies ist
 Teil der reinen String-Erzeugung in `pattern_detection.py`, nicht optional
 und nicht durch den Aufrufer veränderbar.
+
+## 6. Priorisierungsregeln des Daily Planning Loop (`daily_planning.py`, Etappe 6)
+
+`generate_daily_plan_actions` sammelt Kandidaten aus vier Quellen, vergibt
+jedem einen einfachen additiven Score und liefert höchstens
+**`MAX_DAILY_PLAN_ACTIONS = 3`** — die höchsten Scores zuerst.
+
+| Quelle | Basis-Score | Bonus |
+|---|---|---|
+| Aktives Ziel (`goal`) | `GOAL_BASE_SCORE = 5.0` | — |
+| Offene Gewohnheit (`habit`) | `HABIT_BASE_SCORE = 4.0` | `+ (1 - completion_rate_7d) * 3` (bisherige Erfolge); `+ PREFERRED_TIME_BONUS (2.0)` bei Übereinstimmung mit `reminder_time` **oder** einer bestätigten `bevorzugte_aktivitaetszeit`-Memory (aktive bestätigte Memories) |
+| Aktive Empfehlung (`recommendation`) | `confidence * 10 * 0.5` | `+ RECOMMENDATION_PRIORITY_BONUS` (high: 3, medium: 1, low: 0) — Empfehlungen sind bereits check-in-basiert (Etappe 4) und durch Nutzerfeedback personalisiert gefiltert (Etappe 4 §6) |
+| Offene Aktion von gestern (`carried_over`) | `HABIT_BASE_SCORE + CARRIED_OVER_BONUS (2.0)` | Plan des Vortags — dedupliziert gegen frische Ziel-/Gewohnheits-Kandidaten desselben Bezugs |
+
+**Datenqualität** wird nicht separat gescort, sondern indirekt: Kandidaten
+aus wenig belastbaren Quellen entstehen gar nicht erst (z. B. erzeugt
+`recommendation_rules.py` selbst erst ab 3 Datenpunkten eine Empfehlung,
+siehe §1). Jede Aktion trägt ihre eigene, für Menschen verständliche
+`reasoning` und einen groben `estimated_effort` — nie nur den internen
+Score.
+
+## 7. Twin-Reifegrad-Regeln (`twin_maturity.py`, Etappe 6)
+
+Fünf Stufen, streng aufsteigend, jede mit konkreten, benannten
+Datenschwellen (keine "gefühlte" Prozentzahl):
+
+| Stufe | Bedingung |
+|---|---|
+| `start` | Standard, solange keine höhere Stufe erreicht ist |
+| `lernt_dich_kennen` | ≥ `MIN_CHECKIN_DAYS_LEARNING = 5` Check-in-Tage |
+| `erkennt_routinen` | zusätzlich ≥ `MIN_ACCOUNT_AGE_ROUTINES_DAYS = 14` Tage Nutzungsdauer **und** (bestätigte Routine/Aktivitätszeit-Memory **oder** ein aktives, nicht widersprüchliches Pattern) |
+| `versteht_praeferenzen` | zusätzlich ≥ `MIN_ACCOUNT_AGE_PREFERENCES_DAYS = 21` Tage, eine bestätigte Präferenz-Memory **und** ≥ `MIN_CONFIRMED_MEMORIES_PREFERENCES = 2` bestätigte Memories insgesamt |
+| `begleitet_langfristig` | zusätzlich ≥ `MIN_ACCOUNT_AGE_LONGTERM_DAYS = 60` Tage, ≥ `MIN_CONFIRMED_MEMORIES_LONGTERM = 5` bestätigte Memories **und** mindestens ein vollständiger (`data_sufficient`) Wochenrückblick |
+
+Jede Antwort liefert zusätzlich `present_data` (alle verwendeten Zähler) und
+`missing_data` (konkrete, in Zahlen ausgedrückte Lücke zur nächsten Stufe) —
+nie nur das Level ohne Begründung.
+
 
