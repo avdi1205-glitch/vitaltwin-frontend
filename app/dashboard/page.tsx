@@ -9,6 +9,7 @@ import DashboardCheckin from '../components/dashboard-checkin';
 import DashboardGoals from '../components/dashboard-goals';
 import DashboardTrends from '../components/dashboard-trends';
 import DashboardRecommendations from '../components/dashboard-recommendations';
+import DashboardTwinMemory from '../components/dashboard-twin-memory';
 import { DomainCard, TodayActionsCard } from '../components/dashboard-cards';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
 
@@ -1015,6 +1016,7 @@ export default function Dashboard() {
           <DashboardHabits />
           <DashboardGoals />
           <DashboardTrends />
+          <DashboardTwinMemory />
         </section>
 
         <section className="mt-8">

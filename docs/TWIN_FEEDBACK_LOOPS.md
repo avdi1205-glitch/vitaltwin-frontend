@@ -1,11 +1,12 @@
 # VitalTwin — Twin Feedback Loops (TWIN_FEEDBACK_LOOPS.md)
 
-> Erstellt in **Etappe 3 (Twin Intelligence Core)**, erweitert in **Etappe 4**.
-> Dokumentiert die in diesen Etappen **echt implementierten** Loops (Daily
-> Check-in, Sleep/Movement/Stress-Recovery, Habit, Goal, sowie in Etappe 4 der
-> Recommendation-/Decision-/Outcome-/Feedback-Loop) — mit echter
-> Datenbankanbindung, nicht nur als Konzept wie im Constitution-Kapitel "Core
-> Learning Loops".
+> Erstellt in **Etappe 3 (Twin Intelligence Core)**, erweitert in
+> **Etappe 4** und **Etappe 5**. Dokumentiert die in diesen Etappen
+> **echt implementierten** Loops (Daily Check-in, Sleep/Movement/
+> Stress-Recovery, Habit, Goal, Recommendation-/Decision-/Outcome-/
+> Feedback-Loop, sowie in Etappe 5 der Memory Loop) — mit echter
+> Datenbankanbindung, nicht nur als Konzept wie im Constitution-Kapitel
+> "Core Learning Loops".
 
 ## 1. Daily Check-in Loop
 
@@ -205,3 +206,41 @@ ungenutzt).
 geschrieben, aber (wie alle bisherigen Migrationen) **nicht gegen eine echte
 Datenbank ausgeführt** — in dieser Umgebung stehen keine
 Supabase-Zugangsdaten zur Verfügung.
+
+## 8. Memory Loop (Etappe 5, Constitution-Loop Nr. 19)
+
+**Endpunkte** (neuer Router `app/routers/twin_memory.py`, montiert unter
+`/api/memory`):
+
+| Endpunkt | Zweck |
+|---|---|
+| `GET /api/memory` | Memories laden, neue Kandidaten aus aktuellen Daten generieren |
+| `POST /api/memory` | Nutzer speichert explizit eine persönliche Regel/Kommunikationspräferenz |
+| `POST /{id}/confirm` \| `/correct` \| `/reject` \| `/archive` | Nutzerkontrolle über den Lebenszyklus |
+| `DELETE /{id}` | Löschen (mit Neubewertung abhängiger Kandidaten) |
+| `GET /api/memory/patterns` | erkannte Muster laden |
+| `POST /patterns/{id}/discard` | Muster verwerfen |
+
+**Der volle Loop wie in der Constitution beschrieben:** Verhalten/Daten über
+Zeit (Check-ins, Gewohnheiten, Empfehlungsentscheidungen) → Beobachtung
+(`services/twin_memory.py`-Detektoren, `services/pattern_detection.py`) →
+Memory-Kandidat → wiederholte Bestätigung oder explizite Nutzerbestätigung →
+aktive/bestätigte Memory → wird in zukünftige Empfehlungsrunden einbezogen
+(nutzbar für Personalisierung) → bei Widerspruch/Löschung werden abhängige
+Kandidaten neu bewertet, statt einfach stehen zu bleiben. Vollständige
+Details: [TWIN_MEMORY.md](./TWIN_MEMORY.md).
+
+**Twin Learning Events:** jeder wichtige Lernschritt (Präferenz erkannt,
+Muster erkannt/verworfen, Memory erstellt/korrigiert/gelöscht, aber auch
+Empfehlungserfolg/-ablehnung und Zielanpassung aus Etappe 3/4) wird jetzt
+zusätzlich als `TwinLearningEvent` dokumentiert
+(`core/learning_events.py`) — getrennt vom Compliance-Audit-Log.
+
+**Bewusst nicht enthalten (Etappe 5):** keine Nutzung von Memories/Mustern
+für einen KI-Chat-Kontext (das ist eine spätere Etappe) — Etappe 5 baut nur
+die Speicherung, Kontrolle und Erkennung; kein automatisches Löschen
+abgelaufener Memories über `expires_at` (Feld reserviert, noch ungenutzt).
+
+**Bekannte Einschränkung:** Migration `006_twin_memory_patterns_learning.sql`
+ist geschrieben, aber **nicht gegen eine echte Datenbank ausgeführt** — wie
+alle bisherigen Migrationen in dieser Umgebung.

@@ -1,15 +1,19 @@
 # VitalTwin — Twin Learning Rules (TWIN_LEARNING_RULES.md)
 
-> Erstellt in **Etappe 4 (Twin Intelligence Core)**. Dokumentiert die
-> regelbasierte Empfehlungslogik (`backend/app/services/recommendation_rules.py`)
-> und die Beta-Personalisierungsheuristiken
-> (`backend/app/services/personalization.py`).
+> Erstellt in **Etappe 4 (Twin Intelligence Core)**, erweitert in
+> **Etappe 5**. Dokumentiert die regelbasierte Empfehlungslogik
+> (`backend/app/services/recommendation_rules.py`), die
+> Beta-Personalisierungsheuristiken
+> (`backend/app/services/personalization.py`), die Memory-Detektoren
+> (`backend/app/services/twin_memory.py`) und die transparente
+> Pattern-Detection (`backend/app/services/pattern_detection.py`).
 >
 > **Wichtiger Hinweis (Ehrlichkeit, siehe Constitution):** Nichts hier ist ein
 > trainiertes Machine-Learning-Modell. Es gibt keine Gewichte, kein Training,
 > keine Vorhersage im statistischen Sinn — nur feste, nachvollziehbare
-> Schwellenwerte über die eigenen Daten des Nutzers. Jede Regel ist in
-> Klartext lesbar und in unter einer Minute erklärbar.
+> Schwellenwerte (und, für Patterns, eine einfache Pearson-Korrelation als
+> reine Mathematik, kein ML) über die eigenen Daten des Nutzers. Jede Regel
+> ist in Klartext lesbar und in unter einer Minute erklärbar.
 
 ## 1. Empfehlungsregeln (`recommendation_rules.py`)
 
@@ -86,3 +90,65 @@ zu beeinflussen.
   `"rule_based"`).
 - Keine Vorhersage zukünftigen Verhaltens — nur eine Reaktion auf bereits
   eingetretene Muster der letzten 7-14 Tage.
+
+## 4. Memory-Detektoren (`twin_memory.py`, Etappe 5)
+
+Wie die Empfehlungsregeln: reine Funktionen, keine Datenbank, keine
+Zufälligkeit. Details zu den acht Memory-Typen, dem Lebenszyklus und den
+Konfidenzregeln: siehe [TWIN_MEMORY.md](./TWIN_MEMORY.md). Kurzüberblick der
+Detektoren:
+
+| Detektor | Bedingung | Memory-Typ |
+|---|---|---|
+| `detect_preferred_activity_time` | Gewohnheit mit `reminder_time` und `completion_rate_30d ≥ 0.7` | `bevorzugte_aktivitaetszeit` |
+| `detect_successful_routine` | `completion_rate_30d ≥ 0.8` und `longest_streak ≥ 7` | `erfolgreiche_routine` |
+| `detect_rejected_recommendation_type` | Kategorien-Malus ≥ 2 (wiederverwendet `personalization.compute_category_penalty`) | `abgelehnter_empfehlungstyp` |
+| `detect_confirmed_preference` | ≥ 2 angenommene Empfehlungen derselben Kategorie, keine Ablehnung | `bestaetigte_praeferenz` |
+| `detect_active_long_term_goal` | Aktives Ziel ohne Zieldatum oder ≥ 30 Tage entfernt | `aktives_langfristiges_ziel` |
+| `promote_pattern_to_memory` | Bestätigtes, nicht widersprüchliches Pattern mit Konfidenz ≥ 0.7 | `bestaetigtes_muster` |
+
+`persoenliche_regel` und `bevorzugte_kommunikationsform` haben **keinen**
+Detektor — sie entstehen ausschließlich durch eine explizite Nutzeraktion
+(`POST /api/memory`), nie durch automatische Beobachtung.
+
+## 5. Pattern-Detection-Regeln (`pattern_detection.py`, Etappe 5)
+
+Jeder Korrelations-Detektor berechnet einen einfachen Pearson-Korrelations­koeffizienten
+(`_pearson`, reine Python-Mathematik) über mindestens
+**`MIN_PATTERN_DATA_POINTS = 5`** Datenpunkte der letzten
+**`LOOKBACK_DAYS = 30`** Tage. Ein Muster wird nur gemeldet, wenn
+`|r| ≥ MEANINGFUL_CORRELATION (0.3)` — schwächere Zusammenhänge werden als
+"nicht aussagekräftig genug" verworfen, nie als schwaches Muster angezeigt.
+
+| Detektor | Variablen | Pattern-Typ |
+|---|---|---|
+| `detect_sleep_energy_pattern` | `sleep_hours` ↔ `energy` | `schlafdauer_energie` |
+| `detect_movement_mood_pattern` | `movement_minutes` ↔ `mood` | `bewegung_stimmung` |
+| `detect_stress_sleep_quality_pattern` | `stress` ↔ `sleep_quality` | `stress_schlafqualitaet` |
+| `detect_weekday_routine_pattern` | Wochentag ↔ Gewohnheits-Erfüllung | `wochentag_routine` |
+| `detect_recommendation_success_pattern` | Empfehlungskategorie ↔ Annahmequote | `empfehlungstyp_erfolgsquote` |
+
+"Tageszeit und Gewohnheitserfolg" (aus Etappe 5 §3) wird nicht als separates
+Pattern, sondern direkt als `bevorzugte_aktivitaetszeit`-Memory abgebildet
+(§4) — beides beruht auf denselben zwei Größen (`reminder_time`,
+`completion_rate`), ein zusätzliches Pattern wäre ein Duplikat.
+
+### Widersprüchliche Daten (`contradicting`)
+
+Für die drei Korrelations-Detektoren wird der Beobachtungszeitraum
+chronologisch in zwei Hälften geteilt. Zeigen beide Hälften eine
+Korrelation von mindestens `CONTRADICTION_CORRELATION = 0.2`, aber mit
+**entgegengesetztem Vorzeichen**, wird `contradicting=True` gesetzt und die
+Konfidenz um 40 % reduziert (`* 0.6`) — das Muster wird trotzdem angezeigt,
+aber mit einem klaren Hinweis ("Die Daten sind dabei nicht eindeutig...") und
+niedrigerer Konfidenz, statt es zu verschweigen oder unverändert als sicher
+darzustellen.
+
+### Verpflichtende Formulierung
+
+Jede `PatternDraft.summary` beginnt mit "In deinen bisherigen Daten zeigt
+sich möglicherweise..." und endet mit "...keine Ursache"/"...keine feste
+Regel" — nie mit einer Kausalaussage ("X verursacht bei dir Y"). Dies ist
+Teil der reinen String-Erzeugung in `pattern_detection.py`, nicht optional
+und nicht durch den Aufrufer veränderbar.
+
