@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import HomeAuthModal from './home-auth-modal';
 import SiteNav from './site-nav';
+import HeroScene from './brand/HeroScene';
 
 type AuthMode = 'login' | 'register' | null;
 
@@ -52,40 +53,7 @@ export default function HomeLanding({
 
       <SiteNav onOpenLogin={() => openAuth('login')} onOpenRegister={() => openAuth('register')} />
 
-      <section className="relative overflow-hidden border-b border-neutral-200">
-        <div className="relative mx-auto max-w-4xl px-6 py-20 text-center md:py-28">
-          <h1 className="font-[family-name:var(--font-serif-display)] text-4xl font-semibold leading-[1.1] md:text-6xl">
-            Dein persönlicher KI-Wellness-Zwilling
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-neutral-700 md:text-xl">
-            Verstehe deine Gewohnheiten, erkenne deine Fortschritte und erhalte persönliche Impulse für Schlaf,
-            Bewegung, Ernährung und Erholung.
-          </p>
-
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <button
-              onClick={() => openAuth('register')}
-              className="rounded-2xl bg-black px-8 py-4 text-base font-semibold text-white transition hover:bg-neutral-800"
-            >
-              Kostenlos starten
-            </button>
-            <Link
-              href="/preise"
-              className="rounded-2xl border border-neutral-900 bg-white px-8 py-4 text-base font-semibold text-neutral-900 transition hover:bg-neutral-100"
-            >
-              Preise ansehen
-            </Link>
-          </div>
-          <p className="mt-4 text-sm text-neutral-500">Kostenlos starten. Keine Kreditkarte erforderlich.</p>
-
-          <div className="mx-auto mt-14 grid max-w-3xl gap-3 text-sm text-neutral-700 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3">In wenigen Minuten eingerichtet</div>
-            <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3">Persönliche Wellness-Einblicke</div>
-            <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3">Datenschutzorientiert</div>
-            <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3">Keine medizinische Diagnose</div>
-          </div>
-        </div>
-      </section>
+      <HeroScene onOpenRegister={() => openAuth('register')} onOpenLogin={() => openAuth('login')} />
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
         <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">So funktioniert VitalTwin</h2>
