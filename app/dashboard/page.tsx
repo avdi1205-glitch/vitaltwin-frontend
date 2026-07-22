@@ -8,6 +8,7 @@ import DashboardHabits from '../components/dashboard-habits';
 import DashboardCheckin from '../components/dashboard-checkin';
 import DashboardGoals from '../components/dashboard-goals';
 import DashboardTrends from '../components/dashboard-trends';
+import DashboardRecommendations from '../components/dashboard-recommendations';
 import { DomainCard, TodayActionsCard } from '../components/dashboard-cards';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
 
@@ -1010,6 +1011,7 @@ export default function Dashboard() {
 
         <section id="gewohnheiten" className="mt-8 space-y-6 scroll-mt-24">
           <DashboardCheckin />
+          <DashboardRecommendations />
           <DashboardHabits />
           <DashboardGoals />
           <DashboardTrends />

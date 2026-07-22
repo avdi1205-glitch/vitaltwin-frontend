@@ -1,9 +1,11 @@
 # VitalTwin — Twin Feedback Loops (TWIN_FEEDBACK_LOOPS.md)
 
-> Erstellt in **Etappe 3 (Twin Intelligence Core)**. Dokumentiert die drei in
-> dieser Etappe **echt implementierten** Loops (Daily Check-in, Sleep/
-> Movement/Stress-Recovery, Habit, Goal) — mit echter Datenbankanbindung,
-> nicht nur als Konzept wie im Constitution-Kapitel "Core Learning Loops".
+> Erstellt in **Etappe 3 (Twin Intelligence Core)**, erweitert in **Etappe 4**.
+> Dokumentiert die in diesen Etappen **echt implementierten** Loops (Daily
+> Check-in, Sleep/Movement/Stress-Recovery, Habit, Goal, sowie in Etappe 4 der
+> Recommendation-/Decision-/Outcome-/Feedback-Loop) — mit echter
+> Datenbankanbindung, nicht nur als Konzept wie im Constitution-Kapitel "Core
+> Learning Loops".
 
 ## 1. Daily Check-in Loop
 
@@ -162,3 +164,44 @@ zeitzonenfernen Regionen kann `/daily/today` daher kurzzeitig (um
 Mitternacht) den falschen Tag zeigen. Korrektur ist für eine spätere Etappe
 vorgesehen (Client müsste sein lokales Datum auch als Query-Parameter an
 `/daily/today` übergeben).
+
+## 7. Recommendation-, Decision-, Outcome- und Feedback-Loop (Etappe 4)
+
+**Endpunkte** (neuer Router `app/routers/recommendations.py`, montiert unter
+`/api/recommendations`):
+
+| Endpunkt | Zweck |
+|---|---|
+| `GET /api/recommendations` | Aktive Empfehlungen laden, abgelaufene `proposed`-Einträge auf `expired` setzen, neue regelbasierte Entwürfe generieren und persistieren |
+| `POST /{id}/decision` | Annehmen/Verändern/Überspringen/Ablehnen |
+| `POST /{id}/outcome` | Ergebnis melden |
+| `POST /{id}/feedback` | Hilfreichkeit bewerten |
+| `GET /{id}/why` | Erklärung ("Warum?") |
+
+**Der volle Loop wie in der Constitution beschrieben:** Datenlage
+(Check-in/Habit/Goal) → regelbasierte Empfehlung
+(`services/recommendation_rules.py`) → Beta-Personalisierungsfilter
+(`services/personalization.py`) → Entscheidung des Nutzers → *(bei
+Annahme/Änderung)* Umsetzung → Ergebnis-Rückmeldung → Hilfreichkeits-Feedback
+→ das Feedback fließt über die Personalisierungsregeln in die **nächste**
+Empfehlungsrunde zurück (Kategorien-Malus, Duplikat-Sperre). Details zum
+Empfehlungsmodell, den Regeln, dem Status-/Entscheidungs-/Outcome-/
+Feedback-Modell und den Personalisierungsregeln: siehe
+[TWIN_LEARNING_RULES.md](./TWIN_LEARNING_RULES.md). Details zur
+Erklärungsstruktur: siehe [TWIN_EXPLAINABILITY.md](./TWIN_EXPLAINABILITY.md).
+
+**Nutzertrennung:** jede Empfehlung ist über `email` skopiert; ein
+Zugriffsversuch auf eine fremde oder nicht existierende `id` liefert `404`,
+nie `403` (siehe `core/auth.py`-Konvention aus Etappe 2).
+
+**Bewusst nicht enthalten (Etappe 4):** keine KI-generierten Empfehlungen
+(`source_type` ist ausschließlich `"rule_based"` — `"ai_generated"` ist im
+Enum reserviert, aber ungenutzt), kein trainiertes ML-Modell für die
+Personalisierung (siehe TWIN_LEARNING_RULES.md), kein Wearable-Import für
+Outcomes (`outcome_source="imported_from_wearable"` ist reserviert, aber
+ungenutzt).
+
+**Bekannte Einschränkung:** Migration `005_recommendation_loops.sql` ist
+geschrieben, aber (wie alle bisherigen Migrationen) **nicht gegen eine echte
+Datenbank ausgeführt** — in dieser Umgebung stehen keine
+Supabase-Zugangsdaten zur Verfügung.
