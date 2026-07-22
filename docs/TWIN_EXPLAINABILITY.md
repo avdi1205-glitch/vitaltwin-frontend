@@ -1,12 +1,13 @@
 # VitalTwin — Twin Explainability (TWIN_EXPLAINABILITY.md)
 
 > Erstellt in **Etappe 4 (Twin Intelligence Core)**, erweitert in
-> **Etappe 5** und **Etappe 6**. Dokumentiert die "Warum?"-Erklärungsstruktur
-> für Empfehlungen (`backend/app/services/explainability.py`, Endpunkt
+> **Etappe 5**, **Etappe 6** und **Etappe 7**. Dokumentiert die
+> "Warum?"-Erklärungsstruktur für Empfehlungen
+> (`backend/app/services/explainability.py`, Endpunkt
 > `GET /api/recommendations/{id}/why`), die Herkunfts-/Konfidenz-Anzeige für
-> Memories und Patterns (Etappe 5) sowie die Begründungen im Tagesplan und
-> die Datengrundlage von Wochenrückblick/Monatsvorschau/Twin-Reifegrad
-> (Etappe 6).
+> Memories und Patterns (Etappe 5), die Begründungen im Tagesplan und die
+> Datengrundlage von Wochenrückblick/Monatsvorschau/Twin-Reifegrad
+> (Etappe 6) sowie die Quellenkennzeichnung im Twin-Chat (Etappe 7).
 
 ## 1. Grundprinzip
 
@@ -113,3 +114,33 @@ nichts umformulieren muss und keine Kausalaussage entstehen kann.
 Wie bei Empfehlungen gilt: keine internen Detektor-Interna, keine erfundene
 Begründung, kein Vergleich mit anderen Nutzern — nur die eigenen,
 tatsächlich gespeicherten Daten der anfragenden Person.
+
+## 8. Quellenkennzeichnung im Twin-Chat (Etappe 7)
+
+Jede Antwort von `POST /api/chat/ask` enthält ein `sources`-Array
+(`[{type, label}]`), erzeugt aus den tatsächlich in den Kontext
+aufgenommenen Blöcken (siehe [TWIN_CONTEXT.md](./TWIN_CONTEXT.md)) — nie
+nachträglich vom Sprachmodell frei erfunden. Das Frontend
+(`frag-deinen-twin/page.tsx`) zeigt sie über einen "Warum?"-Toggle pro
+Twin-Antwort an, mit denselben sieben Kategorien wie Etappe 5/6:
+
+| `type` | Bedeutung |
+|---|---|
+| `user_reported` | basiert auf einer Nutzerangabe (Profil, Ziel, Gewohnheit, Tagesplan, Empfehlung) |
+| `trend` | basiert auf einem berechneten Trend |
+| `confirmed_memory` | basiert auf einer bestätigten Memory |
+| `pattern` | basiert auf einem möglichen Muster |
+| `general_wellness_info` | allgemeine Wellness-Information, nicht an diese Person gebunden |
+| `uncertain` | die Aussage ist unsicher |
+| `needs_more_data` | dem Twin fehlen noch Daten für eine verlässliche Einschätzung |
+
+Zusätzlich liefert die Antwort `needs_more_data: boolean` — ist dies `true`,
+zeigt das Frontend explizit den Hinweis "Dem Twin fehlen noch ausreichend
+Daten..." an, statt eine unsichere Aussage unkommentiert stehen zu lassen
+(Etappe 7 §6: "keine erfundene Sicherheit").
+
+**Strukturell erzwungen, nicht nur höflich formuliert:** Das Sprachmodell
+muss laut Systemprompt exakt dieses JSON-Schema liefern
+(`services/ai_provider.py::TwinAIResponse`); eine Antwort ohne gültige
+`sources` besteht die Schema-Validierung nicht und wird nie ausgeliefert
+(siehe [TWIN_SAFETY.md](./TWIN_SAFETY.md) §3).

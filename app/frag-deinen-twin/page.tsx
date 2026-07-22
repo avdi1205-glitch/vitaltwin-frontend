@@ -25,12 +25,25 @@ const MAX_INPUT_LENGTH = 500;
 type Message = {
   role: 'user' | 'assistant';
   text: string;
+  sources?: { type: string; label: string }[];
+  needsMoreData?: boolean;
+  safetyTriggered?: boolean;
 };
 
 type ChatStatus = {
   daily_limit: number;
   used_today: number;
   remaining_today: number;
+};
+
+const SOURCE_TYPE_LABELS: Record<string, string> = {
+  user_reported: 'Nutzerangabe',
+  trend: 'Berechneter Trend',
+  confirmed_memory: 'Bestätigte Memory',
+  pattern: 'Mögliches Muster',
+  general_wellness_info: 'Allgemeine Wellness-Information',
+  uncertain: 'Unsicher',
+  needs_more_data: 'Benötigt mehr Daten',
 };
 
 function extractErrorMessage(data: unknown, fallback: string): string {
@@ -52,6 +65,7 @@ export default function FragDeinenTwin() {
   const [errorMessage, setErrorMessage] = useState('');
   const [status, setStatus] = useState<ChatStatus | null>(null);
   const [loadingStatus, setLoadingStatus] = useState(true);
+  const [openWhyIndex, setOpenWhyIndex] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const loadStatus = useCallback(async (token: string) => {
@@ -114,7 +128,16 @@ export default function FragDeinenTwin() {
         return;
       }
 
-      setMessages((current) => [...current, { role: 'assistant', text: data.reply }]);
+      setMessages((current) => [
+        ...current,
+        {
+          role: 'assistant',
+          text: data.reply,
+          sources: Array.isArray(data.sources) ? data.sources : [],
+          needsMoreData: Boolean(data.needs_more_data),
+          safetyTriggered: Boolean(data.safety_triggered),
+        },
+      ]);
       setStatus((current) => (current ? { ...current, remaining_today: data.remaining_today, used_today: current.daily_limit - data.remaining_today } : current));
     } catch {
       setErrorMessage('Der Twin-Chat ist gerade nicht erreichbar. Bitte versuche es in Kürze erneut.');
@@ -178,7 +201,7 @@ export default function FragDeinenTwin() {
           )}
 
           {messages.map((msg, index) => (
-            <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div key={index} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${
                   msg.role === 'user' ? 'bg-gradient-to-r from-[#F3C979] to-[#C9913D] text-[#0B1118]' : 'border border-white/10 bg-white/[0.02] text-[#F5F2EA]'
@@ -186,6 +209,34 @@ export default function FragDeinenTwin() {
               >
                 {msg.text}
               </div>
+
+              {msg.role === 'assistant' && (msg.sources?.length ?? 0) > 0 && (
+                <div className="mt-1 max-w-[85%]">
+                  <button
+                    onClick={() => setOpenWhyIndex(openWhyIndex === index ? null : index)}
+                    className="text-xs font-semibold text-[#8E969F] underline hover:text-[#58D7D4]"
+                  >
+                    {openWhyIndex === index ? 'Erklärung ausblenden' : 'Warum?'}
+                  </button>
+                  {openWhyIndex === index && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {msg.sources!.map((source, sourceIndex) => (
+                        <span
+                          key={sourceIndex}
+                          className="rounded-full border border-white/15 px-2 py-0.5 text-[10px] text-[#8E969F]"
+                        >
+                          {SOURCE_TYPE_LABELS[source.type] ?? source.type}: {source.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              {msg.role === 'assistant' && msg.needsMoreData && (
+                <p className="mt-1 max-w-[85%] text-xs text-[#8E969F]">
+                  Dem Twin fehlen noch ausreichend Daten, um das sicher einzuschätzen.
+                </p>
+              )}
             </div>
           ))}
 
