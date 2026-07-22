@@ -1,9 +1,31 @@
 # VitalTwin — Twin-Datenwörterbuch (TWIN_DATA_DICTIONARY.md)
 
-> Erstellt in **Etappe 2**. Fokus ausschließlich auf die Tabellen, die den
-> lernenden Zwilling selbst antreiben (nicht die allgemeinen Profil-/
+> Erstellt in **Etappe 2**, ergänzt in **Etappe 3** (siehe Abschnitt
+> "Etappe-3-Ergänzungen" unten und `TWIN_FEEDBACK_LOOPS.md` für die
+> vollständige Loop-Dokumentation). Fokus ausschließlich auf die Tabellen,
+> die den lernenden Zwilling selbst antreiben (nicht die allgemeinen Profil-/
 > Gewohnheits-Tabellen — siehe `DATA_DICTIONARY.md` für die Gesamtübersicht).
 > Beantwortet für jede Tabelle gezielt: **wie nutzt der Twin das später?**
+
+## Etappe-3-Ergänzungen (Check-in, Habit, Goal — echte Implementierung)
+
+Diese Felder/Tabellen wurden in Etappe 2 nur als Schema angelegt und sind
+seit Etappe 3 über echte, validierte API-Endpunkte nutzbar (siehe
+`TWIN_FEEDBACK_LOOPS.md`):
+
+- **`vt_daily_wellness_entries`**: neu `energy`, `stress` (beide 1-10,
+  zusätzlich zu den bestehenden 1-5-Feldern `energy_level`/`stress_level`),
+  `movement_minutes`, `note` (max. 280 Zeichen). Diese Werte fließen direkt
+  in `GET /api/profile/trends` ein — die erste echte, wenn auch noch nicht
+  KI-gestützte, Trend-Grundlage für den Twin.
+- **`vt_habits`**: neu `status` (`active`/`paused`/`archived`). Die
+  serverseitig berechneten Felder `current_streak`, `longest_streak`,
+  `completion_rate_7d`, `completion_rate_30d`, `completed_today` sind
+  **nicht** in der Datenbank gespeichert — sie werden bei jedem
+  `GET /api/profile/habits`-Aufruf frisch aus `vt_habit_entries` berechnet
+  (`app/services/habit_service.py`), damit sie nie veralten oder mit den
+  Rohdaten auseinanderlaufen können.
+- **`vt_wellness_goals`**: neu `title` (fehlte in der Etappe-2-Version).
 
 ## `vt_twin_memory` — Langzeitgedächtnis
 

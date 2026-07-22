@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
 import DashboardNav from '../components/dashboard-nav';
 import DashboardHabits from '../components/dashboard-habits';
+import DashboardCheckin from '../components/dashboard-checkin';
+import DashboardGoals from '../components/dashboard-goals';
+import DashboardTrends from '../components/dashboard-trends';
 import { DomainCard, TodayActionsCard } from '../components/dashboard-cards';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
 
@@ -1005,8 +1008,11 @@ export default function Dashboard() {
           </div>
         </section>
 
-        <section id="gewohnheiten" className="mt-8 scroll-mt-24">
-          <DashboardHabits storageKey={profile?.email ?? 'anon'} />
+        <section id="gewohnheiten" className="mt-8 space-y-6 scroll-mt-24">
+          <DashboardCheckin />
+          <DashboardHabits />
+          <DashboardGoals />
+          <DashboardTrends />
         </section>
 
         <section className="mt-8">

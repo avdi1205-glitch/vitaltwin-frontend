@@ -1,102 +1,118 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { apiUrl } from '@/lib/api';
 
 type Habit = {
   id: string;
-  label: string;
-  createdAt: string;
-  completedDates: string[];
+  name: string;
+  category: string;
+  frequency: string;
+  active: boolean;
+  status: 'active' | 'paused' | 'archived';
+  completed_today: boolean;
+  current_streak: number;
+  longest_streak: number;
+  completion_rate_7d: number;
+  completion_rate_30d: number;
 };
 
-type DashboardHabitsProps = {
-  /** Namespaces storage per account so one user never sees another user's
-   * habits on a shared browser/device. */
-  storageKey: string;
-};
-
-function todayKey(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function computeStreak(completedDates: string[]): number {
-  const dates = new Set(completedDates);
-  let streak = 0;
-  const cursor = new Date();
-
-  // A streak counts consecutive days up to and including today. If today
-  // isn't done yet, still count backwards from yesterday so an in-progress
-  // streak isn't shown as broken before the day is over.
-  if (!dates.has(todayKey())) {
-    cursor.setDate(cursor.getDate() - 1);
-  }
-
-  while (dates.has(cursor.toISOString().slice(0, 10))) {
-    streak += 1;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-
-  return streak;
-}
-
-export default function DashboardHabits({ storageKey }: DashboardHabitsProps) {
+/**
+ * Habit Loop widget (Twin Intelligence Core, Etappe 3). Reads/writes the
+ * real backend (`/api/profile/habits`, `/api/profile/habits/{id}/entries`)
+ * instead of `localStorage` — the previous implementation lost all habits on
+ * logout/device change (flagged as a known gap in `docs/DATA_ARCHITECTURE.md`
+ * after Etappe 2). Streaks and completion rates are computed server-side
+ * (`app/services/habit_service.py`), never invented client-side.
+ */
+export default function DashboardHabits() {
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
   const [newHabit, setNewHabit] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
-  const fullKey = `vitaltwin_habits_${storageKey}`;
+  const [saving, setSaving] = useState(false);
+
+  const authHeader = useCallback((): Record<string, string> => {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }, []);
+
+  const loadHabits = useCallback(async () => {
+    try {
+      const response = await fetch(apiUrl('/api/profile/habits'), { headers: authHeader() });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setErrorMessage('Gewohnheiten konnten nicht geladen werden.');
+        return;
+      }
+      setHabits(Array.isArray(data?.items) ? data.items : []);
+    } catch {
+      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+    } finally {
+      setLoading(false);
+    }
+  }, [authHeader]);
 
   useEffect(() => {
-    // One-time client-side hydration from localStorage (an external system).
-    try {
-      const raw = window.localStorage.getItem(fullKey);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setHabits(raw ? (JSON.parse(raw) as Habit[]) : []);
-    } catch {
-      setHabits([]);
-    } finally {
-      setHydrated(true);
-    }
-  }, [fullKey]);
+    const timer = window.setTimeout(() => {
+      void loadHabits();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [loadHabits]);
 
-  const persist = (next: Habit[]) => {
-    setHabits(next);
-    try {
-      window.localStorage.setItem(fullKey, JSON.stringify(next));
-    } catch {
-      // Storage unavailable (e.g. private mode quota) — keep working in-memory.
-    }
-  };
+  const activeHabits = habits.filter((habit) => habit.status !== 'archived');
 
-  const addHabit = () => {
+  const addHabit = async () => {
     const label = newHabit.trim();
-    if (!label) return;
-    persist([
-      ...habits,
-      { id: `${Date.now()}`, label, createdAt: todayKey(), completedDates: [] },
-    ]);
-    setNewHabit('');
-    setShowAddForm(false);
+    if (!label || saving) return;
+    setSaving(true);
+    setErrorMessage('');
+    try {
+      const response = await fetch(apiUrl('/api/profile/habits'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        // Quick-add from the dashboard keeps category/frequency at sensible
+        // defaults — full editing (category, frequency, reminder) happens on
+        // the Profil page, which already has the detailed form.
+        body: JSON.stringify({ name: label, category: 'sonstiges', frequency: 'taeglich' }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setErrorMessage(data?.detail ?? 'Gewohnheit konnte nicht gespeichert werden.');
+        return;
+      }
+      setNewHabit('');
+      setShowAddForm(false);
+      await loadHabits();
+    } catch {
+      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const toggleToday = (habitId: string) => {
-    const today = todayKey();
-    persist(
-      habits.map((habit) => {
-        if (habit.id !== habitId) return habit;
-        const done = habit.completedDates.includes(today);
-        return {
-          ...habit,
-          completedDates: done
-            ? habit.completedDates.filter((date) => date !== today)
-            : [...habit.completedDates, today],
-        };
-      }),
-    );
+  const toggleToday = async (habit: Habit) => {
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+      await fetch(apiUrl(`/api/profile/habits/${habit.id}/entries`), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: JSON.stringify({ entry_date: today, completed: !habit.completed_today }),
+      });
+      await loadHabits();
+    } catch {
+      setErrorMessage('Eintrag konnte nicht gespeichert werden.');
+    }
   };
 
-  const removeHabit = (habitId: string) => {
-    persist(habits.filter((habit) => habit.id !== habitId));
+  const removeHabit = async (habitId: string) => {
+    try {
+      await fetch(apiUrl(`/api/profile/habits/${habitId}`), { method: 'DELETE', headers: authHeader() });
+      await loadHabits();
+    } catch {
+      setErrorMessage('Gewohnheit konnte nicht entfernt werden.');
+    }
   };
 
   return (
@@ -118,66 +134,66 @@ export default function DashboardHabits({ storageKey }: DashboardHabitsProps) {
             value={newHabit}
             onChange={(e) => setNewHabit(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') addHabit();
+              if (e.key === 'Enter') void addHabit();
             }}
             placeholder="z. B. 20 Minuten spazieren"
             className="flex-1 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
           />
           <button
-            onClick={addHabit}
-            className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
+            onClick={() => void addHabit()}
+            disabled={saving}
+            className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Speichern
+            {saving ? 'Speichere...' : 'Speichern'}
           </button>
         </div>
       )}
 
+      {errorMessage && <p className="mt-3 text-xs text-red-300">{errorMessage}</p>}
+
       <div className="mt-5 space-y-3">
-        {!hydrated ? (
+        {loading ? (
           <p className="text-sm text-[#8E969F]">Lade Gewohnheiten...</p>
-        ) : habits.length === 0 ? (
+        ) : activeHabits.length === 0 ? (
           <p className="text-sm text-[#B7BDC4]">
             Noch keine Gewohnheiten angelegt. Füge deine erste Gewohnheit hinzu, um deine Serie zu starten.
           </p>
         ) : (
-          habits.map((habit) => {
-            const done = habit.completedDates.includes(todayKey());
-            const streak = computeStreak(habit.completedDates);
-            return (
-              <div
-                key={habit.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => toggleToday(habit.id)}
-                    aria-label={done ? 'Als offen markieren' : 'Als erledigt markieren'}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm font-bold transition ${
-                      done ? 'border-[#58D7D4] bg-[#46C8C8] text-[#0B1118]' : 'border-white/20 text-[#6B7480]'
-                    }`}
-                  >
-                    {done ? '✓' : ''}
-                  </button>
-                  <div>
-                    <p className="text-sm font-semibold text-[#F5F2EA]">{habit.label}</p>
-                    <p className="text-xs text-[#8E969F]">
-                      {done ? 'Heute erledigt' : 'Heute offen'} · Serie: {streak} {streak === 1 ? 'Tag' : 'Tage'}
-                    </p>
-                  </div>
-                </div>
+          activeHabits.map((habit) => (
+            <div
+              key={habit.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3"
+            >
+              <div className="flex items-center gap-3">
                 <button
-                  onClick={() => removeHabit(habit.id)}
-                  className="text-xs text-[#8E969F] underline hover:text-red-300"
+                  onClick={() => void toggleToday(habit)}
+                  aria-label={habit.completed_today ? 'Als offen markieren' : 'Als erledigt markieren'}
+                  className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm font-bold transition ${
+                    habit.completed_today ? 'border-[#58D7D4] bg-[#46C8C8] text-[#0B1118]' : 'border-white/20 text-[#6B7480]'
+                  }`}
                 >
-                  Entfernen
+                  {habit.completed_today ? '✓' : ''}
                 </button>
+                <div>
+                  <p className="text-sm font-semibold text-[#F5F2EA]">{habit.name}</p>
+                  <p className="text-xs text-[#8E969F]">
+                    {habit.completed_today ? 'Heute erledigt' : 'Heute offen'} · Serie: {habit.current_streak}{' '}
+                    {habit.current_streak === 1 ? 'Tag' : 'Tage'} · 7-Tage-Quote: {Math.round(habit.completion_rate_7d * 100)}%
+                  </p>
+                </div>
               </div>
-            );
-          })
+              <button
+                onClick={() => void removeHabit(habit.id)}
+                className="text-xs text-[#8E969F] underline hover:text-red-300"
+              >
+                Entfernen
+              </button>
+            </div>
+          ))
         )}
       </div>
       <p className="mt-4 text-xs text-[#8E969F]">
-        Gewohnheiten werden aktuell lokal auf diesem Gerät gespeichert.
+        Serien und Erfüllungsquoten werden serverseitig aus deinen tatsächlichen Einträgen berechnet.
       </p>
     </article>
   );
