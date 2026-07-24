@@ -31,10 +31,13 @@ export default function Impressum() {
               <h2 className="text-xl font-semibold text-[#F5F2EA]">Kontakt</h2>
               <div className="mt-3 space-y-2 text-[#F5F2EA]">
                 <p>
-                  <span className="font-semibold">Telefon:</span> +49 123 456789
+                  <span className="font-semibold">E-Mail:</span> info@vitaltwin.de
                 </p>
                 <p>
-                  <span className="font-semibold">E-Mail:</span> info@vitaltwin.de
+                  <span className="font-semibold">Kontaktformular:</span>{' '}
+                  <Link href="/kontakt" className="text-[#58D7D4] underline hover:text-[#F3C979]">
+                    vitaltwin.de/kontakt
+                  </Link>
                 </p>
                 <p>
                   <span className="font-semibold">USt-IdNr.:</span> DE123456789
@@ -59,6 +62,7 @@ export default function Impressum() {
           <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-white/10 pt-6 text-sm text-[#8E969F]">
             <Link href="/" className="transition hover:text-[#58D7D4]">Startseite</Link>
             <Link href="/dashboard" className="transition hover:text-[#58D7D4]">Dashboard</Link>
+            <Link href="/kontakt" className="transition hover:text-[#58D7D4]">Kontakt</Link>
             <Link href="/datenschutz" className="transition hover:text-[#58D7D4]">Datenschutz</Link>
             <Link href="/agb" className="transition hover:text-[#58D7D4]">AGB</Link>
             <Link href="/widerrufsrecht" className="transition hover:text-[#58D7D4]">Widerrufsrecht</Link>

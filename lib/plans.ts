@@ -66,7 +66,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
   premium: {
     id: 'premium',
     name: 'Premium',
-    priceMonthly: 9.99,
+    priceMonthly: 9.90,
     priceYearly: 99,
     badge: 'Beliebteste Wahl',
     ctaLabel: 'Premium wählen',
