@@ -32,10 +32,13 @@ Alle 9 sind `not_implemented`. Details: [CONNECTORS.md](./CONNECTORS.md).
 
 ## Affiliate-Netzwerke (`affiliate_networks`)
 
-Alle 6 sind `not_implemented`. Kein Netzwerk-API-Zugang angebunden.
-Datenmodell (`vt_affiliate_partners`, `vt_affiliate_clicks`,
-`vt_affiliate_sales`) ist in `migrations/011_platform_foundation.sql`
-vorbereitet, aber leer.
+Alle 6 Netzwerk-*APIs* sind `not_implemented` (kein automatischer Produkt-
+Import, kein automatischer Provisions-Abgleich). Das generische
+Affiliate-Management-System selbst (Produkte, Freigabe-Workflow, Tracking,
+Analytics, Blacklist, A/B-Tests) ist real implementiert — siehe
+[AFFILIATE_PLATFORM.md](./AFFILIATE_PLATFORM.md). Partnerprogramme werden
+manuell im Admin-Bereich unter „Affiliate Center → Partnerprogramme"
+angelegt und gepflegt.
 
 `amazon_partnernet`, `awin`, `digistore24`, `cj_affiliate`, `impact`,
 `tradedoubler`.
