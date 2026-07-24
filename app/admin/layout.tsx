@@ -11,6 +11,7 @@ const NAV_SECTIONS: { href: string; label: string; permission: string }[] = [
   { href: '/admin', label: 'Dashboard', permission: 'view_dashboard' },
   { href: '/admin/founder', label: 'Founder Dashboard', permission: 'view_founder_dashboard' },
   { href: '/admin/founder/daily-briefing', label: 'Daily Briefing', permission: 'view_founder_briefing' },
+  { href: '/admin/founder/tasks', label: 'Task Manager', permission: 'view_founder_tasks' },
   { href: '/admin/users', label: 'Nutzerverwaltung', permission: 'view_users' },
   { href: '/admin/content', label: 'Content Management', permission: 'view_content' },
   { href: '/admin/nutrition', label: 'Nutrition & CGM', permission: 'view_nutrition_admin' },
