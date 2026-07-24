@@ -1,11 +1,32 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { apiUrl } from '@/lib/api';
 import VitalTwinMark from './brand/VitalTwinMark';
 
 export default function DashboardNav() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const token = window.localStorage.getItem('token');
+    if (!token) return;
+    (async () => {
+      try {
+        const response = await fetch(apiUrl('/api/admin/me'), {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!cancelled && response.ok) setIsAdmin(true);
+      } catch {
+        // Backend unreachable or no admin access — link simply stays hidden.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const links = [
     { href: '#uebersicht', label: 'Übersicht' },
@@ -15,6 +36,7 @@ export default function DashboardNav() {
     { href: '/frag-deinen-twin', label: 'Frag deinen Twin' },
     { href: '/passwort-zuruecksetzen', label: 'Konto' },
     { href: '/preise', label: 'Tarif' },
+    ...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : []),
   ];
 
   return (
