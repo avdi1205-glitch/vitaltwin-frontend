@@ -18,6 +18,7 @@ const NAV_SECTIONS: { href: string; label: string; permission: string }[] = [
   { href: '/admin/security', label: 'Security Center', permission: 'view_security' },
   { href: '/admin/system', label: 'System Center', permission: 'view_system_status' },
   { href: '/admin/support', label: 'Support Center', permission: 'view_support' },
+  { href: '/admin/integrations', label: 'Integrationen', permission: 'view_integrations' },
 ];
 
 const THEME_STORAGE_KEY = 'admin-theme';
