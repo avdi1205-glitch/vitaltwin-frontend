@@ -1,12 +1,16 @@
 # VitalTwin — Twin Beta Limitations (TWIN_BETA_LIMITATIONS.md)
 
 > Erstellt in **Etappe 7 (Twin Intelligence Core)**, erweitert in
-> **Etappe 8** und **Etappe 9**. Zentrale, ehrliche Übersicht der
-> bekannten Grenzen des Twin-Conversation-Features, der Tarifstruktur, der
-> Dashboard-Integration (Etappe 8) und der Privacy-/Export-/
-> Lösch-Funktionen (Etappe 9) — damit "keine erfundene Sicherheit"
-> (Etappe 7 §6) auch für das Gesamtsystem gilt, nicht nur für einzelne
-> Antworten.
+> **Etappe 8**, **Etappe 9** und **Etappe 10 (Beta-Abnahme)**. Zentrale,
+> ehrliche Übersicht der bekannten Grenzen des Twin-Conversation-Features,
+> der Tarifstruktur, der Dashboard-Integration (Etappe 8), der Privacy-/
+> Export-/Lösch-Funktionen (Etappe 9) und der final bestätigten
+> Beta-Grenzen (Etappe 10, siehe auch
+> [TWIN_BETA_TEST_REPORT.md](./TWIN_BETA_TEST_REPORT.md) und
+> [TWIN_BETA_RELEASE_CHECKLIST.md](./TWIN_BETA_RELEASE_CHECKLIST.md)) —
+> damit "keine erfundene Sicherheit" (Etappe 7 §6) auch für das
+> Gesamtsystem gilt, nicht nur für einzelne Antworten.
+
 
 ## 1. Tariflimits (Etappe 7 §7)
 
@@ -114,3 +118,41 @@ siehe die durchgängigen medizinischen Grenzen in
   [BACKUP_AND_RESTORE.md](./BACKUP_AND_RESTORE.md) §4).
 - **Migration 008 nicht ausgeführt:** wie alle bisherigen Migrationen in
   dieser Umgebung — sie fügt ohnehin nur Indizes hinzu, kein Schema-Risiko.
+
+## 6. Bewusst nicht enthaltene Funktionen (Etappe 10 §16 — endgültig bestätigt)
+
+Diese Liste ist **abschließend für die Beta** — keine dieser Funktionen ist
+Teil des aktuellen Funktionsumfangs, und keine sollte ohne eine neue,
+separate Freigabe begonnen werden:
+
+| Nicht enthalten | Status |
+|---|---|
+| Medizinische Diagnosen | ausdrücklich verboten (Systemprompt + Eingabe-/Ausgabe-Gate, siehe TWIN_SAFETY.md) |
+| Medikamentenverwaltung/-empfehlung | ausdrücklich verboten |
+| Krankheitsprognosen | ausdrücklich verboten |
+| Genetik-Auswertung | keine entsprechenden Datenfelder existieren |
+| Laborwertdiagnostik | der Legacy-Marker-Rechner (`#mein-twin`) liefert nur eine Wellness-Orientierung, keine Diagnostik (siehe Disclaimer im Dashboard) |
+| Autonome medizinische Entscheidungen | der Twin trifft nie eine Entscheidung selbst — jede Aktion erfordert eine Nutzerentscheidung (Übernehmen/Ablehnen) |
+| Unkontrolliertes Machine Learning | alle Empfehlungen/Muster sind regelbasiert (`recommendation_rules.py`, `pattern_detection.py`) — kein trainiertes Modell im Produkt |
+| Automatisches Training auf Nutzerdaten | es findet kein Training statt; der einzige externe KI-Aufruf ist die zustandslose OpenAI-Chat-Completion für "Frag deinen Twin" |
+| Echte Wearable-Anbindungen | `wearables_future`-Einwilligung ist reserviert, aber keine Integration existiert |
+| Community-Lernen | jede Personalisierung ist strikt pro Nutzer (siehe TWIN_LEARNING_RULES.md §2) |
+| Globale Ranglisten | keine Cross-User-Vergleiche existieren an irgendeiner Stelle im Code |
+| Datenverkauf | keine entsprechende Funktion/Schnittstelle existiert |
+| Forschung ohne separate Einwilligung | `research_optional` ist ein eigener, ungebündelter Consent-Zweck (siehe PRIVACY_CONTROLS.md §3) |
+
+## 7. Bekannte, nicht kritische Code-Inkonsistenzen (Etappe 10 Sicherheitsprüfung)
+
+Bei der Sicherheitsprüfung aller API-Routen (Etappe 10 §15) wurde
+festgestellt: zwei **Legacy-Endpunkte aus der Zeit vor Etappe 2**
+(`POST /api/twin/calculate`, `POST /api/payments/create-checkout`)
+authentifizieren über ein **Token im Request-Body** statt über den seit
+Etappe 2 einheitlichen `Authorization`-Header (`core/auth.py`). Beide
+validieren den JWT weiterhin korrekt (`get_email_by_token`, dieselbe
+Funktion) — es handelt sich um eine **Stilinkonsistenz, keine
+Sicherheitslücke** (kein Zugriff ohne gültiges Token möglich, in
+`payments.py::create_checkout` wird ein fehlendes/ungültiges Token explizit
+mit `401` abgelehnt). Empfehlung für eine spätere Etappe: beide Endpunkte
+auf das `Authorization`-Header-Muster umstellen, um Konsistenz
+herzustellen — kein Beta-Blocker.
+
