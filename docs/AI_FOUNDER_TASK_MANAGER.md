@@ -4,7 +4,8 @@
 > [Founder Dashboard](../app/admin/founder/page.tsx) (F1) und
 > [Founder Daily Briefing](./FOUNDER_DAILY_BRIEFING.md) (F2) um eine
 > automatische, regelbasierte Aufgabenerkennung unter
-> `/admin/founder/tasks`.
+> `/admin/founder` (Tab "Tasks") — konsolidiert mit F1/F2 auf einer Seite,
+> siehe unten.
 
 ## 1. Kein LLM-Aufruf — auch hier nicht
 
@@ -134,8 +135,8 @@ vorbehalten.
 
 | Methode | Pfad | Berechtigung | Zweck |
 |---|---|---|---|
-| GET | `/api/admin/founder/tasks` | `view_founder_tasks` | Erkennung ausführen + Liste + CEO-Zusammenfassung |
-| PATCH | `/api/admin/founder/tasks/{id}/status` | `manage_founder_tasks` | Status ändern |
-| POST | `/api/admin/founder/tasks/{id}/remind` | `manage_founder_tasks` | Später erinnern |
-| POST | `/api/admin/founder/tasks/{id}/ignore` | `manage_founder_tasks` | Ignorieren/archivieren |
-| POST | `/api/admin/founder/tasks/{id}/apply-suggestion` | `manage_founder_tasks` | Einzige echte Automatisierung: Links erneut prüfen |
+| GET | `/api/admin/founder/tasks` | `view_founder_os` | Erkennung ausführen + Liste + CEO-Zusammenfassung |
+| PATCH | `/api/admin/founder/tasks/{id}/status` | `manage_founder_os` | Status ändern |
+| POST | `/api/admin/founder/tasks/{id}/remind` | `manage_founder_os` | Später erinnern |
+| POST | `/api/admin/founder/tasks/{id}/ignore` | `manage_founder_os` | Ignorieren/archivieren |
+| POST | `/api/admin/founder/tasks/{id}/apply-suggestion` | `manage_founder_os` | Einzige echte Automatisierung: Links erneut prüfen |

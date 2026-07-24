@@ -3,7 +3,8 @@
 > Zweites Modul des Founder Operating Systems (Release F2). Ergänzt das
 > [Founder Dashboard](../app/admin/founder/page.tsx) (Release F1) um eine
 > automatisch bei jedem Aufruf generierte Tageszusammenfassung unter
-> `/admin/founder/daily-briefing`.
+> `/admin/founder` (Tab "Daily Briefing") — konsolidiert mit F1/F3 auf
+> einer Seite (siehe [AI_FOUNDER_TASK_MANAGER.md](./AI_FOUNDER_TASK_MANAGER.md) für den Grund).
 
 ## 1. Was "automatisch erstellt" hier bedeutet
 
@@ -82,15 +83,17 @@ Feste, nachvollziehbare Regeln (keine KI-Gewichtung):
 ## 6. Quick Actions
 
 Reine Navigations-Links (kein Backend-Aufruf): Produkte prüfen → Affiliate
-Center, Affiliate öffnen → Affiliate Center, Dashboard öffnen → Founder
-Dashboard, Support öffnen → Support Center, Blog öffnen → Content
-Management, Analytics öffnen → Analytics.
+Center, Affiliate öffnen → Affiliate Center, Support öffnen → Support
+Center, Blog öffnen → Content Management, Analytics öffnen → Analytics.
+("Dashboard öffnen" entfällt seit der Konsolidierung — das Dashboard ist
+jetzt nur einen Tab-Klick entfernt, siehe oben.)
 
 ## 7. API
 
 `GET /api/admin/founder/daily-briefing` — Berechtigung
-`view_founder_briefing` (nur `super_admin`/`admin`, analog zu
-`view_founder_dashboard`). Response-Schema: `business`, `users`, `ai`,
+`view_founder_os` (nur `super_admin`/`admin`, ein gemeinsames Rechtepaar
+für alle drei Founder-Module: `view_founder_os`/`manage_founder_os`).
+Response-Schema: `business`, `users`, `ai`,
 `affiliate`, `system`, `tasks`, `warnings`, `recommendations`,
 `priorities`, `generated_at`.
 
