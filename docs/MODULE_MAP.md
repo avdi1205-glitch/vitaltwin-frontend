@@ -60,7 +60,10 @@ Submodule, bewusst nicht fragmentiert).
 | D | Smart Approval Center | ✅ implementiert | Tab "Approval Center" | [SMART_APPROVAL_CENTER.md](./SMART_APPROVAL_CENTER.md) |
 | E | AI Business Coach | ✅ implementiert | Tab "AI Business Coach" | [AI_BUSINESS_COACH.md](./AI_BUSINESS_COACH.md) |
 | F | Affiliate Intelligence | ✅ implementiert | Tab "Affiliate Intelligence" | [AFFILIATE_INTELLIGENCE.md](./AFFILIATE_INTELLIGENCE.md), [AFFILIATE_PROVIDER_ARCHITECTURE.md](./AFFILIATE_PROVIDER_ARCHITECTURE.md), [AFFILIATE_PRODUCT_REVIEW.md](./AFFILIATE_PRODUCT_REVIEW.md), [AFFILIATE_RANKING.md](./AFFILIATE_RANKING.md), [AFFILIATE_AUTOMATION.md](./AFFILIATE_AUTOMATION.md), [AFFILIATE_COMPLIANCE.md](./AFFILIATE_COMPLIANCE.md) |
-| **G** | **Automation Engine** | **✅ implementiert** | **Tab "Automation Engine" (sichtbar nur mit `view_automation_engine`)** | **[AUTOMATION_ENGINE.md](./AUTOMATION_ENGINE.md), [AUTOMATION_RULES.md](./AUTOMATION_RULES.md), [AUTOMATION_SECURITY.md](./AUTOMATION_SECURITY.md), [AUTOMATION_APPROVALS.md](./AUTOMATION_APPROVALS.md), [AUTOMATION_OPERATIONS.md](./AUTOMATION_OPERATIONS.md), [AUTOMATION_SCORE.md](./AUTOMATION_SCORE.md)** || **H** | **CEO Intelligence** | **✅ implementiert** | **Tab "CEO Intelligence" (sichtbar nur mit `view_ceo_intelligence`)** | **[CEO_INTELLIGENCE.md](./CEO_INTELLIGENCE.md), [EXECUTIVE_METRICS.md](./EXECUTIVE_METRICS.md), [EXECUTIVE_SCORECARD.md](./EXECUTIVE_SCORECARD.md), [STRATEGIC_GOALS.md](./STRATEGIC_GOALS.md), [EXECUTIVE_RISKS_OPPORTUNITIES.md](./EXECUTIVE_RISKS_OPPORTUNITIES.md), [EXECUTIVE_SCENARIOS.md](./EXECUTIVE_SCENARIOS.md)** |
+| G | Automation Engine | ✅ implementiert | Tab "Automation Engine" (sichtbar nur mit `view_automation_engine`) | [AUTOMATION_ENGINE.md](./AUTOMATION_ENGINE.md), [AUTOMATION_RULES.md](./AUTOMATION_RULES.md), [AUTOMATION_SECURITY.md](./AUTOMATION_SECURITY.md), [AUTOMATION_APPROVALS.md](./AUTOMATION_APPROVALS.md), [AUTOMATION_OPERATIONS.md](./AUTOMATION_OPERATIONS.md), [AUTOMATION_SCORE.md](./AUTOMATION_SCORE.md) |
+| H | CEO Intelligence | ✅ implementiert | Tab "CEO Intelligence" (sichtbar nur mit `view_ceo_intelligence`) | [CEO_INTELLIGENCE.md](./CEO_INTELLIGENCE.md), [EXECUTIVE_METRICS.md](./EXECUTIVE_METRICS.md), [EXECUTIVE_SCORECARD.md](./EXECUTIVE_SCORECARD.md), [STRATEGIC_GOALS.md](./STRATEGIC_GOALS.md), [EXECUTIVE_RISKS_OPPORTUNITIES.md](./EXECUTIVE_RISKS_OPPORTUNITIES.md), [EXECUTIVE_SCENARIOS.md](./EXECUTIVE_SCENARIOS.md) |
+| **I** | **Auto Documentation** | **✅ implementiert** | **Tab "Auto Documentation" (sichtbar nur mit `view_documentation`)** | **[AUTO_DOCUMENTATION.md](./AUTO_DOCUMENTATION.md), [DOCUMENTATION_REGISTRY.md](./DOCUMENTATION_REGISTRY.md), [DOCUMENTATION_GENERATION.md](./DOCUMENTATION_GENERATION.md), [DOCUMENTATION_APPROVALS.md](./DOCUMENTATION_APPROVALS.md), [DOCUMENTATION_SECURITY.md](./DOCUMENTATION_SECURITY.md), [CHANGELOG_PROCESS.md](./CHANGELOG_PROCESS.md), [RELEASE_NOTES_PROCESS.md](./RELEASE_NOTES_PROCESS.md), [DOCUMENTATION_COVERAGE.md](./DOCUMENTATION_COVERAGE.md)** |
+
 ### Abnahmekriterien Submodul E — Status
 
 Alle 20 im Auftrag genannten Abnahmekriterien sind erfüllt — Details und
@@ -87,7 +90,14 @@ Alle 27 im Auftrag genannten Abnahmekriterien sind erfüllt — siehe
 Dokumente. 42 dedizierte Backend-Tests (763 Gesamttests im Backend, alle
 grün).
 
+### Abnahmekriterien Submodul I — Status
+
+Alle 33 im Auftrag genannten Abnahmekriterien sind erfüllt — siehe
+[AUTO_DOCUMENTATION.md](./AUTO_DOCUMENTATION.md) und die begleitenden
+Dokumente. 51 dedizierte Backend-Tests (816 Gesamttests im Backend, alle
+grün).
+
 ### Geplant, noch nicht spezifiziert
 
-Submodul I und folgende — wird erst nach expliziter Freigabe des Gründers
+Submodul J und folgende — wird erst nach expliziter Freigabe des Gründers
 begonnen.

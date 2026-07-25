@@ -7,7 +7,7 @@ import { Badge, Button, Card, ErrorText, Kpi, Loading, Note, SectionTitle } from
 
 const NO_DATA = 'Keine Daten vorhanden';
 
-type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals' | 'coach' | 'affiliate_intelligence' | 'automation' | 'ceo_intelligence';
+type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals' | 'coach' | 'affiliate_intelligence' | 'automation' | 'ceo_intelligence' | 'documentation';
 
 const TABS: { key: Tab; label: string; permission?: string }[] = [
   { key: 'dashboard', label: 'Dashboard' },
@@ -18,6 +18,7 @@ const TABS: { key: Tab; label: string; permission?: string }[] = [
   { key: 'affiliate_intelligence', label: 'Affiliate Intelligence' },
   { key: 'automation', label: 'Automation Engine', permission: 'view_automation_engine' },
   { key: 'ceo_intelligence', label: 'CEO Intelligence', permission: 'view_ceo_intelligence' },
+  { key: 'documentation', label: 'Auto Documentation', permission: 'view_documentation' },
 ];
 
 function CardTitle({ children }: { children: React.ReactNode }) {
@@ -72,6 +73,7 @@ export default function FounderOsPage() {
       {tab === 'affiliate_intelligence' && <AffiliateIntelligenceTab />}
       {tab === 'automation' && <AutomationEngineTab />}
       {tab === 'ceo_intelligence' && <CeoIntelligenceTab />}
+      {tab === 'documentation' && <AutoDocumentationTab />}
     </div>
   );
 }
@@ -1982,6 +1984,211 @@ function CeoIntelligenceTab() {
             style={{ flex: '1 1 300px' }}
           />
           <Button disabled={asking} onClick={askCeo}>{asking ? 'Frage läuft...' : 'Fragen'}</Button>
+        </div>
+        {answer && (
+          <p style={{ color: answer.insufficient ? tokens.mutedMore : tokens.text, fontSize: '0.85rem', marginTop: '0.75rem' }}>
+            {answer.text}
+          </p>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Auto Documentation (Founder OS — Submodul I)
+// ---------------------------------------------------------------------------
+
+type DocDashboard = Record<string, unknown>;
+type RegistryDoc = { id: string; title: string; category: string; status: string; document_path: string; version: number };
+type StaleFinding = { registry_id: string; document_path: string; reason: string };
+type MissingFinding = { category: string; identifier: string; source: string };
+
+const DOC_STATUS_TONE: Record<string, 'success' | 'neutral' | 'danger'> = {
+  current: 'success', approved: 'success', stale: 'danger', missing: 'danger',
+  draft: 'neutral', pending_review: 'neutral', rejected: 'danger', archived: 'neutral', manually_managed: 'neutral',
+};
+
+function AutoDocumentationTab() {
+  const { authFetch, tokens } = useAdmin();
+  const [dashboard, setDashboard] = useState<DocDashboard | null>(null);
+  const [documents, setDocuments] = useState<RegistryDoc[]>([]);
+  const [stale, setStale] = useState<StaleFinding[]>([]);
+  const [missing, setMissing] = useState<MissingFinding[]>([]);
+  const [changelog, setChangelog] = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [generating, setGenerating] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<RegistryDoc[] | null>(null);
+
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState<{ text: string; insufficient: boolean } | null>(null);
+  const [asking, setAsking] = useState(false);
+
+  const loadAll = async () => {
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const [dashRes, regRes, staleRes, missingRes, changelogRes] = await Promise.all([
+        authFetch('/api/admin/founder/documentation/dashboard'),
+        authFetch('/api/admin/founder/documentation/registry'),
+        authFetch('/api/admin/founder/documentation/stale'),
+        authFetch('/api/admin/founder/documentation/missing'),
+        authFetch('/api/admin/founder/documentation/changelog/draft'),
+      ]);
+      if (!dashRes.ok) {
+        setErrorMessage('Auto Documentation konnte nicht geladen werden (fehlende Berechtigung oder Backend nicht erreichbar).');
+        return;
+      }
+      setDashboard(await dashRes.json());
+      setDocuments((await regRes.json()).items || []);
+      setStale((await staleRes.json()).items || []);
+      setMissing((await missingRes.json()).items || []);
+      setChangelog(await changelogRes.json());
+    } catch {
+      setErrorMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadAll(), 0);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const runGeneration = async () => {
+    setGenerating(true);
+    try {
+      await authFetch('/api/admin/founder/documentation/generate', { method: 'POST' });
+      await loadAll();
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const runSearch = async () => {
+    if (!searchQuery.trim()) return;
+    const response = await authFetch(`/api/admin/founder/documentation/search?q=${encodeURIComponent(searchQuery)}`);
+    const json = await response.json().catch(() => null);
+    if (response.ok) setSearchResults(json.items || []);
+  };
+
+  const askDocs = async () => {
+    if (!question.trim()) return;
+    setAsking(true);
+    try {
+      const response = await authFetch('/api/admin/founder/documentation/ask', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+      const json = await response.json().catch(() => null);
+      if (response.ok && json) setAnswer({ text: json.answer, insufficient: json.insufficient_data });
+    } finally {
+      setAsking(false);
+    }
+  };
+
+  if (loading) return <Loading />;
+  if (errorMessage) return <ErrorText>{errorMessage}</ErrorText>;
+  if (!dashboard) return null;
+
+  return (
+    <div>
+      <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginBottom: '1rem' }}>
+        Analysiert ausschließlich das Backend-Repository sicher und lesend (Routen, Datenmodelle,
+        Migrationen, Services) — Frontend-Dokumente liegen in einem separaten Repository und werden
+        ehrlich als &quot;nicht automatisch prüfbar&quot; markiert. Geschützte Dokumente (Constitution,
+        AGB, Impressum, Datenschutz, Preise) werden niemals automatisch verändert.
+      </p>
+
+      <div style={{ marginBottom: '1rem' }}>
+        <Button disabled={generating} onClick={runGeneration}>{generating ? 'Läuft...' : 'Dokumentationslauf jetzt ausführen'}</Button>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        {Object.entries(dashboard).map(([key, value]) => (
+          <Card key={key}>
+            <p style={{ color: tokens.muted, fontSize: '0.7rem' }}>{key.replace(/_/g, ' ')}</p>
+            <p style={{ color: tokens.text, fontSize: '1.05rem', fontWeight: 700 }}>
+              {value !== null && value !== undefined ? String(value) : NO_DATA}
+            </p>
+          </Card>
+        ))}
+      </div>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Documentation Registry</CardTitle>
+        {documents.length === 0 && <Note>Noch keine Dokumente registriert.</Note>}
+        {documents.slice(0, 15).map((d) => (
+          <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <span style={{ color: tokens.text, fontSize: '0.82rem' }}>{d.title} (v{d.version})</span>
+            <Badge tone={DOC_STATUS_TONE[d.status] || 'neutral'}>{d.status}</Badge>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Stale Documentation</CardTitle>
+        {stale.length === 0 && <Note>Keine veraltete Dokumentation erkannt.</Note>}
+        {stale.map((s) => (
+          <div key={s.registry_id} style={{ padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <p style={{ color: tokens.text, fontSize: '0.82rem' }}>{s.document_path}</p>
+            <p style={{ color: tokens.mutedMore, fontSize: '0.72rem' }}>{s.reason}</p>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Missing Documentation</CardTitle>
+        {missing.length === 0 && <Note>Keine fehlende Dokumentation erkannt.</Note>}
+        {missing.slice(0, 15).map((m, i) => (
+          <p key={i} style={{ color: tokens.mutedMore, fontSize: '0.78rem', padding: '0.2rem 0' }}>
+            {m.category}: {m.identifier} ({m.source})
+          </p>
+        ))}
+      </Card>
+
+      {changelog && (
+        <Card style={{ marginBottom: '1.25rem' }}>
+          <CardTitle>Changelog-Entwurf</CardTitle>
+          <p style={{ color: tokens.mutedMore, fontSize: '0.72rem', marginBottom: '0.4rem' }}>{String(changelog.source_note)}</p>
+          {Object.entries((changelog.categories as Record<string, string[]>) || {}).map(([category, entries]) => (
+            <div key={category} style={{ marginBottom: '0.4rem' }}>
+              <p style={{ color: tokens.text, fontWeight: 600, fontSize: '0.8rem' }}>{category}</p>
+              {entries.slice(0, 5).map((entry, i) => <p key={i} style={{ color: tokens.mutedMore, fontSize: '0.75rem' }}>{entry}</p>)}
+            </div>
+          ))}
+        </Card>
+      )}
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Dokumentationssuche</CardTitle>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <input placeholder="Titel, Modul, Kategorie..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} style={{ flex: '1 1 250px' }} />
+          <Button variant="secondary" onClick={runSearch}>Suchen</Button>
+        </div>
+        {searchResults && (
+          <div style={{ marginTop: '0.6rem' }}>
+            {searchResults.length === 0 && <Note>Keine Treffer.</Note>}
+            {searchResults.map((r) => <p key={r.id} style={{ color: tokens.mutedMore, fontSize: '0.78rem' }}>{r.title} ({r.category})</p>)}
+          </div>
+        )}
+      </Card>
+
+      <Card>
+        <CardTitle>Frag die Projektdokumentation</CardTitle>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <input
+            placeholder="z. B. Welche Module sind bereits implementiert?"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            style={{ flex: '1 1 300px' }}
+          />
+          <Button disabled={asking} onClick={askDocs}>{asking ? 'Frage läuft...' : 'Fragen'}</Button>
         </div>
         {answer && (
           <p style={{ color: answer.insufficient ? tokens.mutedMore : tokens.text, fontSize: '0.85rem', marginTop: '0.75rem' }}>
