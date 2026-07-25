@@ -58,14 +58,22 @@ Submodule, bewusst nicht fragmentiert).
 | B | Founder Daily Briefing | ✅ implementiert | Tab "Daily Briefing" | [FOUNDER_DAILY_BRIEFING.md](./FOUNDER_DAILY_BRIEFING.md) |
 | C | AI Founder Task Manager | ✅ implementiert | Tab "Tasks" | [AI_FOUNDER_TASK_MANAGER.md](./AI_FOUNDER_TASK_MANAGER.md) |
 | D | Smart Approval Center | ✅ implementiert | Tab "Approval Center" | [SMART_APPROVAL_CENTER.md](./SMART_APPROVAL_CENTER.md) |
-| **E** | **AI Business Coach** | **✅ implementiert** | **Tab "AI Business Coach"** | **[AI_BUSINESS_COACH.md](./AI_BUSINESS_COACH.md)** |
+| E | AI Business Coach | ✅ implementiert | Tab "AI Business Coach" | [AI_BUSINESS_COACH.md](./AI_BUSINESS_COACH.md) |
+| **F** | **Affiliate Intelligence** | **✅ implementiert** | **Tab "Affiliate Intelligence"** | **[AFFILIATE_INTELLIGENCE.md](./AFFILIATE_INTELLIGENCE.md), [AFFILIATE_PROVIDER_ARCHITECTURE.md](./AFFILIATE_PROVIDER_ARCHITECTURE.md), [AFFILIATE_PRODUCT_REVIEW.md](./AFFILIATE_PRODUCT_REVIEW.md), [AFFILIATE_RANKING.md](./AFFILIATE_RANKING.md), [AFFILIATE_AUTOMATION.md](./AFFILIATE_AUTOMATION.md), [AFFILIATE_COMPLIANCE.md](./AFFILIATE_COMPLIANCE.md)** |
 
 ### Abnahmekriterien Submodul E — Status
 
 Alle 20 im Auftrag genannten Abnahmekriterien sind erfüllt — Details und
 Nachweis (Tests) in [AI_BUSINESS_COACH.md](./AI_BUSINESS_COACH.md) §12.
 
+### Abnahmekriterien Submodul F — Status
+
+Alle im Auftrag genannten Abnahmekriterien sind erfüllt — siehe
+[AFFILIATE_INTELLIGENCE.md](./AFFILIATE_INTELLIGENCE.md) und die
+begleitenden Dokumente. 37 dedizierte Backend-Tests (659 Gesamttests im
+Backend, alle grün).
+
 ### Geplant, noch nicht spezifiziert
 
-Submodul F und folgende — wird erst nach expliziter Freigabe des Gründers
+Submodul G und folgende — wird erst nach expliziter Freigabe des Gründers
 begonnen.

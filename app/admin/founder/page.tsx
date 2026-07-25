@@ -7,7 +7,7 @@ import { Badge, Button, Card, ErrorText, Kpi, Loading, Note, SectionTitle } from
 
 const NO_DATA = 'Keine Daten vorhanden';
 
-type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals' | 'coach';
+type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals' | 'coach' | 'affiliate_intelligence';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'dashboard', label: 'Dashboard' },
@@ -15,6 +15,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'tasks', label: 'Tasks' },
   { key: 'approvals', label: 'Approval Center' },
   { key: 'coach', label: 'AI Business Coach' },
+  { key: 'affiliate_intelligence', label: 'Affiliate Intelligence' },
 ];
 
 function CardTitle({ children }: { children: React.ReactNode }) {
@@ -49,7 +50,7 @@ export default function FounderOsPage() {
     <div>
       <SectionTitle
         title="Founder Operating System"
-        subtitle="Dashboard, Daily Briefing, Task Manager, Approval Center und AI Business Coach an einem Ort — nur echte Daten, keine Platzhalter, keine Hintergrund-KI."
+        subtitle="Dashboard, Daily Briefing, Task Manager, Approval Center, AI Business Coach und Affiliate Intelligence an einem Ort — nur echte Daten, keine Platzhalter, keine Hintergrund-KI."
       />
       <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         {TABS.map((t) => (
@@ -64,6 +65,7 @@ export default function FounderOsPage() {
       {tab === 'tasks' && <TasksTab />}
       {tab === 'approvals' && <ApprovalsTab />}
       {tab === 'coach' && <BusinessCoachTab />}
+      {tab === 'affiliate_intelligence' && <AffiliateIntelligenceTab />}
     </div>
   );
 }
@@ -1185,6 +1187,237 @@ function BusinessCoachTab() {
           <p style={{ color: answer.insufficient ? tokens.mutedMore : tokens.text, fontSize: '0.85rem', marginTop: '0.75rem' }}>
             {answer.text}
           </p>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Affiliate Intelligence (Founder OS — Submodul F)
+// ---------------------------------------------------------------------------
+
+type IntelKpi = { value: number | string | null; note?: string | null; source: string };
+type IntelDashboard = { computed_at: string; [key: string]: IntelKpi | string };
+
+type ProviderStatus = { id: string; name: string; configured: boolean; connection_tested: boolean; kind: string; note: string };
+type ProductHealthItem = { product_id: string; title: string; status: string; reasons: string[] };
+type DuplicateCandidate = { id: string; product_a_id: string; product_b_id: string; match_reason: string; status: string };
+type ApprovalAssistantItem = { product_id: string; title: string; bucket: string; confidence: string; reasons: string[]; risks: string[] };
+type SimulatedProduct = { product_id: string; title: string; category: string | null; status: string; score: number; explanation: string[]; disclosure: string };
+type ExcludedProduct = { product_id: string; title: string; reason: string };
+
+const HEALTH_TONE: Record<string, 'success' | 'neutral' | 'danger'> = {
+  healthy: 'success', warning: 'neutral', critical: 'danger', paused: 'neutral', unknown: 'neutral',
+};
+
+function AffiliateIntelligenceTab() {
+  const { authFetch, tokens } = useAdmin();
+  const [dashboard, setDashboard] = useState<IntelDashboard | null>(null);
+  const [providers, setProviders] = useState<ProviderStatus[]>([]);
+  const [productHealth, setProductHealth] = useState<ProductHealthItem[]>([]);
+  const [duplicates, setDuplicates] = useState<DuplicateCandidate[]>([]);
+  const [assistantSummary, setAssistantSummary] = useState('');
+  const [assistantItems, setAssistantItems] = useState<ApprovalAssistantItem[]>([]);
+  const [automationScore, setAutomationScore] = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [context, setContext] = useState('');
+  const [simResult, setSimResult] = useState<{ matched_category: string | null; recommended: SimulatedProduct[]; excluded: ExcludedProduct[] } | null>(null);
+  const [simulating, setSimulating] = useState(false);
+
+  const loadAll = async () => {
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const [dashRes, provRes, healthRes, dupRes, assistRes, autoRes] = await Promise.all([
+        authFetch('/api/admin/founder/affiliate-intelligence/dashboard'),
+        authFetch('/api/admin/founder/affiliate-intelligence/providers'),
+        authFetch('/api/admin/founder/affiliate-intelligence/product-health'),
+        authFetch('/api/admin/founder/affiliate-intelligence/duplicates'),
+        authFetch('/api/admin/founder/affiliate-intelligence/approval-assistant'),
+        authFetch('/api/admin/founder/affiliate-intelligence/automation-score'),
+      ]);
+      if (!dashRes.ok) {
+        setErrorMessage('Affiliate Intelligence konnte nicht geladen werden.');
+        return;
+      }
+      setDashboard(await dashRes.json());
+      setProviders((await provRes.json()).items || []);
+      setProductHealth((await healthRes.json()).items || []);
+      setDuplicates((await dupRes.json()).items || []);
+      const assistant = await assistRes.json();
+      setAssistantSummary(assistant.summary || '');
+      setAssistantItems(assistant.items || []);
+      setAutomationScore(await autoRes.json());
+    } catch {
+      setErrorMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadAll(), 0);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const sendBucketToApproval = async (bucket: string) => {
+    const ids = assistantItems.filter((i) => i.bucket === bucket).map((i) => i.product_id);
+    if (ids.length === 0) return;
+    await authFetch('/api/admin/founder/affiliate-intelligence/approval-assistant/send-bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product_ids: ids }),
+    });
+    await loadAll();
+  };
+
+  const resolveDuplicate = async (id: string, status: 'bestaetigtes_duplikat' | 'getrennt_bestaetigt') => {
+    await authFetch(`/api/admin/founder/affiliate-intelligence/duplicates/${id}/resolve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    await loadAll();
+  };
+
+  const runSimulation = async () => {
+    if (!context.trim()) return;
+    setSimulating(true);
+    try {
+      const response = await authFetch('/api/admin/founder/affiliate-intelligence/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ context }),
+      });
+      const json = await response.json().catch(() => null);
+      if (response.ok) setSimResult(json);
+    } finally {
+      setSimulating(false);
+    }
+  };
+
+  if (loading) return <Loading />;
+  if (errorMessage) return <ErrorText>{errorMessage}</ErrorText>;
+  if (!dashboard) return null;
+
+  const bucketCounts: Record<string, number> = {};
+  assistantItems.forEach((i) => { bucketCounts[i.bucket] = (bucketCounts[i.bucket] || 0) + 1; });
+
+  return (
+    <div>
+      <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginBottom: '1rem' }}>
+        Aktualisiert: {new Date(dashboard.computed_at as string).toLocaleString('de-DE')} — regelbasiert, kein
+        automatischer Hintergrundjob. Keine parallele Produktdatenbank — nutzt das bestehende Affiliate Center direkt.
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        {Object.entries(dashboard)
+          .filter((entry): entry is [string, IntelKpi] => entry[0] !== 'computed_at')
+          .map(([key, kpi]) => (
+          <Card key={key}>
+            <p style={{ color: tokens.muted, fontSize: '0.72rem' }}>{key.replace(/_/g, ' ')}</p>
+            <p style={{ color: tokens.text, fontSize: '1.1rem', fontWeight: 700, marginTop: '0.2rem' }}>
+              {kpi.value !== null && kpi.value !== undefined ? String(kpi.value) : NO_DATA}
+            </p>
+            <p style={{ color: tokens.mutedMore, fontSize: '0.68rem', marginTop: '0.2rem' }}>Quelle: {kpi.source}</p>
+          </Card>
+        ))}
+      </div>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Partnerprogramme & Provider</CardTitle>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+          {providers.map((p) => (
+            <Badge key={p.id} tone={p.configured ? 'success' : 'neutral'}>{p.name}: {p.configured ? 'konfiguriert' : 'nicht konfiguriert'}</Badge>
+          ))}
+        </div>
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Product Health</CardTitle>
+        {productHealth.length === 0 && <Note>Keine Produkte vorhanden.</Note>}
+        {productHealth.slice(0, 10).map((p) => (
+          <div key={p.product_id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <span style={{ color: tokens.text, fontSize: '0.85rem' }}>{p.title}</span>
+            <Badge tone={HEALTH_TONE[p.status] || 'neutral'}>{p.status}</Badge>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Mögliche Duplikate</CardTitle>
+        {duplicates.filter((d) => d.status === 'moegliches_duplikat').length === 0 && <Note>Keine offenen Dubletten-Kandidaten.</Note>}
+        {duplicates.filter((d) => d.status === 'moegliches_duplikat').map((d) => (
+          <div key={d.id} style={{ padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <p style={{ color: tokens.text, fontSize: '0.82rem' }}>{d.match_reason}</p>
+            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.3rem' }}>
+              <Button variant="secondary" onClick={() => resolveDuplicate(d.id, 'bestaetigtes_duplikat')}>Bestätigen</Button>
+              <Button variant="secondary" onClick={() => resolveDuplicate(d.id, 'getrennt_bestaetigt')}>Kein Duplikat</Button>
+            </div>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>AI Approval Assistant</CardTitle>
+        <p style={{ color: tokens.text, fontSize: '0.85rem', marginBottom: '0.6rem' }}>{assistantSummary}</p>
+        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+          {Object.entries(bucketCounts).map(([bucket, count]) => (
+            <Badge key={bucket} tone="neutral">{bucket.replace(/_/g, ' ')}: {count}</Badge>
+          ))}
+        </div>
+        {bucketCounts.sammelfreigabe > 0 && (
+          <div style={{ marginTop: '0.6rem' }}>
+            <Button onClick={() => sendBucketToApproval('sammelfreigabe')}>
+              Geeignete gesammelt zur Freigabe senden ({bucketCounts.sammelfreigabe})
+            </Button>
+          </div>
+        )}
+      </Card>
+
+      {automationScore && (
+        <Card style={{ marginBottom: '1.25rem' }}>
+          <CardTitle>Automatisierungsgrad</CardTitle>
+          <p style={{ color: tokens.text, fontSize: '1.3rem', fontWeight: 700 }}>
+            {automationScore.automation_percentage !== null && automationScore.automation_percentage !== undefined
+              ? `${automationScore.automation_percentage}%` : NO_DATA}
+          </p>
+          <p style={{ color: tokens.mutedMore, fontSize: '0.72rem', marginTop: '0.3rem' }}>{String(automationScore.note)}</p>
+        </Card>
+      )}
+
+      <Card>
+        <CardTitle>Recommendation Simulator</CardTitle>
+        <p style={{ color: tokens.mutedMore, fontSize: '0.72rem', marginBottom: '0.5rem' }}>
+          Neutraler Testkontext — keine echten Nutzerdaten.
+        </p>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <input placeholder="z. B. besser schlafen" value={context} onChange={(e) => setContext(e.target.value)} style={{ flex: '1 1 250px' }} />
+          <Button disabled={simulating} onClick={runSimulation}>{simulating ? 'Simuliere...' : 'Simulieren'}</Button>
+        </div>
+        {simResult && (
+          <div style={{ marginTop: '0.75rem' }}>
+            <p style={{ color: tokens.muted, fontSize: '0.78rem' }}>Erkannte Kategorie: {simResult.matched_category || 'keine'}</p>
+            <p style={{ color: tokens.text, fontWeight: 600, fontSize: '0.85rem', marginTop: '0.5rem' }}>Empfohlen:</p>
+            {simResult.recommended.length === 0 && <Note>Keine passenden Produkte gefunden.</Note>}
+            {simResult.recommended.map((p) => (
+              <p key={p.product_id} style={{ color: tokens.text, fontSize: '0.8rem', padding: '0.2rem 0' }}>
+                {p.title} — Score {p.score.toFixed(2)} — <span style={{ color: tokens.mutedMore }}>{p.disclosure}</span>
+              </p>
+            ))}
+            {simResult.excluded.length > 0 && (
+              <>
+                <p style={{ color: tokens.text, fontWeight: 600, fontSize: '0.85rem', marginTop: '0.6rem' }}>Ausgeschlossen:</p>
+                {simResult.excluded.map((p) => (
+                  <p key={p.product_id} style={{ color: tokens.mutedMore, fontSize: '0.78rem', padding: '0.15rem 0' }}>{p.title} — {p.reason}</p>
+                ))}
+              </>
+            )}
+          </div>
         )}
       </Card>
     </div>
