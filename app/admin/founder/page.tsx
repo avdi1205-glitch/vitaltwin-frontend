@@ -7,7 +7,7 @@ import { Badge, Button, Card, ErrorText, Kpi, Loading, Note, SectionTitle } from
 
 const NO_DATA = 'Keine Daten vorhanden';
 
-type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals' | 'coach' | 'affiliate_intelligence' | 'automation' | 'ceo_intelligence' | 'documentation';
+type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals' | 'coach' | 'affiliate_intelligence' | 'automation' | 'ceo_intelligence' | 'documentation' | 'autopilot';
 
 const TABS: { key: Tab; label: string; permission?: string }[] = [
   { key: 'dashboard', label: 'Dashboard' },
@@ -19,6 +19,7 @@ const TABS: { key: Tab; label: string; permission?: string }[] = [
   { key: 'automation', label: 'Automation Engine', permission: 'view_automation_engine' },
   { key: 'ceo_intelligence', label: 'CEO Intelligence', permission: 'view_ceo_intelligence' },
   { key: 'documentation', label: 'Auto Documentation', permission: 'view_documentation' },
+  { key: 'autopilot', label: 'Founder Autopilot', permission: 'view_founder_autopilot' },
 ];
 
 function CardTitle({ children }: { children: React.ReactNode }) {
@@ -74,6 +75,7 @@ export default function FounderOsPage() {
       {tab === 'automation' && <AutomationEngineTab />}
       {tab === 'ceo_intelligence' && <CeoIntelligenceTab />}
       {tab === 'documentation' && <AutoDocumentationTab />}
+      {tab === 'autopilot' && <FounderAutopilotTab />}
     </div>
   );
 }
@@ -2189,6 +2191,240 @@ function AutoDocumentationTab() {
             style={{ flex: '1 1 300px' }}
           />
           <Button disabled={asking} onClick={askDocs}>{asking ? 'Frage läuft...' : 'Fragen'}</Button>
+        </div>
+        {answer && (
+          <p style={{ color: answer.insufficient ? tokens.mutedMore : tokens.text, fontSize: '0.85rem', marginTop: '0.75rem' }}>
+            {answer.text}
+          </p>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Founder Autopilot (Founder OS — Submodul J)
+// ---------------------------------------------------------------------------
+
+type AutopilotState = { mode: string; kill_switch_active: boolean; incident_mode_active: boolean };
+type TodayViewData = { auto_completed_today: number | null; failed_automations_today: number | null; waiting_approvals: number | null; entries: { source: string; priority: string; reason: string; approval_required: boolean }[] };
+type DecisionItem = { id: string; title: string; category: string; priority: string; attention_score: number };
+type ModuleHealthItem = { module: string; name: string; status: string; reason: string };
+type AutopilotAlertItem = { id: string; severity: string; title: string; message: string; status: string };
+
+const AUTOPILOT_MODE_LABELS: Record<string, string> = {
+  off: 'Aus', monitor: 'Monitor', assist: 'Assist', controlled_autopilot: 'Controlled Autopilot',
+  maintenance: 'Wartung', incident_mode: 'Incident Mode',
+};
+const MODULE_HEALTH_TONE: Record<string, 'success' | 'neutral' | 'danger'> = {
+  healthy: 'success', warning: 'neutral', critical: 'danger', unavailable: 'danger', not_configured: 'neutral',
+};
+
+function FounderAutopilotTab() {
+  const { authFetch, tokens } = useAdmin();
+  const [state, setState] = useState<AutopilotState | null>(null);
+  const [todayView, setTodayView] = useState<TodayViewData | null>(null);
+  const [decisions, setDecisions] = useState<DecisionItem[]>([]);
+  const [moduleHealth, setModuleHealth] = useState<ModuleHealthItem[]>([]);
+  const [alerts, setAlerts] = useState<AutopilotAlertItem[]>([]);
+  const [automationScore, setAutomationScore] = useState<Record<string, unknown> | null>(null);
+  const [releaseReadiness, setReleaseReadiness] = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState<{ text: string; insufficient: boolean } | null>(null);
+  const [asking, setAsking] = useState(false);
+
+  const loadAll = async () => {
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const [stateRes, todayRes, decisionsRes, healthRes, alertsRes, scoreRes, readinessRes] = await Promise.all([
+        authFetch('/api/admin/founder/autopilot/mode'),
+        authFetch('/api/admin/founder/autopilot/today-view'),
+        authFetch('/api/admin/founder/autopilot/decision-inbox'),
+        authFetch('/api/admin/founder/autopilot/module-health'),
+        authFetch('/api/admin/founder/autopilot/alerts'),
+        authFetch('/api/admin/founder/autopilot/automation-score'),
+        authFetch('/api/admin/founder/autopilot/release-readiness'),
+      ]);
+      if (!stateRes.ok) {
+        setErrorMessage('Founder Autopilot konnte nicht geladen werden (fehlende Berechtigung oder Backend nicht erreichbar).');
+        return;
+      }
+      setState(await stateRes.json());
+      setTodayView(await todayRes.json());
+      setDecisions((await decisionsRes.json()).items || []);
+      setModuleHealth((await healthRes.json()).items || []);
+      setAlerts((await alertsRes.json()).items || []);
+      setAutomationScore(await scoreRes.json());
+      setReleaseReadiness(await readinessRes.json());
+    } catch {
+      setErrorMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadAll(), 0);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const changeMode = async (mode: string) => {
+    setBusy(true);
+    try {
+      await authFetch('/api/admin/founder/autopilot/mode', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode }),
+      });
+      await loadAll();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const toggleKillSwitch = async () => {
+    if (!state) return;
+    setBusy(true);
+    try {
+      if (state.kill_switch_active) {
+        await authFetch('/api/admin/founder/autopilot/kill-switch/deactivate', { method: 'POST' });
+      } else {
+        await authFetch('/api/admin/founder/autopilot/kill-switch/activate', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason: 'Manuell über Founder OS ausgelöst.' }),
+        });
+      }
+      await loadAll();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const askAutopilot = async () => {
+    if (!question.trim()) return;
+    setAsking(true);
+    try {
+      const response = await authFetch('/api/admin/founder/autopilot/ask', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+      const json = await response.json().catch(() => null);
+      if (response.ok && json) setAnswer({ text: json.answer, insufficient: json.insufficient_data });
+    } finally {
+      setAsking(false);
+    }
+  };
+
+  if (loading) return <Loading />;
+  if (errorMessage) return <ErrorText>{errorMessage}</ErrorText>;
+  if (!state || !todayView) return null;
+
+  return (
+    <div>
+      <Card style={{ marginBottom: '1.25rem', border: state.kill_switch_active ? `2px solid ${tokens.danger}` : undefined }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.6rem' }}>
+          <div>
+            <CardTitle>Autopilot-Status</CardTitle>
+            <Badge tone={state.kill_switch_active ? 'danger' : state.incident_mode_active ? 'danger' : 'success'}>
+              {state.kill_switch_active ? 'KILL SWITCH AKTIV' : (AUTOPILOT_MODE_LABELS[state.mode] || state.mode)}
+            </Badge>
+          </div>
+          <Button variant={state.kill_switch_active ? 'secondary' : 'danger'} disabled={busy} onClick={toggleKillSwitch}>
+            {state.kill_switch_active ? 'Autopilot wieder aktivieren' : 'Autopilot sofort pausieren'}
+          </Button>
+        </div>
+        <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.6rem', flexWrap: 'wrap' }}>
+          {Object.entries(AUTOPILOT_MODE_LABELS).map(([mode, label]) => (
+            <Button key={mode} variant={state.mode === mode ? 'primary' : 'secondary'} disabled={busy} onClick={() => changeMode(mode)}>
+              {label}
+            </Button>
+          ))}
+        </div>
+      </Card>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        <Card>
+          <p style={{ color: tokens.muted, fontSize: '0.7rem' }}>Heute automatisch erledigt</p>
+          <p style={{ color: tokens.text, fontSize: '1.1rem', fontWeight: 700 }}>{todayView.auto_completed_today ?? NO_DATA}</p>
+        </Card>
+        <Card>
+          <p style={{ color: tokens.muted, fontSize: '0.7rem' }}>Fehlgeschlagene Automationen</p>
+          <p style={{ color: tokens.text, fontSize: '1.1rem', fontWeight: 700 }}>{todayView.failed_automations_today ?? NO_DATA}</p>
+        </Card>
+        <Card>
+          <p style={{ color: tokens.muted, fontSize: '0.7rem' }}>Wartende Freigaben</p>
+          <p style={{ color: tokens.text, fontSize: '1.1rem', fontWeight: 700 }}>{todayView.waiting_approvals ?? NO_DATA}</p>
+        </Card>
+        {automationScore && (
+          <Card>
+            <p style={{ color: tokens.muted, fontSize: '0.7rem' }}>Automatisierungsgrad</p>
+            <p style={{ color: tokens.text, fontSize: '1.1rem', fontWeight: 700 }}>
+              {automationScore.overall_percentage !== null && automationScore.overall_percentage !== undefined ? `${automationScore.overall_percentage}%` : NO_DATA}
+            </p>
+          </Card>
+        )}
+      </div>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Jetzt meine Entscheidung nötig (Decision Inbox)</CardTitle>
+        {decisions.length === 0 && <Note>Keine offenen Entscheidungen.</Note>}
+        {decisions.slice(0, 10).map((d) => (
+          <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <span style={{ color: tokens.text, fontSize: '0.82rem' }}>{d.title}</span>
+            <Badge tone={d.priority === 'kritisch' || d.priority === 'hoch' ? 'danger' : 'neutral'}>{d.priority}</Badge>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Module Health</CardTitle>
+        {moduleHealth.map((m) => (
+          <div key={m.module} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.3rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <span style={{ color: tokens.text, fontSize: '0.8rem' }}>{m.module} — {m.name}</span>
+            <Badge tone={MODULE_HEALTH_TONE[m.status] || 'neutral'}>{m.status}</Badge>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Smart Alerts</CardTitle>
+        {alerts.filter((a) => a.status === 'offen').length === 0 && <Note>Keine offenen Warnungen.</Note>}
+        {alerts.filter((a) => a.status === 'offen').map((a) => (
+          <div key={a.id} style={{ padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: tokens.text, fontWeight: 600, fontSize: '0.82rem' }}>{a.title}</span>
+              <Badge tone={a.severity === 'hoch' || a.severity === 'kritisch' ? 'danger' : 'neutral'}>{a.severity}</Badge>
+            </div>
+            <p style={{ color: tokens.mutedMore, fontSize: '0.75rem' }}>{a.message}</p>
+          </div>
+        ))}
+      </Card>
+
+      {releaseReadiness && (
+        <Card style={{ marginBottom: '1.25rem' }}>
+          <CardTitle>Release Readiness</CardTitle>
+          <Badge tone={releaseReadiness.verdict === 'bereit' ? 'success' : releaseReadiness.verdict === 'nicht_bereit' ? 'danger' : 'neutral'}>
+            {String(releaseReadiness.verdict).replace(/_/g, ' ')}
+          </Badge>
+          <p style={{ color: tokens.mutedMore, fontSize: '0.72rem', marginTop: '0.4rem' }}>{String(releaseReadiness.note)}</p>
+        </Card>
+      )}
+
+      <Card>
+        <CardTitle>Frag Founder Autopilot</CardTitle>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <input
+            placeholder="z. B. Was muss ich heute entscheiden?"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            style={{ flex: '1 1 300px' }}
+          />
+          <Button disabled={asking} onClick={askAutopilot}>{asking ? 'Frage läuft...' : 'Fragen'}</Button>
         </div>
         {answer && (
           <p style={{ color: answer.insufficient ? tokens.mutedMore : tokens.text, fontSize: '0.85rem', marginTop: '0.75rem' }}>

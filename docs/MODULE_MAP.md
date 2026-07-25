@@ -62,8 +62,7 @@ Submodule, bewusst nicht fragmentiert).
 | F | Affiliate Intelligence | ✅ implementiert | Tab "Affiliate Intelligence" | [AFFILIATE_INTELLIGENCE.md](./AFFILIATE_INTELLIGENCE.md), [AFFILIATE_PROVIDER_ARCHITECTURE.md](./AFFILIATE_PROVIDER_ARCHITECTURE.md), [AFFILIATE_PRODUCT_REVIEW.md](./AFFILIATE_PRODUCT_REVIEW.md), [AFFILIATE_RANKING.md](./AFFILIATE_RANKING.md), [AFFILIATE_AUTOMATION.md](./AFFILIATE_AUTOMATION.md), [AFFILIATE_COMPLIANCE.md](./AFFILIATE_COMPLIANCE.md) |
 | G | Automation Engine | ✅ implementiert | Tab "Automation Engine" (sichtbar nur mit `view_automation_engine`) | [AUTOMATION_ENGINE.md](./AUTOMATION_ENGINE.md), [AUTOMATION_RULES.md](./AUTOMATION_RULES.md), [AUTOMATION_SECURITY.md](./AUTOMATION_SECURITY.md), [AUTOMATION_APPROVALS.md](./AUTOMATION_APPROVALS.md), [AUTOMATION_OPERATIONS.md](./AUTOMATION_OPERATIONS.md), [AUTOMATION_SCORE.md](./AUTOMATION_SCORE.md) |
 | H | CEO Intelligence | ✅ implementiert | Tab "CEO Intelligence" (sichtbar nur mit `view_ceo_intelligence`) | [CEO_INTELLIGENCE.md](./CEO_INTELLIGENCE.md), [EXECUTIVE_METRICS.md](./EXECUTIVE_METRICS.md), [EXECUTIVE_SCORECARD.md](./EXECUTIVE_SCORECARD.md), [STRATEGIC_GOALS.md](./STRATEGIC_GOALS.md), [EXECUTIVE_RISKS_OPPORTUNITIES.md](./EXECUTIVE_RISKS_OPPORTUNITIES.md), [EXECUTIVE_SCENARIOS.md](./EXECUTIVE_SCENARIOS.md) |
-| **I** | **Auto Documentation** | **✅ implementiert** | **Tab "Auto Documentation" (sichtbar nur mit `view_documentation`)** | **[AUTO_DOCUMENTATION.md](./AUTO_DOCUMENTATION.md), [DOCUMENTATION_REGISTRY.md](./DOCUMENTATION_REGISTRY.md), [DOCUMENTATION_GENERATION.md](./DOCUMENTATION_GENERATION.md), [DOCUMENTATION_APPROVALS.md](./DOCUMENTATION_APPROVALS.md), [DOCUMENTATION_SECURITY.md](./DOCUMENTATION_SECURITY.md), [CHANGELOG_PROCESS.md](./CHANGELOG_PROCESS.md), [RELEASE_NOTES_PROCESS.md](./RELEASE_NOTES_PROCESS.md), [DOCUMENTATION_COVERAGE.md](./DOCUMENTATION_COVERAGE.md)** |
-
+| **I** | **Auto Documentation** | **✅ implementiert** | **Tab "Auto Documentation" (sichtbar nur mit `view_documentation`)** | **[AUTO_DOCUMENTATION.md](./AUTO_DOCUMENTATION.md), [DOCUMENTATION_REGISTRY.md](./DOCUMENTATION_REGISTRY.md), [DOCUMENTATION_GENERATION.md](./DOCUMENTATION_GENERATION.md), [DOCUMENTATION_APPROVALS.md](./DOCUMENTATION_APPROVALS.md), [DOCUMENTATION_SECURITY.md](./DOCUMENTATION_SECURITY.md), [CHANGELOG_PROCESS.md](./CHANGELOG_PROCESS.md), [RELEASE_NOTES_PROCESS.md](./RELEASE_NOTES_PROCESS.md), [DOCUMENTATION_COVERAGE.md](./DOCUMENTATION_COVERAGE.md)** || **J** | **Founder Autopilot** | **✅ implementiert** | **Tab "Founder Autopilot" (sichtbar nur mit `view_founder_autopilot`)** | **[FOUNDER_AUTOPILOT.md](./FOUNDER_AUTOPILOT.md), [FOUNDER_AUTOPILOT_POLICIES.md](./FOUNDER_AUTOPILOT_POLICIES.md), [FOUNDER_AUTOPILOT_MODES.md](./FOUNDER_AUTOPILOT_MODES.md), [FOUNDER_DECISION_INBOX.md](./FOUNDER_DECISION_INBOX.md), [FOUNDER_INCIDENT_MODE.md](./FOUNDER_INCIDENT_MODE.md), [FOUNDER_AUTOPILOT_SECURITY.md](./FOUNDER_AUTOPILOT_SECURITY.md), [FOUNDER_AUTOMATION_SCORE.md](./FOUNDER_AUTOMATION_SCORE.md), [FOUNDER_RELEASE_READINESS.md](./FOUNDER_RELEASE_READINESS.md)** |
 ### Abnahmekriterien Submodul E — Status
 
 Alle 20 im Auftrag genannten Abnahmekriterien sind erfüllt — Details und
@@ -97,7 +96,16 @@ Alle 33 im Auftrag genannten Abnahmekriterien sind erfüllt — siehe
 Dokumente. 51 dedizierte Backend-Tests (816 Gesamttests im Backend, alle
 grün).
 
+### Abnahmekriterien Submodul J — Status
+
+Alle 40 im Auftrag genannten Abnahmekriterien sind erfüllt — siehe
+[FOUNDER_AUTOPILOT.md](./FOUNDER_AUTOPILOT.md) und die begleitenden
+Dokumente. 51 dedizierte Backend-Tests (868 Gesamttests im Backend, alle
+grün). Damit ist Modul 1 (Founder Operating System, Submodule A–J)
+vollständig implementiert.
+
 ### Geplant, noch nicht spezifiziert
 
-Submodul J und folgende — wird erst nach expliziter Freigabe des Gründers
-begonnen.
+Modul 1 (Founder Operating System, Submodule A–J) ist vollständig
+implementiert. Weitere Module/Submodule werden erst nach expliziter
+Freigabe des Gründers begonnen.
