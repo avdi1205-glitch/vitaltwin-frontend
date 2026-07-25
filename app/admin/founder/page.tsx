@@ -7,15 +7,16 @@ import { Badge, Button, Card, ErrorText, Kpi, Loading, Note, SectionTitle } from
 
 const NO_DATA = 'Keine Daten vorhanden';
 
-type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals' | 'coach' | 'affiliate_intelligence';
+type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals' | 'coach' | 'affiliate_intelligence' | 'automation';
 
-const TABS: { key: Tab; label: string }[] = [
+const TABS: { key: Tab; label: string; permission?: string }[] = [
   { key: 'dashboard', label: 'Dashboard' },
   { key: 'briefing', label: 'Daily Briefing' },
   { key: 'tasks', label: 'Tasks' },
   { key: 'approvals', label: 'Approval Center' },
   { key: 'coach', label: 'AI Business Coach' },
   { key: 'affiliate_intelligence', label: 'Affiliate Intelligence' },
+  { key: 'automation', label: 'Automation Engine', permission: 'view_automation_engine' },
 ];
 
 function CardTitle({ children }: { children: React.ReactNode }) {
@@ -45,15 +46,17 @@ function priorityTone(priority: 'kritisch' | 'hoch' | 'mittel' | 'niedrig'): 'da
 
 export default function FounderOsPage() {
   const [tab, setTab] = useState<Tab>('dashboard');
+  const { hasPermission } = useAdmin();
+  const visibleTabs = TABS.filter((t) => !t.permission || hasPermission(t.permission));
 
   return (
     <div>
       <SectionTitle
         title="Founder Operating System"
-        subtitle="Dashboard, Daily Briefing, Task Manager, Approval Center, AI Business Coach und Affiliate Intelligence an einem Ort — nur echte Daten, keine Platzhalter, keine Hintergrund-KI."
+        subtitle="Dashboard, Daily Briefing, Task Manager, Approval Center, AI Business Coach, Affiliate Intelligence und Automation Engine an einem Ort — nur echte Daten, keine Platzhalter, keine Hintergrund-KI."
       />
       <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        {TABS.map((t) => (
+        {visibleTabs.map((t) => (
           <Button key={t.key} variant={tab === t.key ? 'primary' : 'secondary'} onClick={() => setTab(t.key)}>
             {t.label}
           </Button>
@@ -66,6 +69,7 @@ export default function FounderOsPage() {
       {tab === 'approvals' && <ApprovalsTab />}
       {tab === 'coach' && <BusinessCoachTab />}
       {tab === 'affiliate_intelligence' && <AffiliateIntelligenceTab />}
+      {tab === 'automation' && <AutomationEngineTab />}
     </div>
   );
 }
@@ -1419,6 +1423,291 @@ function AffiliateIntelligenceTab() {
             )}
           </div>
         )}
+      </Card>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Automation Engine (Founder OS — Submodul G)
+// ---------------------------------------------------------------------------
+
+type AutomationRule = {
+  id: string; name: string; description: string; category: string; trigger_type: string;
+  risk_level: string; approval_policy: string; environment: string; status: string; enabled: boolean;
+  version: number; run_count: number; last_run_at: string | null; next_run_at: string | null;
+  actions: { action_type: string; params?: Record<string, unknown> }[];
+};
+type AutomationRun = { id: string; rule_id: string; status: string; attempt: number; created_at: string; started_at: string | null; finished_at: string | null; error: string | null };
+type AutomationOpportunity = { id: string; description: string; occurrences: number; category: string | null; status: string };
+type AutomationAlert = { id: string; severity: string; title: string; message: string; status: string };
+type RegistryAction = { action_type: string; label: string; risk_level: string; reversible: boolean; idempotent: boolean; note: string };
+
+const RUN_STATUS_TONE: Record<string, 'success' | 'neutral' | 'danger'> = {
+  erfolgreich: 'success', teilweise_erfolgreich: 'neutral', laeuft: 'neutral', wartend: 'neutral',
+  wartet_auf_freigabe: 'neutral', fehlgeschlagen: 'danger', fehlgeschlagen_wird_wiederholt: 'danger',
+  dead_letter: 'danger', zurueckgerollt: 'neutral', timeout: 'danger', abgebrochen: 'neutral',
+};
+
+function AutomationEngineTab() {
+  const { authFetch, tokens } = useAdmin();
+  const [dashboard, setDashboard] = useState<Record<string, { value: number | string | null; note?: string | null }> | null>(null);
+  const [rules, setRules] = useState<AutomationRule[]>([]);
+  const [runs, setRuns] = useState<AutomationRun[]>([]);
+  const [opportunities, setOpportunities] = useState<AutomationOpportunity[]>([]);
+  const [alerts, setAlerts] = useState<AutomationAlert[]>([]);
+  const [registryActions, setRegistryActions] = useState<RegistryAction[]>([]);
+  const [automationScore, setAutomationScore] = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [busyId, setBusyId] = useState('');
+
+  const loadAll = async () => {
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const [dashRes, rulesRes, runsRes, oppRes, alertsRes, registryRes, scoreRes] = await Promise.all([
+        authFetch('/api/admin/founder/automation/dashboard'),
+        authFetch('/api/admin/founder/automation/rules'),
+        authFetch('/api/admin/founder/automation/runs'),
+        authFetch('/api/admin/founder/automation/opportunities'),
+        authFetch('/api/admin/founder/automation/alerts?status=offen'),
+        authFetch('/api/admin/founder/automation/registry'),
+        authFetch('/api/admin/founder/automation/automation-score'),
+      ]);
+      if (!dashRes.ok) {
+        setErrorMessage('Automation Engine konnte nicht geladen werden (fehlende Berechtigung oder Backend nicht erreichbar).');
+        return;
+      }
+      setDashboard(await dashRes.json());
+      setRules((await rulesRes.json()).items || []);
+      setRuns((await runsRes.json()).items || []);
+      setOpportunities((await oppRes.json()).items || []);
+      setAlerts((await alertsRes.json()).items || []);
+      setRegistryActions((await registryRes.json()).actions || []);
+      setAutomationScore(await scoreRes.json());
+    } catch {
+      setErrorMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadAll(), 0);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const runRuleNow = async (ruleId: string) => {
+    setBusyId(ruleId);
+    try {
+      await authFetch(`/api/admin/founder/automation/rules/${ruleId}/run`, { method: 'POST' });
+      await loadAll();
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const dryRunRule = async (ruleId: string) => {
+    setBusyId(ruleId);
+    try {
+      const response = await authFetch(`/api/admin/founder/automation/rules/${ruleId}/dry-run`, { method: 'POST' });
+      const json = await response.json().catch(() => null);
+      if (json) {
+        window.alert(
+          `Dry Run: würde ${json.would_run ? '' : 'NICHT '}ausgeführt werden.\n` +
+          `Freigabe nötig: ${json.requires_approval ? 'Ja' : 'Nein'}\n` +
+          `Mögliches Duplikat: ${json.possible_duplicate ? 'Ja' : 'Nein'}`
+        );
+      }
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const activateRule = async (ruleId: string) => {
+    setBusyId(ruleId);
+    try {
+      await authFetch(`/api/admin/founder/automation/rules/${ruleId}/activate`, { method: 'POST' });
+      await loadAll();
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const pauseRule = async (ruleId: string) => {
+    setBusyId(ruleId);
+    try {
+      await authFetch(`/api/admin/founder/automation/rules/${ruleId}/pause`, { method: 'POST' });
+      await loadAll();
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const rollbackRun = async (runId: string) => {
+    setBusyId(runId);
+    try {
+      await authFetch(`/api/admin/founder/automation/runs/${runId}/rollback`, { method: 'POST' });
+      await loadAll();
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const dismissOpportunity = async (id: string) => {
+    setBusyId(id);
+    try {
+      await authFetch(`/api/admin/founder/automation/opportunities/${id}/dismiss`, { method: 'POST' });
+      await loadAll();
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const createRuleFromOpportunity = async (id: string) => {
+    setBusyId(id);
+    try {
+      await authFetch(`/api/admin/founder/automation/opportunities/${id}/create-rule`, { method: 'POST' });
+      await loadAll();
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const runDueNow = async () => {
+    setBusyId('run-due');
+    try {
+      await authFetch('/api/admin/founder/automation/run-due', { method: 'POST' });
+      await loadAll();
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  if (loading) return <Loading />;
+  if (errorMessage) return <ErrorText>{errorMessage}</ErrorText>;
+  if (!dashboard) return null;
+
+  return (
+    <div>
+      <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginBottom: '1rem' }}>
+        Kein Hintergrund-Scheduler vorhanden — zeitgesteuerte Regeln werden beim Laden dieses Dashboards oder über
+        &quot;Fällige Automationen jetzt ausführen&quot; ausgewertet. Kein Risk Level &quot;critical&quot; ist jemals ausführbar
+        (Preisänderungen, Rechtstexte, Kontolöschung etc. sind bewusst nicht implementiert).
+      </p>
+
+      <div style={{ marginBottom: '1rem' }}>
+        <Button disabled={busyId === 'run-due'} onClick={runDueNow}>
+          {busyId === 'run-due' ? 'Läuft...' : 'Fällige Automationen jetzt ausführen'}
+        </Button>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        {Object.entries(dashboard).filter(([key]) => key !== 'computed_at').map(([key, kpi]) => (
+          <Card key={key}>
+            <p style={{ color: tokens.muted, fontSize: '0.72rem' }}>{key.replace(/_/g, ' ')}</p>
+            <p style={{ color: tokens.text, fontSize: '1.1rem', fontWeight: 700, marginTop: '0.2rem' }}>
+              {kpi.value !== null && kpi.value !== undefined ? String(kpi.value) : NO_DATA}
+            </p>
+          </Card>
+        ))}
+      </div>
+
+      {automationScore && (
+        <Card style={{ marginBottom: '1.25rem' }}>
+          <CardTitle>Automation Score</CardTitle>
+          <p style={{ color: tokens.text, fontSize: '1.3rem', fontWeight: 700 }}>
+            {automationScore.overall_percentage !== null && automationScore.overall_percentage !== undefined
+              ? `${automationScore.overall_percentage}%` : NO_DATA}
+          </p>
+          <p style={{ color: tokens.mutedMore, fontSize: '0.72rem', marginTop: '0.3rem' }}>{String(automationScore.note)}</p>
+        </Card>
+      )}
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Automatisierungsregeln</CardTitle>
+        {rules.length === 0 && <Note>Noch keine Regeln erstellt.</Note>}
+        {rules.map((rule) => (
+          <div key={rule.id} style={{ padding: '0.5rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4rem' }}>
+              <span style={{ color: tokens.text, fontWeight: 600, fontSize: '0.85rem' }}>{rule.name} (v{rule.version})</span>
+              <div style={{ display: 'flex', gap: '0.3rem' }}>
+                <Badge tone={rule.risk_level === 'low' ? 'success' : 'neutral'}>{rule.risk_level}</Badge>
+                <Badge tone={rule.status === 'aktiv' ? 'success' : 'neutral'}>{rule.status}</Badge>
+              </div>
+            </div>
+            <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginTop: '0.2rem' }}>
+              {rule.category} — Trigger: {rule.trigger_type} — Läufe: {rule.run_count}
+            </p>
+            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.4rem', flexWrap: 'wrap' }}>
+              <Button variant="secondary" disabled={busyId === rule.id} onClick={() => dryRunRule(rule.id)}>Dry Run</Button>
+              {rule.status !== 'aktiv' && (
+                <Button variant="secondary" disabled={busyId === rule.id} onClick={() => activateRule(rule.id)}>Aktivieren</Button>
+              )}
+              {rule.status === 'aktiv' && (
+                <Button variant="secondary" disabled={busyId === rule.id} onClick={() => pauseRule(rule.id)}>Pausieren</Button>
+              )}
+              <Button variant="secondary" disabled={busyId === rule.id} onClick={() => runRuleNow(rule.id)}>Jetzt ausführen</Button>
+            </div>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Letzte Läufe</CardTitle>
+        {runs.length === 0 && <Note>Noch keine Läufe vorhanden.</Note>}
+        {runs.slice(0, 15).map((run) => (
+          <div key={run.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <span style={{ color: tokens.mutedMore, fontSize: '0.75rem' }}>{new Date(run.created_at).toLocaleString('de-DE')}</span>
+            <Badge tone={RUN_STATUS_TONE[run.status] || 'neutral'}>{run.status}</Badge>
+            {run.status === 'erfolgreich' && (
+              <Button variant="secondary" disabled={busyId === run.id} onClick={() => rollbackRun(run.id)}>Rollback</Button>
+            )}
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Automatisierungschancen</CardTitle>
+        {opportunities.filter((o) => o.status === 'neu').length === 0 && <Note>Keine wiederkehrenden manuellen Abläufe erkannt.</Note>}
+        {opportunities.filter((o) => o.status === 'neu').map((o) => (
+          <div key={o.id} style={{ padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <p style={{ color: tokens.text, fontSize: '0.82rem' }}>{o.description}</p>
+            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.3rem' }}>
+              <Button variant="secondary" disabled={busyId === o.id} onClick={() => createRuleFromOpportunity(o.id)}>Regel-Entwurf erstellen</Button>
+              <Button variant="secondary" disabled={busyId === o.id} onClick={() => dismissOpportunity(o.id)}>Verwerfen</Button>
+            </div>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Founder Alerts</CardTitle>
+        {alerts.length === 0 && <Note>Keine offenen Warnungen.</Note>}
+        {alerts.map((a) => (
+          <div key={a.id} style={{ padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: tokens.text, fontWeight: 600, fontSize: '0.82rem' }}>{a.title}</span>
+              <Badge tone={a.severity === 'hoch' || a.severity === 'kritisch' ? 'danger' : 'neutral'}>{a.severity}</Badge>
+            </div>
+            <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginTop: '0.2rem' }}>{a.message}</p>
+          </div>
+        ))}
+      </Card>
+
+      <Card>
+        <CardTitle>Safe Action Registry</CardTitle>
+        <p style={{ color: tokens.mutedMore, fontSize: '0.72rem', marginBottom: '0.5rem' }}>
+          Nur diese Aktionen können jemals von einer Regel ausgeführt werden — kein Risk Level &quot;critical&quot; ist vorhanden.
+        </p>
+        {registryActions.map((a) => (
+          <div key={a.action_type} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.3rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <span style={{ color: tokens.text, fontSize: '0.8rem' }}>{a.label}</span>
+            <Badge tone={a.risk_level === 'low' ? 'success' : 'neutral'}>{a.risk_level}</Badge>
+          </div>
+        ))}
       </Card>
     </div>
   );
