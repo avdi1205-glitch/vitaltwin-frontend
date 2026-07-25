@@ -7,13 +7,14 @@ import { Badge, Button, Card, ErrorText, Kpi, Loading, Note, SectionTitle } from
 
 const NO_DATA = 'Keine Daten vorhanden';
 
-type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals';
+type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals' | 'coach';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'dashboard', label: 'Dashboard' },
   { key: 'briefing', label: 'Daily Briefing' },
   { key: 'tasks', label: 'Tasks' },
   { key: 'approvals', label: 'Approval Center' },
+  { key: 'coach', label: 'AI Business Coach' },
 ];
 
 function CardTitle({ children }: { children: React.ReactNode }) {
@@ -48,7 +49,7 @@ export default function FounderOsPage() {
     <div>
       <SectionTitle
         title="Founder Operating System"
-        subtitle="Dashboard, Daily Briefing, Task Manager und Approval Center an einem Ort — nur echte Daten, keine Platzhalter, keine Hintergrund-KI."
+        subtitle="Dashboard, Daily Briefing, Task Manager, Approval Center und AI Business Coach an einem Ort — nur echte Daten, keine Platzhalter, keine Hintergrund-KI."
       />
       <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         {TABS.map((t) => (
@@ -62,6 +63,7 @@ export default function FounderOsPage() {
       {tab === 'briefing' && <BriefingTab />}
       {tab === 'tasks' && <TasksTab />}
       {tab === 'approvals' && <ApprovalsTab />}
+      {tab === 'coach' && <BusinessCoachTab />}
     </div>
   );
 }
@@ -925,6 +927,266 @@ function ApprovalsTab() {
           </Card>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// AI Business Coach (Founder OS — Submodul E)
+// ---------------------------------------------------------------------------
+
+type CoachKpi = { value: number | string | null; note: string | null; source: string };
+type CoachDashboard = {
+  computed_at: string;
+  revenue_today: CoachKpi; revenue_month: CoachKpi; mrr: CoachKpi;
+  new_premium_subscriptions: CoachKpi; cancellations: CoachKpi;
+  affiliate_revenue_today: CoachKpi; ai_cost: CoachKpi; infra_cost: CoachKpi;
+  conversion_rate: CoachKpi; open_risks: CoachKpi; open_opportunities: CoachKpi;
+  open_founder_decisions: CoachKpi;
+};
+
+type BusinessInsight = {
+  id: string; title: string; category: string; description: string; severity: string; confidence: string;
+  status: string; possible_cause: string | null; possible_impact: string | null; recommended_action: string | null;
+};
+
+type BusinessGoal = {
+  id: string; title: string; category: string; target_value: number; current_progress: number | null;
+  progress_note: string | null; status: string; data_source: string;
+  explanation: { on_track: boolean | null; at_risk: boolean | null; next_action: string };
+};
+
+type BusinessRecommendation = {
+  id: string; title: string; reasoning: string; priority: string; status: string; expected_benefit: string | null; risk: string | null;
+};
+
+function CoachKpiCard({ label, kpi }: { label: string; kpi: CoachKpi }) {
+  const { tokens } = useAdmin();
+  const hasValue = kpi.value !== null && kpi.value !== undefined;
+  return (
+    <Card>
+      <p style={{ color: tokens.muted, fontSize: '0.78rem' }}>{label}</p>
+      <p style={{ color: hasValue ? tokens.text : tokens.mutedMore, fontSize: '1.2rem', fontWeight: 700, marginTop: '0.2rem' }}>
+        {hasValue ? kpi.value : 'Noch nicht verbunden'}
+      </p>
+      <p style={{ color: tokens.mutedMore, fontSize: '0.7rem', marginTop: '0.3rem' }}>Quelle: {kpi.source}</p>
+      {!hasValue && kpi.note && <p style={{ color: tokens.mutedMore, fontSize: '0.7rem', marginTop: '0.15rem' }}>{kpi.note}</p>}
+    </Card>
+  );
+}
+
+function BusinessCoachTab() {
+  const { authFetch, tokens } = useAdmin();
+  const [dashboard, setDashboard] = useState<CoachDashboard | null>(null);
+  const [opportunities, setOpportunities] = useState<BusinessInsight[]>([]);
+  const [risks, setRisks] = useState<BusinessInsight[]>([]);
+  const [goals, setGoals] = useState<BusinessGoal[]>([]);
+  const [recommendations, setRecommendations] = useState<BusinessRecommendation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState<{ text: string; insufficient: boolean } | null>(null);
+  const [asking, setAsking] = useState(false);
+
+  const [newGoal, setNewGoal] = useState({ title: '', category: 'premium_abos', target_value: '' });
+
+  const loadAll = async () => {
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const [dashRes, oppRes, riskRes, goalRes, recRes] = await Promise.all([
+        authFetch('/api/admin/founder/business-coach/dashboard'),
+        authFetch('/api/admin/founder/business-coach/opportunities'),
+        authFetch('/api/admin/founder/business-coach/risks'),
+        authFetch('/api/admin/founder/business-coach/goals'),
+        authFetch('/api/admin/founder/business-coach/recommendations'),
+      ]);
+      if (!dashRes.ok) {
+        setErrorMessage('Business Coach konnte nicht geladen werden.');
+        return;
+      }
+      setDashboard(await dashRes.json());
+      setOpportunities((await oppRes.json()).items || []);
+      setRisks((await riskRes.json()).items || []);
+      setGoals((await goalRes.json()).items || []);
+      setRecommendations((await recRes.json()).items || []);
+    } catch {
+      setErrorMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadAll(), 0);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const sendInsightToTasks = async (id: string) => {
+    await authFetch(`/api/admin/founder/business-coach/insights/${id}/send-to-tasks`, { method: 'POST' });
+    await loadAll();
+  };
+
+  const createGoal = async () => {
+    if (!newGoal.title.trim() || !newGoal.target_value) return;
+    await authFetch('/api/admin/founder/business-coach/goals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: newGoal.title, category: newGoal.category, target_value: Number(newGoal.target_value) }),
+    });
+    setNewGoal({ title: '', category: 'premium_abos', target_value: '' });
+    await loadAll();
+  };
+
+  const sendRecommendationToApproval = async (id: string) => {
+    await authFetch(`/api/admin/founder/business-coach/recommendations/${id}/send-to-approval`, { method: 'POST' });
+    await loadAll();
+  };
+
+  const askCoach = async () => {
+    if (!question.trim()) return;
+    setAsking(true);
+    setAnswer(null);
+    try {
+      const response = await authFetch('/api/admin/founder/business-coach/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+      const json = await response.json().catch(() => null);
+      if (!response.ok) {
+        setAnswer({ text: json?.detail || 'Der Business Coach ist gerade nicht erreichbar.', insufficient: false });
+        return;
+      }
+      setAnswer({ text: json.answer, insufficient: json.insufficient_data });
+    } catch {
+      setAnswer({ text: 'Backend gerade nicht erreichbar.', insufficient: false });
+    } finally {
+      setAsking(false);
+    }
+  };
+
+  if (loading) return <Loading />;
+  if (errorMessage) return <ErrorText>{errorMessage}</ErrorText>;
+  if (!dashboard) return null;
+
+  return (
+    <div>
+      <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginBottom: '1rem' }}>
+        Aktualisiert: {new Date(dashboard.computed_at).toLocaleString('de-DE')} — regelbasierte Analyse, kein Freitext-KI-Aufruf
+        außer bei &quot;Frag deinen Business Coach&quot; unten.
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        <CoachKpiCard label="Umsatz heute" kpi={dashboard.revenue_today} />
+        <CoachKpiCard label="Umsatz Monat" kpi={dashboard.revenue_month} />
+        <CoachKpiCard label="Wiederkehrender Monatsumsatz" kpi={dashboard.mrr} />
+        <CoachKpiCard label="Neue Premium-Abos" kpi={dashboard.new_premium_subscriptions} />
+        <CoachKpiCard label="Kündigungen" kpi={dashboard.cancellations} />
+        <CoachKpiCard label="Affiliate-Umsatz (heute)" kpi={dashboard.affiliate_revenue_today} />
+        <CoachKpiCard label="KI-Kosten" kpi={dashboard.ai_cost} />
+        <CoachKpiCard label="Infrastrukturkosten" kpi={dashboard.infra_cost} />
+        <CoachKpiCard label="Conversion-Rate" kpi={dashboard.conversion_rate} />
+        <CoachKpiCard label="Offene Chancen" kpi={dashboard.open_opportunities} />
+        <CoachKpiCard label="Offene Risiken" kpi={dashboard.open_risks} />
+        <CoachKpiCard label="Offene Gründerentscheidungen" kpi={dashboard.open_founder_decisions} />
+      </div>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Chancen</CardTitle>
+        {opportunities.length === 0 && <Note>Aktuell keine erkannten Chancen — keine auffälligen positiven Veränderungen.</Note>}
+        {opportunities.map((i) => (
+          <div key={i.id} style={{ padding: '0.5rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <p style={{ color: tokens.text, fontSize: '0.85rem', fontWeight: 600 }}>{i.title}</p>
+            <p style={{ color: tokens.muted, fontSize: '0.78rem', marginTop: '0.2rem' }}>{i.description}</p>
+            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.35rem', alignItems: 'center' }}>
+              <Badge tone="success">{i.confidence} Konfidenz</Badge>
+              <Button variant="secondary" onClick={() => sendInsightToTasks(i.id)}>An Task Manager übergeben</Button>
+            </div>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Risiken</CardTitle>
+        {risks.length === 0 && <Note>Aktuell keine erkannten Risiken.</Note>}
+        {risks.map((i) => (
+          <div key={i.id} style={{ padding: '0.5rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <p style={{ color: tokens.text, fontSize: '0.85rem', fontWeight: 600 }}>{i.title}</p>
+            <p style={{ color: tokens.muted, fontSize: '0.78rem', marginTop: '0.2rem' }}>{i.description}</p>
+            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.35rem', alignItems: 'center' }}>
+              <Badge tone={i.severity === 'hoch' || i.severity === 'kritisch' ? 'danger' : 'neutral'}>{i.severity}</Badge>
+              <Button variant="secondary" onClick={() => sendInsightToTasks(i.id)}>An Task Manager übergeben</Button>
+            </div>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Business Goals</CardTitle>
+        {goals.length === 0 && <Note>Noch keine Ziele definiert.</Note>}
+        {goals.map((g) => (
+          <div key={g.id} style={{ padding: '0.5rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <p style={{ color: tokens.text, fontSize: '0.85rem', fontWeight: 600 }}>{g.title}</p>
+            <p style={{ color: tokens.muted, fontSize: '0.78rem', marginTop: '0.2rem' }}>
+              Fortschritt: {g.current_progress !== null ? `${g.current_progress} / ${g.target_value}` : (g.progress_note || NO_DATA)}
+            </p>
+            <p style={{ color: tokens.mutedMore, fontSize: '0.72rem', marginTop: '0.15rem' }}>{g.explanation.next_action}</p>
+          </div>
+        ))}
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
+          <input placeholder="Zieltitel" value={newGoal.title} onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })} />
+          <select value={newGoal.category} onChange={(e) => setNewGoal({ ...newGoal, category: e.target.value })}>
+            {['premium_abos', 'aktive_nutzer', 'conversion_rate', 'affiliate_umsatz', 'veroeffentlichte_inhalte', 'monatsumsatz', 'kuendigungsrate', 'ki_kostenlimit', 'individuell'].map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+          <input placeholder="Zielwert" value={newGoal.target_value} onChange={(e) => setNewGoal({ ...newGoal, target_value: e.target.value })} />
+          <Button onClick={createGoal}>Ziel anlegen</Button>
+        </div>
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Empfehlungen</CardTitle>
+        {recommendations.length === 0 && <Note>Noch keine Empfehlungen.</Note>}
+        {recommendations.map((r) => (
+          <div key={r.id} style={{ padding: '0.5rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <p style={{ color: tokens.text, fontSize: '0.85rem', fontWeight: 600 }}>{r.title}</p>
+            <p style={{ color: tokens.muted, fontSize: '0.78rem', marginTop: '0.2rem' }}>{r.reasoning}</p>
+            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.35rem', alignItems: 'center' }}>
+              <Badge tone="neutral">{r.status}</Badge>
+              {r.status === 'offen' && (
+                <Button variant="secondary" onClick={() => sendRecommendationToApproval(r.id)}>
+                  An Approval Center übergeben
+                </Button>
+              )}
+            </div>
+          </div>
+        ))}
+      </Card>
+
+      <Card>
+        <CardTitle>Frag deinen Business Coach …</CardTitle>
+        <p style={{ color: tokens.mutedMore, fontSize: '0.72rem', marginBottom: '0.5rem' }}>
+          Antworten beruhen ausschließlich auf echten, aggregierten Daten — nie auf individuellen Nutzerdaten.
+        </p>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <input
+            placeholder="z. B. Welche Affiliate-Kategorie entwickelt sich am besten?"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            style={{ flex: '1 1 300px' }}
+          />
+          <Button disabled={asking} onClick={askCoach}>{asking ? 'Frage läuft...' : 'Fragen'}</Button>
+        </div>
+        {answer && (
+          <p style={{ color: answer.insufficient ? tokens.mutedMore : tokens.text, fontSize: '0.85rem', marginTop: '0.75rem' }}>
+            {answer.text}
+          </p>
+        )}
+      </Card>
     </div>
   );
 }
