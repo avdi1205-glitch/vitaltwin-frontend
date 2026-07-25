@@ -7,12 +7,13 @@ import { Badge, Button, Card, ErrorText, Kpi, Loading, Note, SectionTitle } from
 
 const NO_DATA = 'Keine Daten vorhanden';
 
-type Tab = 'dashboard' | 'briefing' | 'tasks';
+type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'dashboard', label: 'Dashboard' },
   { key: 'briefing', label: 'Daily Briefing' },
   { key: 'tasks', label: 'Tasks' },
+  { key: 'approvals', label: 'Approval Center' },
 ];
 
 function CardTitle({ children }: { children: React.ReactNode }) {
@@ -47,7 +48,7 @@ export default function FounderOsPage() {
     <div>
       <SectionTitle
         title="Founder Operating System"
-        subtitle="Dashboard, Daily Briefing und Task Manager an einem Ort — nur echte Daten, keine Platzhalter, keine Hintergrund-KI."
+        subtitle="Dashboard, Daily Briefing, Task Manager und Approval Center an einem Ort — nur echte Daten, keine Platzhalter, keine Hintergrund-KI."
       />
       <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         {TABS.map((t) => (
@@ -60,6 +61,7 @@ export default function FounderOsPage() {
       {tab === 'dashboard' && <DashboardTab />}
       {tab === 'briefing' && <BriefingTab />}
       {tab === 'tasks' && <TasksTab />}
+      {tab === 'approvals' && <ApprovalsTab />}
     </div>
   );
 }
@@ -631,5 +633,298 @@ function TasksTab() {
         ))}
       </div>
     </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Smart Approval Center (Founder OS — Submodul D)
+// ---------------------------------------------------------------------------
+
+type ApprovalStatus = 'neu' | 'ki_geprueft' | 'zur_pruefung' | 'freigegeben' | 'abgelehnt' | 'archiviert';
+type ApprovalPriority = 'kritisch' | 'hoch' | 'mittel' | 'niedrig';
+
+type FounderApproval = {
+  id: string;
+  title: string;
+  category: string;
+  source: string;
+  priority: ApprovalPriority;
+  status: ApprovalStatus;
+  reason: string;
+  data_used: string;
+  rules_applied: string;
+  benefits: string;
+  risks: string;
+  founder_comment: string | null;
+  related_entity_type: string | null;
+  related_entity_id: string | null;
+  created_at: string;
+};
+
+type ApprovalSummary = {
+  total: number;
+  open: number;
+  critical_open: number;
+  approved: number;
+  rejected: number;
+  by_category: Record<string, number>;
+};
+
+const APPROVAL_STATUS_LABELS: Record<ApprovalStatus, string> = {
+  neu: 'Neu',
+  ki_geprueft: 'KI geprüft',
+  zur_pruefung: 'Zur Prüfung',
+  freigegeben: 'Freigegeben',
+  abgelehnt: 'Abgelehnt',
+  archiviert: 'Archiviert',
+};
+
+const APPROVAL_CATEGORIES = ['affiliate', 'business', 'ki', 'blog', 'seo', 'technik', 'support', 'releases', 'api', 'sicherheit'];
+
+const OPEN_APPROVAL_STATUSES: ApprovalStatus[] = ['neu', 'ki_geprueft', 'zur_pruefung'];
+
+function ApprovalsTab() {
+  const { authFetch, tokens, hasPermission } = useAdmin();
+  const canManage = hasPermission('manage_founder_os');
+  const [items, setItems] = useState<FounderApproval[]>([]);
+  const [summary, setSummary] = useState<ApprovalSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [busyId, setBusyId] = useState('');
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [search, setSearch] = useState('');
+
+  const load = async () => {
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const params = new URLSearchParams();
+      if (categoryFilter) params.set('category', categoryFilter);
+      if (statusFilter) params.set('status', statusFilter);
+      if (priorityFilter) params.set('priority', priorityFilter);
+      if (search) params.set('search', search);
+      const response = await authFetch(`/api/admin/founder/approvals?${params.toString()}`);
+      if (!response.ok) {
+        setErrorMessage('Vorschläge konnten nicht geladen werden.');
+        return;
+      }
+      const json = await response.json();
+      setItems(Array.isArray(json.items) ? json.items : []);
+      setSummary(json.summary);
+    } catch {
+      setErrorMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void load(), 0);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryFilter, statusFilter, priorityFilter, search]);
+
+  const setStatus = async (id: string, status: ApprovalStatus) => {
+    setBusyId(id);
+    try {
+      await authFetch(`/api/admin/founder/approvals/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      await load();
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const setPriority = async (id: string, priority: ApprovalPriority) => {
+    await authFetch(`/api/admin/founder/approvals/${id}/priority`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priority }),
+    });
+    await load();
+  };
+
+  const saveComment = async (id: string, comment: string) => {
+    await authFetch(`/api/admin/founder/approvals/${id}/comment`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comment }),
+    });
+  };
+
+  const toggleSelected = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const bulk = async (status: 'freigegeben' | 'abgelehnt') => {
+    if (selected.size === 0) return;
+    await authFetch('/api/admin/founder/approvals/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: Array.from(selected), status }),
+    });
+    setSelected(new Set());
+    await load();
+  };
+
+  if (loading) return <Loading />;
+  if (errorMessage) return <ErrorText>{errorMessage}</ErrorText>;
+
+  return (
+    <div>
+      {summary && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+          <Kpi label="Gesamt" value={summary.total} />
+          <Kpi label="Offen" value={summary.open} />
+          <Kpi label="Kritisch (offen)" value={summary.critical_open} />
+          <Kpi label="Freigegeben" value={summary.approved} />
+          <Kpi label="Abgelehnt" value={summary.rejected} />
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+        <Button variant="secondary" onClick={() => setPriorityFilter(priorityFilter === 'kritisch' ? '' : 'kritisch')}>
+          Nur kritische anzeigen
+        </Button>
+        <Button variant="secondary" onClick={() => setStatusFilter(statusFilter === 'ki_geprueft' ? '' : 'ki_geprueft')}>
+          Nur neue anzeigen
+        </Button>
+        <Button variant="secondary" onClick={() => setCategoryFilter(categoryFilter === 'affiliate' ? '' : 'affiliate')}>
+          Nur Affiliate anzeigen
+        </Button>
+        {canManage && (
+          <>
+            <Button onClick={() => bulk('freigegeben')}>Auswahl freigeben ({selected.size})</Button>
+            <Button variant="danger" onClick={() => bulk('abgelehnt')}>Auswahl ablehnen ({selected.size})</Button>
+          </>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+        <input
+          placeholder="Suche (Titel, Kategorie, Priorität, Status, Datum)"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ flex: '1 1 260px' }}
+        />
+        <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+          <option value="">Alle Kategorien</option>
+          {APPROVAL_CATEGORIES.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <option value="">Alle Status</option>
+          {(Object.keys(APPROVAL_STATUS_LABELS) as ApprovalStatus[]).map((s) => (
+            <option key={s} value={s}>{APPROVAL_STATUS_LABELS[s]}</option>
+          ))}
+        </select>
+        <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
+          <option value="">Alle Prioritäten</option>
+          {(['kritisch', 'hoch', 'mittel', 'niedrig'] as ApprovalPriority[]).map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {items.length === 0 && <Note>Keine Vorschläge in dieser Ansicht.</Note>}
+        {items.map((item) => (
+          <Card key={item.id}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
+                {canManage && OPEN_APPROVAL_STATUSES.includes(item.status) && (
+                  <input
+                    type="checkbox"
+                    checked={selected.has(item.id)}
+                    onChange={() => toggleSelected(item.id)}
+                    style={{ marginTop: '0.3rem' }}
+                  />
+                )}
+                <div>
+                  <p style={{ color: tokens.text, fontWeight: 700, fontSize: '0.95rem' }}>{item.title}</p>
+                  <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.35rem', flexWrap: 'wrap' }}>
+                    <Badge tone={priorityTone(item.priority)}>{item.priority}</Badge>
+                    <Badge tone="neutral">{item.category}</Badge>
+                    <Badge tone={item.status === 'freigegeben' ? 'success' : item.status === 'abgelehnt' ? 'danger' : 'neutral'}>
+                      {APPROVAL_STATUS_LABELS[item.status]}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                <Button variant="secondary" onClick={() => setExpanded(expanded === item.id ? null : item.id)}>
+                  Details
+                </Button>
+                {canManage && OPEN_APPROVAL_STATUSES.includes(item.status) && (
+                  <>
+                    <Button disabled={busyId === item.id} onClick={() => setStatus(item.id, 'freigegeben')}>
+                      Freigeben
+                    </Button>
+                    <Button variant="danger" disabled={busyId === item.id} onClick={() => setStatus(item.id, 'abgelehnt')}>
+                      Ablehnen
+                    </Button>
+                    <Button variant="secondary" disabled={busyId === item.id} onClick={() => setStatus(item.id, 'zur_pruefung')}>
+                      Später prüfen
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {expanded === item.id && (
+              <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: `1px solid ${tokens.border}` }}>
+                <p style={{ color: tokens.muted, fontSize: '0.8rem' }}>
+                  <strong style={{ color: tokens.text }}>Warum erstellt:</strong> {item.reason}
+                </p>
+                <p style={{ color: tokens.muted, fontSize: '0.8rem', marginTop: '0.4rem' }}>
+                  <strong style={{ color: tokens.text }}>Verwendete Daten:</strong> {item.data_used}
+                </p>
+                <p style={{ color: tokens.muted, fontSize: '0.8rem', marginTop: '0.4rem' }}>
+                  <strong style={{ color: tokens.text }}>Angewendete Regeln:</strong> {item.rules_applied}
+                </p>
+                <p style={{ color: tokens.muted, fontSize: '0.8rem', marginTop: '0.4rem' }}>
+                  <strong style={{ color: tokens.text }}>Vorteile:</strong> {item.benefits}
+                </p>
+                <p style={{ color: tokens.muted, fontSize: '0.8rem', marginTop: '0.4rem' }}>
+                  <strong style={{ color: tokens.text }}>Risiken:</strong> {item.risks}
+                </p>
+                {canManage && (
+                  <div style={{ marginTop: '0.6rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <select
+                      value={item.priority}
+                      onChange={(e) => setPriority(item.id, e.target.value as ApprovalPriority)}
+                    >
+                      {(['kritisch', 'hoch', 'mittel', 'niedrig'] as ApprovalPriority[]).map((p) => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                    <input
+                      placeholder="Kommentar..."
+                      defaultValue={item.founder_comment || ''}
+                      onBlur={(e) => saveComment(item.id, e.target.value)}
+                      style={{ flex: '1 1 200px' }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }
