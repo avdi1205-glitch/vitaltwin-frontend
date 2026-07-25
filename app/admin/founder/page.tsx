@@ -7,7 +7,7 @@ import { Badge, Button, Card, ErrorText, Kpi, Loading, Note, SectionTitle } from
 
 const NO_DATA = 'Keine Daten vorhanden';
 
-type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals' | 'coach' | 'affiliate_intelligence' | 'automation';
+type Tab = 'dashboard' | 'briefing' | 'tasks' | 'approvals' | 'coach' | 'affiliate_intelligence' | 'automation' | 'ceo_intelligence';
 
 const TABS: { key: Tab; label: string; permission?: string }[] = [
   { key: 'dashboard', label: 'Dashboard' },
@@ -17,6 +17,7 @@ const TABS: { key: Tab; label: string; permission?: string }[] = [
   { key: 'coach', label: 'AI Business Coach' },
   { key: 'affiliate_intelligence', label: 'Affiliate Intelligence' },
   { key: 'automation', label: 'Automation Engine', permission: 'view_automation_engine' },
+  { key: 'ceo_intelligence', label: 'CEO Intelligence', permission: 'view_ceo_intelligence' },
 ];
 
 function CardTitle({ children }: { children: React.ReactNode }) {
@@ -70,6 +71,7 @@ export default function FounderOsPage() {
       {tab === 'coach' && <BusinessCoachTab />}
       {tab === 'affiliate_intelligence' && <AffiliateIntelligenceTab />}
       {tab === 'automation' && <AutomationEngineTab />}
+      {tab === 'ceo_intelligence' && <CeoIntelligenceTab />}
     </div>
   );
 }
@@ -1708,6 +1710,284 @@ function AutomationEngineTab() {
             <Badge tone={a.risk_level === 'low' ? 'success' : 'neutral'}>{a.risk_level}</Badge>
           </div>
         ))}
+      </Card>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// CEO Intelligence (Founder OS — Submodul H)
+// ---------------------------------------------------------------------------
+
+type ExMetric = { value: unknown; source: string; note?: string | null; trend?: number | null; data_quality: string };
+type ScorecardItem = { area: string; status: string; trend: number | null; current_value: number | null; target_value: number | null; risk_level: string; next_action: string };
+type StrategicGoal = { id: string; title: string; category: string; target_value: number; current_progress: number | null; status: string; forecast?: { computable: boolean; statement: string | null; note: string } };
+type ExecutiveRisk = { ref: string; title: string; category: string; severity: string; status: string; recommended_action: string | null; responsible_module: string };
+type ExecutiveOpportunity = { ref: string; title: string; category: string; expected_benefit: string | null; status: string; responsible_module: string };
+type ExecutiveSummaryData = {
+  whats_going_well: string[]; whats_going_badly: string[]; whats_changed: string[];
+  goals_at_risk: { title: string }[]; top_risks: ExecutiveRisk[]; top_opportunities: ExecutiveOpportunity[];
+  open_founder_decisions: number; automation_percentage: number | null;
+};
+
+const SCORECARD_STATUS_TONE: Record<string, 'success' | 'neutral' | 'danger'> = {
+  sehr_gut: 'success', im_plan: 'success', beobachten: 'neutral', gefaehrdet: 'danger', kritisch: 'danger', keine_daten: 'neutral',
+};
+
+function CeoIntelligenceTab() {
+  const { authFetch, tokens } = useAdmin();
+  const [overview, setOverview] = useState<Record<string, ExMetric> | null>(null);
+  const [scorecard, setScorecard] = useState<ScorecardItem[]>([]);
+  const [goals, setGoals] = useState<StrategicGoal[]>([]);
+  const [risks, setRisks] = useState<ExecutiveRisk[]>([]);
+  const [opportunities, setOpportunities] = useState<ExecutiveOpportunity[]>([]);
+  const [summary, setSummary] = useState<ExecutiveSummaryData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [busyRef, setBusyRef] = useState('');
+
+  const [scenarioType, setScenarioType] = useState('premium_conversion_up');
+  const [deltaPct, setDeltaPct] = useState('10');
+  const [scenarioResult, setScenarioResult] = useState<Record<string, unknown> | null>(null);
+  const [simulating, setSimulating] = useState(false);
+
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState<{ text: string; insufficient: boolean } | null>(null);
+  const [asking, setAsking] = useState(false);
+
+  const loadAll = async () => {
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const [ovRes, scRes, goalsRes, risksRes, oppRes, summaryRes] = await Promise.all([
+        authFetch('/api/admin/founder/ceo-intelligence/overview'),
+        authFetch('/api/admin/founder/ceo-intelligence/scorecard'),
+        authFetch('/api/admin/founder/ceo-intelligence/goals'),
+        authFetch('/api/admin/founder/ceo-intelligence/risks'),
+        authFetch('/api/admin/founder/ceo-intelligence/opportunities'),
+        authFetch('/api/admin/founder/ceo-intelligence/executive-summary?period=daily'),
+      ]);
+      if (!ovRes.ok) {
+        setErrorMessage('CEO Intelligence konnte nicht geladen werden (fehlende Berechtigung oder Backend nicht erreichbar).');
+        return;
+      }
+      setOverview(await ovRes.json());
+      setScorecard((await scRes.json()).items || []);
+      setGoals((await goalsRes.json()).items || []);
+      setRisks((await risksRes.json()).items || []);
+      setOpportunities((await oppRes.json()).items || []);
+      setSummary(await summaryRes.json());
+    } catch {
+      setErrorMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadAll(), 0);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const sendRiskToTask = async (ref: string, title: string) => {
+    setBusyRef(ref);
+    try {
+      await authFetch(`/api/admin/founder/ceo-intelligence/risks/${encodeURIComponent(ref)}/send-to-task`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, reason: 'Von CEO Intelligence gesendet.' }),
+      });
+      await loadAll();
+    } finally {
+      setBusyRef('');
+    }
+  };
+
+  const closeRisk = async (ref: string) => {
+    setBusyRef(ref);
+    try {
+      await authFetch(`/api/admin/founder/ceo-intelligence/risks/${encodeURIComponent(ref)}/close`, { method: 'POST' });
+      await loadAll();
+    } finally {
+      setBusyRef('');
+    }
+  };
+
+  const archiveOpportunity = async (ref: string) => {
+    setBusyRef(ref);
+    try {
+      await authFetch(`/api/admin/founder/ceo-intelligence/opportunities/${encodeURIComponent(ref)}/archive`, { method: 'POST' });
+      await loadAll();
+    } finally {
+      setBusyRef('');
+    }
+  };
+
+  const runScenario = async () => {
+    setSimulating(true);
+    try {
+      const response = await authFetch('/api/admin/founder/ceo-intelligence/scenarios/simulate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scenario_type: scenarioType, delta_pct: Number(deltaPct) }),
+      });
+      const json = await response.json().catch(() => null);
+      if (response.ok) setScenarioResult(json);
+    } finally {
+      setSimulating(false);
+    }
+  };
+
+  const askCeo = async () => {
+    if (!question.trim()) return;
+    setAsking(true);
+    try {
+      const response = await authFetch('/api/admin/founder/ceo-intelligence/ask', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+      const json = await response.json().catch(() => null);
+      if (response.ok && json) setAnswer({ text: json.answer, insufficient: json.insufficient_data });
+    } finally {
+      setAsking(false);
+    }
+  };
+
+  if (loading) return <Loading />;
+  if (errorMessage) return <ErrorText>{errorMessage}</ErrorText>;
+  if (!overview) return null;
+
+  return (
+    <div>
+      <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginBottom: '1rem' }}>
+        Aggregationsschicht über Dashboard, Daily Briefing, Task Manager, Approval Center, AI Business Coach,
+        Affiliate Intelligence und Automation Engine — keine parallelen Datenquellen, keine erfundenen Werte.
+      </p>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>CEO Overview</CardTitle>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1rem' }}>
+          {Object.entries(overview).filter(([key]) => key !== 'computed_at').map(([key, m]) => (
+            <div key={key}>
+              <p style={{ color: tokens.muted, fontSize: '0.7rem' }}>{key.replace(/_/g, ' ')}</p>
+              <p style={{ color: tokens.text, fontSize: '1.05rem', fontWeight: 700 }}>
+                {m.value !== null && m.value !== undefined ? String(m.value) : NO_DATA}
+              </p>
+              <p style={{ color: tokens.mutedMore, fontSize: '0.65rem' }}>{m.note || `Quelle: ${m.source}`}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {summary && (
+        <Card style={{ marginBottom: '1.25rem' }}>
+          <CardTitle>Executive Summary (täglich)</CardTitle>
+          <p style={{ color: tokens.text, fontSize: '0.82rem', fontWeight: 600 }}>Läuft gut:</p>
+          {summary.whats_going_well.map((s, i) => <p key={i} style={{ color: tokens.mutedMore, fontSize: '0.78rem' }}>{s}</p>)}
+          <p style={{ color: tokens.text, fontSize: '0.82rem', fontWeight: 600, marginTop: '0.4rem' }}>Läuft schlecht:</p>
+          {summary.whats_going_badly.map((s, i) => <p key={i} style={{ color: tokens.mutedMore, fontSize: '0.78rem' }}>{s}</p>)}
+          <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginTop: '0.5rem' }}>
+            Offene Entscheidungen: {summary.open_founder_decisions} — Automatisierungsgrad: {summary.automation_percentage ?? NO_DATA}
+          </p>
+        </Card>
+      )}
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Executive Scorecard</CardTitle>
+        {scorecard.map((item) => (
+          <div key={item.area} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <span style={{ color: tokens.text, fontSize: '0.82rem' }}>{item.area}</span>
+            <Badge tone={SCORECARD_STATUS_TONE[item.status] || 'neutral'}>{item.status.replace(/_/g, ' ')}</Badge>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Strategic Goals</CardTitle>
+        {goals.length === 0 && <Note>Noch keine strategischen Ziele definiert.</Note>}
+        {goals.map((g) => (
+          <div key={g.id} style={{ padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: tokens.text, fontWeight: 600, fontSize: '0.82rem' }}>{g.title}</span>
+              <Badge tone={g.status === 'gefaehrdet' ? 'danger' : 'neutral'}>{g.status}</Badge>
+            </div>
+            <p style={{ color: tokens.mutedMore, fontSize: '0.75rem' }}>
+              Fortschritt: {g.current_progress ?? NO_DATA} / Ziel: {g.target_value}
+            </p>
+            {g.forecast?.statement && <p style={{ color: tokens.mutedMore, fontSize: '0.72rem', fontStyle: 'italic' }}>{g.forecast.statement}</p>}
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Executive Risks</CardTitle>
+        {risks.length === 0 && <Note>Keine offenen Risiken erkannt.</Note>}
+        {risks.map((r) => (
+          <div key={r.ref} style={{ padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: tokens.text, fontSize: '0.82rem' }}>{r.title}</span>
+              <Badge tone={r.severity === 'kritisch' || r.severity === 'hoch' ? 'danger' : 'neutral'}>{r.severity}</Badge>
+            </div>
+            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.3rem' }}>
+              <Button variant="secondary" disabled={busyRef === r.ref} onClick={() => sendRiskToTask(r.ref, r.title)}>An Task Manager senden</Button>
+              <Button variant="secondary" disabled={busyRef === r.ref} onClick={() => closeRisk(r.ref)}>Schließen</Button>
+            </div>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Executive Opportunities</CardTitle>
+        {opportunities.length === 0 && <Note>Keine offenen Chancen erkannt.</Note>}
+        {opportunities.map((o) => (
+          <div key={o.ref} style={{ padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <span style={{ color: tokens.text, fontSize: '0.82rem' }}>{o.title}</span>
+            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.3rem' }}>
+              <Button variant="secondary" disabled={busyRef === o.ref} onClick={() => archiveOpportunity(o.ref)}>Archivieren</Button>
+            </div>
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginBottom: '1.25rem' }}>
+        <CardTitle>Scenario Planning</CardTitle>
+        <p style={{ color: tokens.mutedMore, fontSize: '0.72rem', marginBottom: '0.5rem' }}>
+          Transparente Annahmen, keine Garantie, keine automatische Preisänderung.
+        </p>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <select value={scenarioType} onChange={(e) => setScenarioType(e.target.value)}>
+            <option value="premium_conversion_up">Premium-Conversion steigt</option>
+            <option value="churn_down">Kündigungsrate sinkt</option>
+            <option value="affiliate_ctr_up">Affiliate-CTR steigt</option>
+            <option value="ai_cost_up">KI-Kosten steigen</option>
+            <option value="new_users_grow">Neue Nutzer wachsen</option>
+            <option value="annual_plan_share_up">Jahresabo-Anteil steigt</option>
+          </select>
+          <input type="number" value={deltaPct} onChange={(e) => setDeltaPct(e.target.value)} style={{ width: '80px' }} />
+          <Button disabled={simulating} onClick={runScenario}>{simulating ? 'Simuliere...' : 'Simulieren'}</Button>
+        </div>
+        {scenarioResult && (
+          <pre style={{ color: tokens.mutedMore, fontSize: '0.72rem', marginTop: '0.6rem', whiteSpace: 'pre-wrap' }}>
+            {JSON.stringify(scenarioResult, null, 2)}
+          </pre>
+        )}
+      </Card>
+
+      <Card>
+        <CardTitle>Frag CEO Intelligence</CardTitle>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <input
+            placeholder="z. B. Welche drei Bereiche benötigen heute meine Aufmerksamkeit?"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            style={{ flex: '1 1 300px' }}
+          />
+          <Button disabled={asking} onClick={askCeo}>{asking ? 'Frage läuft...' : 'Fragen'}</Button>
+        </div>
+        {answer && (
+          <p style={{ color: answer.insufficient ? tokens.mutedMore : tokens.text, fontSize: '0.85rem', marginTop: '0.75rem' }}>
+            {answer.text}
+          </p>
+        )}
       </Card>
     </div>
   );

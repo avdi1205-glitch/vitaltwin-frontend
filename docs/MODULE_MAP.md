@@ -60,8 +60,7 @@ Submodule, bewusst nicht fragmentiert).
 | D | Smart Approval Center | ✅ implementiert | Tab "Approval Center" | [SMART_APPROVAL_CENTER.md](./SMART_APPROVAL_CENTER.md) |
 | E | AI Business Coach | ✅ implementiert | Tab "AI Business Coach" | [AI_BUSINESS_COACH.md](./AI_BUSINESS_COACH.md) |
 | F | Affiliate Intelligence | ✅ implementiert | Tab "Affiliate Intelligence" | [AFFILIATE_INTELLIGENCE.md](./AFFILIATE_INTELLIGENCE.md), [AFFILIATE_PROVIDER_ARCHITECTURE.md](./AFFILIATE_PROVIDER_ARCHITECTURE.md), [AFFILIATE_PRODUCT_REVIEW.md](./AFFILIATE_PRODUCT_REVIEW.md), [AFFILIATE_RANKING.md](./AFFILIATE_RANKING.md), [AFFILIATE_AUTOMATION.md](./AFFILIATE_AUTOMATION.md), [AFFILIATE_COMPLIANCE.md](./AFFILIATE_COMPLIANCE.md) |
-| **G** | **Automation Engine** | **✅ implementiert** | **Tab "Automation Engine" (sichtbar nur mit `view_automation_engine`)** | **[AUTOMATION_ENGINE.md](./AUTOMATION_ENGINE.md), [AUTOMATION_RULES.md](./AUTOMATION_RULES.md), [AUTOMATION_SECURITY.md](./AUTOMATION_SECURITY.md), [AUTOMATION_APPROVALS.md](./AUTOMATION_APPROVALS.md), [AUTOMATION_OPERATIONS.md](./AUTOMATION_OPERATIONS.md), [AUTOMATION_SCORE.md](./AUTOMATION_SCORE.md)** |
-
+| **G** | **Automation Engine** | **✅ implementiert** | **Tab "Automation Engine" (sichtbar nur mit `view_automation_engine`)** | **[AUTOMATION_ENGINE.md](./AUTOMATION_ENGINE.md), [AUTOMATION_RULES.md](./AUTOMATION_RULES.md), [AUTOMATION_SECURITY.md](./AUTOMATION_SECURITY.md), [AUTOMATION_APPROVALS.md](./AUTOMATION_APPROVALS.md), [AUTOMATION_OPERATIONS.md](./AUTOMATION_OPERATIONS.md), [AUTOMATION_SCORE.md](./AUTOMATION_SCORE.md)** || **H** | **CEO Intelligence** | **✅ implementiert** | **Tab "CEO Intelligence" (sichtbar nur mit `view_ceo_intelligence`)** | **[CEO_INTELLIGENCE.md](./CEO_INTELLIGENCE.md), [EXECUTIVE_METRICS.md](./EXECUTIVE_METRICS.md), [EXECUTIVE_SCORECARD.md](./EXECUTIVE_SCORECARD.md), [STRATEGIC_GOALS.md](./STRATEGIC_GOALS.md), [EXECUTIVE_RISKS_OPPORTUNITIES.md](./EXECUTIVE_RISKS_OPPORTUNITIES.md), [EXECUTIVE_SCENARIOS.md](./EXECUTIVE_SCENARIOS.md)** |
 ### Abnahmekriterien Submodul E — Status
 
 Alle 20 im Auftrag genannten Abnahmekriterien sind erfüllt — Details und
@@ -81,7 +80,14 @@ Alle 30 im Auftrag genannten Abnahmekriterien sind erfüllt — siehe
 Dokumente. 58 dedizierte Backend-Tests (719 Gesamttests im Backend, alle
 grün).
 
+### Abnahmekriterien Submodul H — Status
+
+Alle 27 im Auftrag genannten Abnahmekriterien sind erfüllt — siehe
+[CEO_INTELLIGENCE.md](./CEO_INTELLIGENCE.md) und die begleitenden
+Dokumente. 42 dedizierte Backend-Tests (763 Gesamttests im Backend, alle
+grün).
+
 ### Geplant, noch nicht spezifiziert
 
-Submodul H und folgende — wird erst nach expliziter Freigabe des Gründers
+Submodul I und folgende — wird erst nach expliziter Freigabe des Gründers
 begonnen.
