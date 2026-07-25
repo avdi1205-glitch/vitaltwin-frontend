@@ -32,6 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const [state, setState] = useState<LoadState>('loading');
   const [principal, setPrincipal] = useState<AdminPrincipal | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [theme, setTheme] = useState<AdminThemeMode>(() => {
     if (typeof window === 'undefined') return 'dark';
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
@@ -137,20 +138,33 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <AdminContextProvider principal={principal} theme={theme} toggleTheme={toggleTheme}>
-      <div style={{ minHeight: '100vh', background: tokens.bg, display: 'flex' }}>
+      <div className="admin-shell" style={{ background: tokens.bg }}>
+        <div className="admin-mobile-topbar" style={{ background: tokens.sidebarBg, borderBottom: `1px solid ${tokens.border}` }}>
+          <button
+            type="button"
+            className="admin-hamburger"
+            onClick={() => setMobileNavOpen(true)}
+            aria-label="Menü öffnen"
+            style={{ color: tokens.text }}
+          >
+            ☰
+          </button>
+          <p style={{ color: tokens.text, fontWeight: 700, fontSize: '0.95rem' }}>VitalTwin Admin</p>
+        </div>
+
+        {mobileNavOpen && <div className="admin-overlay" onClick={() => setMobileNavOpen(false)} />}
+
         <aside
+          className={`admin-sidebar${mobileNavOpen ? ' admin-sidebar-open' : ''}`}
           style={{
-            width: 240,
-            flexShrink: 0,
             background: tokens.sidebarBg,
             borderRight: `1px solid ${tokens.border}`,
-            padding: '1.5rem 1rem',
           }}
         >
           <p style={{ color: tokens.text, fontWeight: 700, fontSize: '1rem', marginBottom: '0.25rem' }}>
             VitalTwin Admin
           </p>
-          <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginBottom: '1.5rem' }}>
+          <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginBottom: '1.5rem', wordBreak: 'break-word' }}>
             {principal.email} · {principal.role}
           </p>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
@@ -160,6 +174,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link
                   key={section.href}
                   href={section.href}
+                  onClick={() => setMobileNavOpen(false)}
                   style={{
                     color: active ? tokens.accent : tokens.muted,
                     background: active ? tokens.cardHover : 'transparent',
@@ -198,8 +213,90 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             ← Zurück zur App
           </Link>
         </aside>
-        <main style={{ flex: 1, padding: '2rem', maxWidth: 1200 }}>{children}</main>
+        <main className="admin-main">{children}</main>
       </div>
+      <style jsx global>{`
+        .admin-shell {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: row;
+          overflow-x: hidden;
+        }
+        .admin-mobile-topbar {
+          display: none;
+        }
+        .admin-sidebar {
+          width: 240px;
+          flex-shrink: 0;
+          padding: 1.5rem 1rem;
+          overflow-y: auto;
+        }
+        .admin-overlay {
+          display: none;
+        }
+        .admin-main {
+          flex: 1;
+          min-width: 0;
+          max-width: 1200px;
+          padding: 2rem;
+        }
+
+        @media (max-width: 900px) {
+          .admin-shell {
+            flex-direction: column;
+          }
+          .admin-mobile-topbar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+          }
+          .admin-hamburger {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0.25rem 0.4rem;
+          }
+          .admin-overlay {
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 25;
+          }
+          .admin-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 30;
+            width: 260px;
+            max-width: 82vw;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            box-shadow: 8px 0 24px rgba(0, 0, 0, 0.35);
+          }
+          .admin-sidebar-open {
+            transform: translateX(0);
+          }
+          .admin-main {
+            width: 100%;
+            max-width: 100%;
+            padding: 1rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .admin-main {
+            padding: 0.75rem;
+          }
+        }
+      `}</style>
     </AdminContextProvider>
   );
 }
