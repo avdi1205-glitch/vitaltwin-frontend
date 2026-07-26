@@ -1314,7 +1314,7 @@ export default function Dashboard() {
 
         {!loadingProfile && profile && !profile.premium && (
           <div className="mt-8">
-            <AdSlot slot="0000000000" />
+            <AdSlot slot="2260528919" />
           </div>
         )}
 
