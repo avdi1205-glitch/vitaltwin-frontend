@@ -14,6 +14,7 @@ import DashboardDailyPlan from '../components/dashboard-daily-plan';
 import DashboardTwinProgress from '../components/dashboard-twin-progress';
 import { DomainCard, TodayActionsCard } from '../components/dashboard-cards';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
+import AdSlot from '../components/AdSlot';
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -1310,6 +1311,12 @@ export default function Dashboard() {
             Zum vollständigen Verlauf
           </Link>
         </section>
+
+        {!loadingProfile && profile && !profile.premium && (
+          <div className="mt-8">
+            <AdSlot slot="0000000000" />
+          </div>
+        )}
 
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm text-[#8E969F]">
           <p>VitalTwin DE Dashboard</p>

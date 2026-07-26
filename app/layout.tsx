@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import SplashScreen from "./components/brand/SplashScreen";
+import CookieConsentBanner from "./components/CookieConsentBanner";
+import AdSenseScript from "./components/AdSenseScript";
 
 const inter = Inter({
   variable: "--font-sans-body",
@@ -65,6 +67,8 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <SplashScreen>{children}</SplashScreen>
+        <AdSenseScript />
+        <CookieConsentBanner />
       </body>
     </html>
   );

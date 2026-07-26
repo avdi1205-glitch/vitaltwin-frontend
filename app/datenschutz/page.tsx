@@ -7,6 +7,8 @@ export const metadata: Metadata = {
 };
 
 export default function Datenschutz() {
+  const adsenseEnabled = Boolean(process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID);
+
   return (
     <main className="min-h-screen bg-[#0B1118] text-[#F5F2EA]">
       <div className="mx-auto max-w-5xl px-6 py-14">
@@ -72,12 +74,35 @@ export default function Datenschutz() {
             <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
               <h2 className="text-xl font-semibold text-[#F5F2EA]">4a. Cookies und lokale Speicherung</h2>
               <p className="mt-3 text-[#B7BDC4]">
-                Wir setzen kein Tracking und keine Marketing-Cookies ein. Zur Anmeldung speichern wir ein
-                Sitzungs-Token technisch notwendig im lokalen Speicher (localStorage) deines Browsers, damit du
-                eingeloggt bleibst. Diese Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG zur Bereitstellung des von dir
-                ausdrücklich gewünschten Dienstes erforderlich und bedarf keiner gesonderten Einwilligung.
+                {adsenseEnabled
+                  ? 'Zur Anmeldung speichern wir ein Sitzungs-Token technisch notwendig im lokalen Speicher (localStorage) deines Browsers, damit du eingeloggt bleibst. Diese Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG zur Bereitstellung des von dir ausdrücklich gewünschten Dienstes erforderlich und bedarf keiner gesonderten Einwilligung. Im kostenlosen Tarif zeigen wir zusätzlich Werbung über Google AdSense an — dafür lädt Google Werbe-Cookies, aber ausschließlich nachdem du im Cookie-Banner ausdrücklich zugestimmt hast (siehe unten, Ziffer 7).'
+                  : 'Wir setzen kein Tracking und keine Marketing-Cookies ein. Zur Anmeldung speichern wir ein Sitzungs-Token technisch notwendig im lokalen Speicher (localStorage) deines Browsers, damit du eingeloggt bleibst. Diese Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG zur Bereitstellung des von dir ausdrücklich gewünschten Dienstes erforderlich und bedarf keiner gesonderten Einwilligung.'}
               </p>
             </section>
+
+            {adsenseEnabled && (
+              <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+                <h2 className="text-xl font-semibold text-[#F5F2EA]">7. Werbung (Google AdSense)</h2>
+                <p className="mt-3 text-[#B7BDC4]">
+                  Im kostenlosen Tarif nutzen wir Google AdSense (Google Ireland Limited, Gordon House, Barrow
+                  Street, Dublin 4, Irland) zur Anzeige von Werbung. Google kann dabei Daten wie IP-Adresse,
+                  Geräte- und Browserinformationen verarbeiten und Cookies setzen, auch zur personalisierten
+                  Anzeigenauslieferung. Diese Verarbeitung findet ausschließlich statt, nachdem du im
+                  Cookie-Banner ausdrücklich zugestimmt hast (Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO, § 25
+                  Abs. 1 TTDSG). Ohne deine Zustimmung wird kein AdSense-Skript geladen. Weitere Informationen:{' '}
+                  <a
+                    href="https://policies.google.com/technologies/ads"
+                    className="text-[#58D7D4] hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Google-Richtlinien zu Werbetechnologien
+                  </a>
+                  . Google kann Daten auch außerhalb der EU/des EWR verarbeiten; ein angemessenes
+                  Datenschutzniveau wird über EU-Standardvertragsklauseln sichergestellt.
+                </p>
+              </section>
+            )}
 
             <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
               <h2 className="text-xl font-semibold text-[#F5F2EA]">5. Speicherdauer</h2>
