@@ -49,7 +49,6 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       { label: 'Basis-Dashboard' },
       { label: 'Grundlegender VitalTwin-Score' },
       { label: 'Schlaf-, Bewegungs- und Gewohnheitserfassung' },
-      { label: 'Blutzucker-Tracking (CGM-Import) & Ernährungstagebuch' },
       { label: 'Begrenzter Verlauf' },
       { label: 'Bis zu 3 KI-Fragen pro Tag', comingSoon: true },
       { label: 'Grundlegende Empfehlungen' },
@@ -73,6 +72,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     ctaLabel: 'Premium wählen',
     features: [
       { label: 'Alles aus Free' },
+      { label: 'Blutzucker-Tracking (CGM-Import) & Ernährungstagebuch' },
       { label: 'Fair begrenzter KI-Chat', comingSoon: true },
       { label: 'Ausführlichere Wellness-Auswertungen' },
       { label: 'Schlaf-, Stress- und Erholungsübersicht' },

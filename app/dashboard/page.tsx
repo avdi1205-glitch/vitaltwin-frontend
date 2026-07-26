@@ -411,11 +411,12 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
+    if (!profile?.premium) return;
     const timer = window.setTimeout(() => {
       void loadCgm();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [loadCgm]);
+  }, [loadCgm, profile?.premium]);
 
   const handleCgmUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -647,6 +648,23 @@ export default function Dashboard() {
             Platzhalter.
           </p>
 
+          {!loadingProfile && profile && !profile.premium ? (
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
+              <p className="font-[family-name:var(--font-serif-display)] text-lg font-semibold text-[#F5F2EA]">
+                Premium-Feature
+              </p>
+              <p className="mx-auto mt-2 max-w-md text-sm text-[#B7BDC4]">
+                CGM-Import und das Ernährungstagebuch sind Teil von Premium. Aktiviere Premium, um deine
+                Blutzuckerwerte zu importieren und Mahlzeiten zu protokollieren.
+              </p>
+              <Link
+                href="/preise"
+                className="mt-5 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
+              >
+                Premium ansehen
+              </Link>
+            </div>
+          ) : (
           <div className="mt-6 grid gap-6 md:grid-cols-2">
             <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
@@ -733,6 +751,7 @@ export default function Dashboard() {
               </div>
             </article>
           </div>
+          )}
         </section>
 
         {!loadingProfile && profile && !profile.premium && (
