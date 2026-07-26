@@ -47,6 +47,13 @@ export const metadata: Metadata = {
     description:
       "Wellness-Orientierung auf Basis deiner freiwillig eingetragenen Biomarker und Gewohnheiten. Kein medizinisches Produkt.",
   },
+  // Google AdSense site-ownership verification via meta tag — deliberately
+  // NOT the AdSense <script> snippet, which would load the ad library
+  // (and set cookies) before the user has given cookie consent. The meta
+  // tag alone loads nothing and sets no cookies, so it needs no consent.
+  other: {
+    "google-adsense-account": "ca-pub-9292565421244191",
+  },
 };
 
 export const viewport: Viewport = {
