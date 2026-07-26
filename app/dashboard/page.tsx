@@ -638,6 +638,102 @@ export default function Dashboard() {
           )}
         </section>
 
+        <section id="cgm-ernaehrung" className="mt-8 scroll-mt-24">
+          <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">
+            Blutzucker &amp; Ernährung
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-[#B7BDC4]">
+            Importiere echte CGM-Messwerte oder trage eine Mahlzeit manuell ein — nur echte Daten, keine
+            Platzhalter.
+          </p>
+
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
+            <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
+                CGM-Daten importieren
+              </h3>
+              <p className="mt-2 text-sm text-[#B7BDC4]">Lade eine echte LibreView- oder Dexcom-CSV hoch.</p>
+
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleCgmUpload}
+                disabled={cgmUploading}
+                className="mt-4 mb-2 w-full text-sm text-[#B7BDC4] file:mr-4 file:rounded-full file:border-0 file:bg-gradient-to-r file:from-[#F3C979] file:to-[#C9913D] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#0B1118]"
+              />
+
+              {cgmUploading && <p className="text-sm text-[#58D7D4]">Wird verarbeitet...</p>}
+              {cgmMessage && <p className="mt-2 text-sm text-[#B7BDC4]">{cgmMessage}</p>}
+
+              {cgmData.length > 0 && (
+                <div className="mt-6 max-h-64 space-y-1 overflow-y-auto">
+                  <p className="mb-2 text-xs text-[#8E969F]">{cgmData.length} Messwerte (letzte 7 Tage)</p>
+                  {cgmData.slice(0, 12).map((r, i) => (
+                    <div key={i} className="flex justify-between border-b border-white/10 py-1 text-sm">
+                      <span className="text-[#B7BDC4]">{new Date(r.timestamp).toLocaleString('de-DE')}</span>
+                      <span className="font-medium text-[#58D7D4]">{r.glucose_value} mg/dL</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </article>
+
+            <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
+                Ernährung eintragen
+              </h3>
+
+              <div className="mt-4 space-y-4">
+                <input
+                  type="text"
+                  placeholder="Mahlzeit (z. B. Haferflocken mit Beeren)"
+                  value={nutritionForm.meal_name}
+                  onChange={(e) => setNutritionForm({ ...nutritionForm, meal_name: e.target.value })}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
+                />
+
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="number"
+                    placeholder="Kohlenhydrate (g)"
+                    value={nutritionForm.carbs}
+                    onChange={(e) => setNutritionForm({ ...nutritionForm, carbs: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Protein (g)"
+                    value={nutritionForm.protein}
+                    onChange={(e) => setNutritionForm({ ...nutritionForm, protein: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Fett (g)"
+                    value={nutritionForm.fat}
+                    onChange={(e) => setNutritionForm({ ...nutritionForm, fat: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Kalorien"
+                    value={nutritionForm.calories}
+                    onChange={(e) => setNutritionForm({ ...nutritionForm, calories: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
+                  />
+                </div>
+
+                <button
+                  onClick={saveNutrition}
+                  className="w-full rounded-xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
+                >
+                  Mahlzeit speichern
+                </button>
+                {nutritionMessage && <p className="text-sm text-[#B7BDC4]">{nutritionMessage}</p>}
+              </div>
+            </article>
+          </div>
+        </section>
 
         {!loadingProfile && profile && !profile.premium && (
           <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#F5F2EA]">
@@ -1173,103 +1269,6 @@ export default function Dashboard() {
               Twin fragen
             </Link>
           </article>
-        </section>
-
-        <section id="cgm-ernaehrung" className="mt-8 scroll-mt-24">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">
-            Blutzucker &amp; Ernährung
-          </h2>
-          <p className="mt-2 max-w-2xl text-sm text-[#B7BDC4]">
-            Importiere echte CGM-Messwerte oder trage eine Mahlzeit manuell ein — nur echte Daten, keine
-            Platzhalter.
-          </p>
-
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
-            <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
-                CGM-Daten importieren
-              </h3>
-              <p className="mt-2 text-sm text-[#B7BDC4]">Lade eine echte LibreView- oder Dexcom-CSV hoch.</p>
-
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleCgmUpload}
-                disabled={cgmUploading}
-                className="mt-4 mb-2 w-full text-sm text-[#B7BDC4] file:mr-4 file:rounded-full file:border-0 file:bg-gradient-to-r file:from-[#F3C979] file:to-[#C9913D] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#0B1118]"
-              />
-
-              {cgmUploading && <p className="text-sm text-[#58D7D4]">Wird verarbeitet...</p>}
-              {cgmMessage && <p className="mt-2 text-sm text-[#B7BDC4]">{cgmMessage}</p>}
-
-              {cgmData.length > 0 && (
-                <div className="mt-6 max-h-64 space-y-1 overflow-y-auto">
-                  <p className="mb-2 text-xs text-[#8E969F]">{cgmData.length} Messwerte (letzte 7 Tage)</p>
-                  {cgmData.slice(0, 12).map((r, i) => (
-                    <div key={i} className="flex justify-between border-b border-white/10 py-1 text-sm">
-                      <span className="text-[#B7BDC4]">{new Date(r.timestamp).toLocaleString('de-DE')}</span>
-                      <span className="font-medium text-[#58D7D4]">{r.glucose_value} mg/dL</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </article>
-
-            <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
-                Ernährung eintragen
-              </h3>
-
-              <div className="mt-4 space-y-4">
-                <input
-                  type="text"
-                  placeholder="Mahlzeit (z. B. Haferflocken mit Beeren)"
-                  value={nutritionForm.meal_name}
-                  onChange={(e) => setNutritionForm({ ...nutritionForm, meal_name: e.target.value })}
-                  className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
-                />
-
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="number"
-                    placeholder="Kohlenhydrate (g)"
-                    value={nutritionForm.carbs}
-                    onChange={(e) => setNutritionForm({ ...nutritionForm, carbs: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Protein (g)"
-                    value={nutritionForm.protein}
-                    onChange={(e) => setNutritionForm({ ...nutritionForm, protein: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Fett (g)"
-                    value={nutritionForm.fat}
-                    onChange={(e) => setNutritionForm({ ...nutritionForm, fat: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Kalorien"
-                    value={nutritionForm.calories}
-                    onChange={(e) => setNutritionForm({ ...nutritionForm, calories: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
-                  />
-                </div>
-
-                <button
-                  onClick={saveNutrition}
-                  className="w-full rounded-xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
-                >
-                  Mahlzeit speichern
-                </button>
-                {nutritionMessage && <p className="text-sm text-[#B7BDC4]">{nutritionMessage}</p>}
-              </div>
-            </article>
-          </div>
         </section>
 
         <section className="mt-8">

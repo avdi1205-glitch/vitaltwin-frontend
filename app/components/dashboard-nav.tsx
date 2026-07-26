@@ -30,6 +30,7 @@ export default function DashboardNav() {
 
   const links = [
     { href: '#uebersicht', label: 'Übersicht' },
+    { href: '#cgm-ernaehrung', label: 'Blutzucker & Ernährung' },
     { href: '#mein-twin', label: 'Mein Twin' },
     { href: '#gewohnheiten', label: 'Gewohnheiten' },
     { href: '#verlauf', label: 'Verlauf' },

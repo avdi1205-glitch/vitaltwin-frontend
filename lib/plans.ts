@@ -49,6 +49,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       { label: 'Basis-Dashboard' },
       { label: 'Grundlegender VitalTwin-Score' },
       { label: 'Schlaf-, Bewegungs- und Gewohnheitserfassung' },
+      { label: 'Blutzucker-Tracking (CGM-Import) & Ernährungstagebuch' },
       { label: 'Begrenzter Verlauf' },
       { label: 'Bis zu 3 KI-Fragen pro Tag', comingSoon: true },
       { label: 'Grundlegende Empfehlungen' },
