@@ -50,7 +50,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       { label: 'Grundlegender VitalTwin-Score' },
       { label: 'Schlaf-, Bewegungs- und Gewohnheitserfassung' },
       { label: 'Begrenzter Verlauf' },
-      { label: 'Bis zu 3 KI-Fragen pro Tag', comingSoon: true },
+      { label: 'Bis zu 3 KI-Fragen pro Tag' },
       { label: 'Grundlegende Empfehlungen' },
     ],
     permissions: {
@@ -73,12 +73,12 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     features: [
       { label: 'Alles aus Free' },
       { label: 'Blutzucker-Tracking (CGM-Import) & Ernährungstagebuch' },
-      { label: 'Fair begrenzter KI-Chat', comingSoon: true },
+      { label: 'Fair begrenzter KI-Chat' },
       { label: 'Ausführlichere Wellness-Auswertungen' },
       { label: 'Schlaf-, Stress- und Erholungsübersicht' },
-      { label: 'Wochenberichte', comingSoon: true },
+      { label: 'Wochenberichte' },
       { label: 'Erweiterter Verlauf' },
-      { label: 'Individuelle Tagesziele', comingSoon: true },
+      { label: 'Individuelle Tagesziele' },
       { label: 'Keine Werbung' },
     ],
     permissions: {
