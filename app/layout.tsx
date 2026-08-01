@@ -72,7 +72,7 @@ export default function RootLayout({
       lang="de"
       className={`${inter.variable} ${ibmPlexMono.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <SplashScreen>{children}</SplashScreen>
         <AdSenseScript />
         <CookieConsentBanner />

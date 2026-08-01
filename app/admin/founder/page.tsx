@@ -66,7 +66,7 @@ export default function FounderOsPage() {
         ))}
       </div>
 
-      {tab === 'dashboard' && <DashboardTab />}
+      {tab === 'dashboard' && <DashboardTab onSelectTab={setTab} />}
       {tab === 'briefing' && <BriefingTab />}
       {tab === 'tasks' && <TasksTab />}
       {tab === 'approvals' && <ApprovalsTab />}
@@ -81,49 +81,70 @@ export default function FounderOsPage() {
 }
 
 // ---------------------------------------------------------------------------
-// Dashboard (Release F1)
+// Dashboard — kompakte Founder-Zusammenfassung (bewusst KEINE Duplikate der
+// Kennzahlen aus /admin — dafür gibt es das zentrale Admin Dashboard).
 // ---------------------------------------------------------------------------
 
-type FounderDashboard = {
-  users: { total: number | null; new_7d: number | null; active_7d: number | null; premium: number | null };
-  revenue: { stripe: number | null; stripe_note: string; affiliate: number | null; premium: number | null; premium_note: string };
-  ai: { model: string; requests_total: number | null; errors: number | null; errors_note: string; cost: number | null; cost_note: string };
-  affiliate: { active_products: number | null; broken_links: number | null; pending_approval: number | null };
-  system: {
-    database: string; api: string;
-    server: string | null; server_note: string;
-    build_status: string | null; build_status_note: string;
-  };
-  tasks: {
-    products_to_review: number | null; broken_links: number | null;
-    open_releases: number | null; open_releases_note: string;
-    open_bugs: number | null; open_bugs_note: string;
-  };
+type ApprovalsSummaryData = {
+  summary: { total: number; open: number; critical_open: number; approved: number; rejected: number };
 };
 
-function DashboardTab() {
-  const { authFetch, tokens } = useAdmin();
-  const [data, setData] = useState<FounderDashboard | null>(null);
+type RecommendationItem = {
+  id: string;
+  title: string;
+  reasoning: string;
+  priority: 'kritisch' | 'hoch' | 'mittel' | 'niedrig';
+  status: string;
+};
+
+type AutomationDashboardData = {
+  active_rules: { value: number };
+  runs_today: { value: number };
+  failed_today: { value: number };
+  awaiting_approval: { value: number };
+};
+
+function DashboardTab({ onSelectTab }: { onSelectTab: (tab: Tab) => void }) {
+  const { authFetch, hasPermission, tokens } = useAdmin();
+  const [briefing, setBriefing] = useState<Briefing | null>(null);
+  const [approvals, setApprovals] = useState<ApprovalsSummaryData | null>(null);
+  const [recommendations, setRecommendations] = useState<RecommendationItem[] | null>(null);
+  const [automation, setAutomation] = useState<AutomationDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+
+    async function fetchJson<T>(path: string): Promise<T | null> {
       try {
-        const response = await authFetch('/api/admin/founder/dashboard');
-        if (!response.ok) {
-          if (!cancelled) setErrorMessage('Founder Dashboard konnte nicht geladen werden.');
-          return;
-        }
-        const json = await response.json();
-        if (!cancelled) setData(json);
+        const response = await authFetch(path);
+        if (!response.ok) return null;
+        return (await response.json()) as T;
       } catch {
-        if (!cancelled) setErrorMessage('Backend gerade nicht erreichbar.');
-      } finally {
-        if (!cancelled) setLoading(false);
+        return null;
       }
+    }
+
+    (async () => {
+      const [briefingData, approvalsData, recommendationsData] = await Promise.all([
+        fetchJson<Briefing>('/api/admin/founder/daily-briefing'),
+        fetchJson<ApprovalsSummaryData>('/api/admin/founder/approvals'),
+        fetchJson<{ items: RecommendationItem[] }>('/api/admin/founder/business-coach/recommendations'),
+      ]);
+      if (cancelled) return;
+      setBriefing(briefingData);
+      setApprovals(approvalsData);
+      setRecommendations(recommendationsData?.items ?? null);
+      if (!briefingData) setErrorMessage('Founder-Zusammenfassung konnte nicht geladen werden.');
+
+      if (hasPermission('view_automation_engine')) {
+        const automationData = await fetchJson<AutomationDashboardData>('/api/admin/founder/automation/dashboard');
+        if (!cancelled) setAutomation(automationData);
+      }
+      if (!cancelled) setLoading(false);
     })();
+
     return () => {
       cancelled = true;
     };
@@ -131,65 +152,102 @@ function DashboardTab() {
   }, []);
 
   if (loading) return <Loading />;
-  if (errorMessage) return <ErrorText>{errorMessage}</ErrorText>;
-  if (!data) return null;
+  if (errorMessage && !briefing) return <ErrorText>{errorMessage}</ErrorText>;
+
+  const openRecommendations = (recommendations ?? []).filter((r) => r.status === 'offen').slice(0, 3);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
       <Card>
-        <CardTitle>1. Nutzer</CardTitle>
-        <Metric label="Gesamtzahl" value={data.users.total} />
-        <Metric label="Neue Nutzer (7 Tage)" value={data.users.new_7d} />
-        <Metric label="Aktive Nutzer (7 Tage)" value={data.users.active_7d} />
-        <Metric label="Premium-Nutzer" value={data.users.premium} />
-      </Card>
-
-      <Card>
-        <CardTitle>2. Umsatz</CardTitle>
-        <Metric label="Stripe-Umsatz" value={data.revenue.stripe} note={data.revenue.stripe_note} />
+        <CardTitle>Wichtigste heutige Kennzahlen</CardTitle>
+        <Metric label="Neue Nutzer heute" value={briefing?.users.new_today ?? null} />
+        <Metric label="Aktive Nutzer heute" value={briefing?.users.active_today ?? null} />
+        <Metric label="KI-Anfragen heute" value={briefing?.ai.requests_today ?? null} />
         <Metric
-          label="Affiliate-Umsatz"
-          value={data.revenue.affiliate !== null ? data.revenue.affiliate.toFixed(2) : null}
+          label="Affiliate-Umsatz heute"
+          value={briefing?.business.affiliate_revenue_today != null ? briefing.business.affiliate_revenue_today.toFixed(2) : null}
           suffix=" €"
         />
-        <Metric label="Premium-Umsatz" value={data.revenue.premium} note={data.revenue.premium_note} />
       </Card>
 
       <Card>
-        <CardTitle>3. KI</CardTitle>
-        <Metric label="Verwendetes Modell" value={data.ai.model} />
-        <Metric label="Anzahl Requests" value={data.ai.requests_total} />
-        <Metric label="Fehler" value={data.ai.errors} note={data.ai.errors_note} />
-        <Metric label="Kosten" value={data.ai.cost} note={data.ai.cost_note} />
+        <CardTitle>Kritische Warnungen</CardTitle>
+        {briefing && briefing.warnings.length > 0 ? (
+          briefing.warnings.map((w, i) => (
+            <p key={i} style={{ color: tokens.text, fontSize: '0.85rem', padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+              ⚠️ {w}
+            </p>
+          ))
+        ) : (
+          <p style={{ color: tokens.mutedMore, fontSize: '0.85rem' }}>Keine kritischen Warnungen.</p>
+        )}
       </Card>
 
       <Card>
-        <CardTitle>4. Affiliate</CardTitle>
-        <Metric label="Aktive Produkte" value={data.affiliate.active_products} />
-        <Metric label="Defekte Links" value={data.affiliate.broken_links} />
-        <Metric label="Produkte zur Freigabe" value={data.affiliate.pending_approval} />
+        <CardTitle>Offene Entscheidungen & Freigaben</CardTitle>
+        <Metric label="Offene Freigaben" value={approvals?.summary.open ?? null} />
+        <Metric label="Davon kritisch" value={approvals?.summary.critical_open ?? null} />
+        <Button variant="secondary" onClick={() => onSelectTab('approvals')}>Approval Center öffnen</Button>
       </Card>
 
       <Card>
-        <CardTitle>5. System</CardTitle>
-        <div style={{ padding: '0.5rem 0', borderBottom: `1px solid ${tokens.border}` }}>
-          <p style={{ color: tokens.muted, fontSize: '0.78rem' }}>Datenbank</p>
-          <Badge tone={data.system.database === 'reachable' ? 'success' : 'danger'}>{data.system.database}</Badge>
-        </div>
-        <div style={{ padding: '0.5rem 0', borderBottom: `1px solid ${tokens.border}` }}>
-          <p style={{ color: tokens.muted, fontSize: '0.78rem' }}>API</p>
-          <Badge tone={data.system.api === 'online' ? 'success' : 'danger'}>{data.system.api}</Badge>
-        </div>
-        <Metric label="Server" value={data.system.server} note={data.system.server_note} />
-        <Metric label="Build-Status" value={data.system.build_status} note={data.system.build_status_note} />
+        <CardTitle>Wichtigste Aufgaben</CardTitle>
+        {briefing && briefing.tasks.length > 0 ? (
+          briefing.tasks.slice(0, 5).map((t, i) => (
+            <Metric key={i} label={t.label} value={t.value} note={t.note ?? undefined} />
+          ))
+        ) : (
+          <p style={{ color: tokens.mutedMore, fontSize: '0.85rem' }}>Keine offenen Aufgaben erfasst.</p>
+        )}
       </Card>
 
       <Card>
-        <CardTitle>6. Aufgaben</CardTitle>
-        <Metric label="Produkte prüfen" value={data.tasks.products_to_review} />
-        <Metric label="Defekte Links" value={data.tasks.broken_links} />
-        <Metric label="Offene Releases" value={data.tasks.open_releases} note={data.tasks.open_releases_note} />
-        <Metric label="Offene Bugs" value={data.tasks.open_bugs} note={data.tasks.open_bugs_note} />
+        <CardTitle>Automatisierungsstatus</CardTitle>
+        {hasPermission('view_automation_engine') ? (
+          automation ? (
+            <>
+              <Metric label="Aktive Regeln" value={automation.active_rules.value} />
+              <Metric label="Läufe heute" value={automation.runs_today.value} />
+              <Metric label="Fehlgeschlagen heute" value={automation.failed_today.value} />
+              <Metric label="Warten auf Freigabe" value={automation.awaiting_approval.value} />
+            </>
+          ) : (
+            <p style={{ color: tokens.mutedMore, fontSize: '0.85rem' }}>Nicht verfügbar.</p>
+          )
+        ) : (
+          <p style={{ color: tokens.mutedMore, fontSize: '0.85rem' }}>Keine Berechtigung (view_automation_engine erforderlich).</p>
+        )}
+      </Card>
+
+      <Card>
+        <CardTitle>Empfehlungen des AI Business Coach</CardTitle>
+        {openRecommendations.length > 0 ? (
+          openRecommendations.map((r) => (
+            <div key={r.id} style={{ padding: '0.4rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Badge tone={priorityTone(r.priority)}>{r.priority}</Badge>
+                <p style={{ color: tokens.text, fontSize: '0.85rem', fontWeight: 600 }}>{r.title}</p>
+              </div>
+              <p style={{ color: tokens.muted, fontSize: '0.78rem', marginTop: '0.2rem' }}>{r.reasoning}</p>
+            </div>
+          ))
+        ) : (
+          <p style={{ color: tokens.mutedMore, fontSize: '0.85rem' }}>Keine offenen Empfehlungen.</p>
+        )}
+      </Card>
+
+      <Card>
+        <CardTitle>Nächste Gründeraktionen</CardTitle>
+        {briefing && briefing.priorities.length > 0 ? (
+          briefing.priorities.map((p, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.3rem 0' }}>
+              <Badge tone={priorityTone(p.priority as 'kritisch' | 'hoch' | 'mittel' | 'niedrig')}>{p.priority}</Badge>
+              <p style={{ color: tokens.text, fontSize: '0.85rem' }}>{p.label}</p>
+            </div>
+          ))
+        ) : (
+          <p style={{ color: tokens.mutedMore, fontSize: '0.85rem' }}>Keine Prioritäten erfasst.</p>
+        )}
       </Card>
     </div>
   );

@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
+import PublicFooter from '../components/PublicFooter';
 
 export const metadata: Metadata = {
   title: 'Cookie-Einstellungen | VitalTwin',
@@ -65,13 +65,9 @@ export default function CookieEinstellungen() {
             )}
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-white/10 pt-6 text-sm text-[#8E969F]">
-            <Link href="/" className="transition hover:text-[#58D7D4]">Startseite</Link>
-            <Link href="/datenschutz" className="transition hover:text-[#58D7D4]">Datenschutz</Link>
-            <Link href="/impressum" className="transition hover:text-[#58D7D4]">Impressum</Link>
-            <Link href="/agb" className="transition hover:text-[#58D7D4]">AGB</Link>
+          <PublicFooter>
             <p className="ml-auto">Stand: Juli 2026</p>
-          </div>
+          </PublicFooter>
         </div>
       </div>
     </main>

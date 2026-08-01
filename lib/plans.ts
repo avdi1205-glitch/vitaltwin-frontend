@@ -9,7 +9,7 @@ export type PlanId = 'free' | 'premium' | 'pro' | 'family';
 export type BillingInterval = 'monthly' | 'yearly';
 
 export type PlanPermissions = {
-  aiQuestionsPerDay: number | 'fair-unlimited';
+  aiQuestionsPerDay: number;
   historyDays: number | 'extended' | 'unlimited';
   maxProfiles: number;
   hasAds: boolean;
@@ -73,7 +73,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     features: [
       { label: 'Alles aus Free' },
       { label: 'Blutzucker-Tracking (CGM-Import) & Ernährungstagebuch' },
-      { label: 'Fair begrenzter KI-Chat' },
+      { label: 'Bis zu 30 KI-Fragen pro Tag' },
       { label: 'Ausführlichere Wellness-Auswertungen' },
       { label: 'Schlaf-, Stress- und Erholungsübersicht' },
       { label: 'Wochenberichte' },
@@ -82,7 +82,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       { label: 'Keine Werbung' },
     ],
     permissions: {
-      aiQuestionsPerDay: 'fair-unlimited',
+      aiQuestionsPerDay: 30,
       historyDays: 'extended',
       maxProfiles: 1,
       hasAds: false,
@@ -108,7 +108,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       { label: 'Später: erweiterte Wearable-Integrationen', comingSoon: true },
     ],
     permissions: {
-      aiQuestionsPerDay: 'fair-unlimited',
+      aiQuestionsPerDay: 60,
       historyDays: 'unlimited',
       maxProfiles: 1,
       hasAds: false,
@@ -132,7 +132,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       { label: 'Familienübersicht nur mit klar geregelten Berechtigungen', comingSoon: true },
     ],
     permissions: {
-      aiQuestionsPerDay: 'fair-unlimited',
+      aiQuestionsPerDay: 30,
       historyDays: 'unlimited',
       maxProfiles: 6,
       hasAds: false,

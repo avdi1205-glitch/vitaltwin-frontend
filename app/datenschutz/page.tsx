@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import PublicFooter from '../components/PublicFooter';
 
 export const metadata: Metadata = {
   title: 'Datenschutz | VitalTwin',
@@ -121,16 +122,10 @@ export default function Datenschutz() {
             </section>
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-white/10 pt-6 text-sm text-[#8E969F]">
-            <Link href="/" className="transition hover:text-[#58D7D4]">Startseite</Link>
+          <PublicFooter>
             <Link href="/dashboard" className="transition hover:text-[#58D7D4]">Dashboard</Link>
-            <Link href="/impressum" className="transition hover:text-[#58D7D4]">Impressum</Link>
-            <Link href="/agb" className="transition hover:text-[#58D7D4]">AGB</Link>
-            <Link href="/widerrufsrecht" className="transition hover:text-[#58D7D4]">Widerrufsrecht</Link>
-            <Link href="/cookie-einstellungen" className="transition hover:text-[#58D7D4]">Cookie-Einstellungen</Link>
-            <Link href="/ki-hinweise" className="transition hover:text-[#58D7D4]">KI-Hinweise</Link>
             <p className="ml-auto">Stand: Juli 2026</p>
-          </div>
+          </PublicFooter>
         </div>
       </div>
     </main>

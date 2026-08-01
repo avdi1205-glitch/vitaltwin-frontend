@@ -14,11 +14,27 @@ type DashboardData = {
   active_users_7d: number | null;
   ai_requests_today: number | null;
   open_feedback_count: number | null;
+  beta_applications_total: number | null;
+  beta_applications_note: string;
+  latest_activity: { action: string; entity_type: string; email: string | null; created_at: string } | null;
   stripe_configured: boolean;
   openai_configured: boolean;
   supabase_reachable: boolean;
   revenue_note: string;
   error_tracking_note: string;
+};
+
+type FounderTasksSummary = {
+  summary: { open_tasks: number; critical_tasks: number; done_today: number; auto_detected: number; auto_resolved: number };
+};
+
+type FounderApprovalsSummary = {
+  summary: { total: number; open: number; critical_open: number; approved: number; rejected: number };
+};
+
+type SystemStatusData = {
+  release: { version?: string; build_status?: string; note?: string };
+  backup: { status?: string; completed_at?: string; note?: string };
 };
 
 type GrowthData = {
@@ -77,6 +93,9 @@ export default function AdminDashboardPage() {
   const [loginHistory, setLoginHistory] = useState<SecuritySummary | null>(null);
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [nutrition, setNutrition] = useState<NutritionData | null>(null);
+  const [founderTasks, setFounderTasks] = useState<FounderTasksSummary | null>(null);
+  const [founderApprovals, setFounderApprovals] = useState<FounderApprovalsSummary | null>(null);
+  const [systemStatus, setSystemStatus] = useState<SystemStatusData | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -122,6 +141,13 @@ export default function AdminDashboardPage() {
       if (hasPermission('view_nutrition_admin')) {
         tasks.push(fetchJson<NutritionData>('/api/admin/nutrition/overview').then((d) => { if (!cancelled) setNutrition(d); }));
       }
+      if (hasPermission('view_founder_os')) {
+        tasks.push(fetchJson<FounderTasksSummary>('/api/admin/founder/tasks').then((d) => { if (!cancelled) setFounderTasks(d); }));
+        tasks.push(fetchJson<FounderApprovalsSummary>('/api/admin/founder/approvals').then((d) => { if (!cancelled) setFounderApprovals(d); }));
+      }
+      if (hasPermission('view_system_status')) {
+        tasks.push(fetchJson<SystemStatusData>('/api/admin/system/status').then((d) => { if (!cancelled) setSystemStatus(d); }));
+      }
 
       await Promise.all(tasks);
       if (!cancelled) {
@@ -155,7 +181,7 @@ export default function AdminDashboardPage() {
   return (
     <div>
       <SectionTitle
-        title="VitalTwin Enterprise Admin Dashboard"
+        title="VitalTwin Admin Dashboard"
         subtitle="Alle Kennzahlen aus der echten Datenbank — keine Demo-/Platzhalterdaten."
       />
       {loading && <Loading />}
@@ -190,8 +216,12 @@ export default function AdminDashboardPage() {
                 <Kpi label="Nutzer gesamt" value={dashboard.user_count} />
                 <Kpi label="Aktive Nutzer (7 Tage)" value={dashboard.active_users_7d} />
                 <Kpi label="Neue Registrierungen (7 Tage)" value={dashboard.registrations_7d} />
+                <Kpi label="Beta-Bewerbungen" value={dashboard.beta_applications_total} hint={dashboard.beta_applications_note} />
                 <Kpi label="Premium-Nutzer" value={dashboard.premium_users} />
-                <Kpi label="Monatsumsatz" value="—" hint="Kein Stripe-Reporting angebunden" />
+                <Kpi label="Umsatz" value="—" hint="Kein Stripe-Reporting angebunden" />
+                <Kpi label="Affiliate-Umsatz" value="—" hint={business?.affiliate_note ?? 'Kein Affiliate-Provisions-Tracking implementiert'} />
+                <Kpi label="KI-Nutzung heute" value={dashboard.ai_requests_today} />
+                <Kpi label="KI-Kosten" value="—" hint="Kein Kosten-Tracking implementiert" />
               </div>
               <div style={{ ...gridStyle, marginTop: '1rem' }}>
                 <Card>
@@ -200,6 +230,12 @@ export default function AdminDashboardPage() {
                     <Badge tone={dashboard.supabase_reachable ? 'success' : 'danger'}>
                       {dashboard.supabase_reachable ? 'Erreichbar' : 'Nicht erreichbar'}
                     </Badge>
+                  </div>
+                </Card>
+                <Card>
+                  <p style={{ color: tokens.muted, fontSize: '0.8rem', fontWeight: 600 }}>API-Status</p>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <Badge tone="success">Läuft (diese Anfrage kam durch)</Badge>
                   </div>
                 </Card>
                 <Card>
@@ -219,16 +255,71 @@ export default function AdminDashboardPage() {
                   </div>
                 </Card>
                 <Card>
-                  <p style={{ color: tokens.muted, fontSize: '0.8rem', fontWeight: 600 }}>API-Status</p>
-                  <div style={{ marginTop: '0.5rem' }}>
-                    <Badge tone="success">Läuft (diese Anfrage kam durch)</Badge>
-                  </div>
+                  <p style={{ color: tokens.muted, fontSize: '0.8rem', fontWeight: 600 }}>Letzter Release</p>
+                  {systemStatus?.release.version ? (
+                    <p style={{ color: tokens.text, fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                      {systemStatus.release.version} · {systemStatus.release.build_status}
+                    </p>
+                  ) : (
+                    <p style={{ color: tokens.mutedMore, fontSize: '0.8rem', marginTop: '0.5rem' }}>
+                      {systemStatus?.release.note ?? 'Noch keine Releases erfasst (System Center).'}
+                    </p>
+                  )}
                 </Card>
                 <Card>
-                  <p style={{ color: tokens.muted, fontSize: '0.8rem', fontWeight: 600 }}>Letztes Backup / App-Version</p>
-                  <p style={{ color: tokens.mutedMore, fontSize: '0.8rem', marginTop: '0.5rem' }}>
-                    Kein Backup-System und kein Versions-Tag im Betrieb — nicht verfügbar.
-                  </p>
+                  <p style={{ color: tokens.muted, fontSize: '0.8rem', fontWeight: 600 }}>Letzter Backup-Status</p>
+                  {systemStatus?.backup.status ? (
+                    <p style={{ color: tokens.text, fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                      {systemStatus.backup.status}
+                      {systemStatus.backup.completed_at ? ` · ${new Date(systemStatus.backup.completed_at).toLocaleString('de-DE')}` : ''}
+                    </p>
+                  ) : (
+                    <p style={{ color: tokens.mutedMore, fontSize: '0.8rem', marginTop: '0.5rem' }}>
+                      {systemStatus?.backup.note ?? 'Noch keine Backups erfasst (System Center).'}
+                    </p>
+                  )}
+                </Card>
+                {hasPermission('view_founder_os') && (
+                  <>
+                    <Card>
+                      <p style={{ color: tokens.muted, fontSize: '0.8rem', fontWeight: 600 }}>Offene Aufgaben</p>
+                      <p style={{ color: tokens.text, fontSize: '1.3rem', fontWeight: 700, marginTop: '0.4rem' }}>
+                        {founderTasks ? founderTasks.summary.open_tasks : '—'}
+                      </p>
+                      <Link href="/admin/founder" style={{ color: tokens.accent, fontSize: '0.75rem' }}>Founder OS öffnen →</Link>
+                    </Card>
+                    <Card>
+                      <p style={{ color: tokens.muted, fontSize: '0.8rem', fontWeight: 600 }}>Offene Freigaben</p>
+                      <p style={{ color: tokens.text, fontSize: '1.3rem', fontWeight: 700, marginTop: '0.4rem' }}>
+                        {founderApprovals ? founderApprovals.summary.open : '—'}
+                      </p>
+                      <Link href="/admin/founder" style={{ color: tokens.accent, fontSize: '0.75rem' }}>Founder OS öffnen →</Link>
+                    </Card>
+                    <Card>
+                      <p style={{ color: tokens.muted, fontSize: '0.8rem', fontWeight: 600 }}>Kritische Warnungen</p>
+                      <p style={{ color: tokens.text, fontSize: '1.3rem', fontWeight: 700, marginTop: '0.4rem' }}>
+                        {founderTasks && founderApprovals
+                          ? founderTasks.summary.critical_tasks + founderApprovals.summary.critical_open
+                          : '—'}
+                      </p>
+                      <p style={{ color: tokens.mutedMore, fontSize: '0.7rem', marginTop: '0.2rem' }}>
+                        Kritische Founder-Tasks + kritische offene Freigaben
+                      </p>
+                    </Card>
+                  </>
+                )}
+                <Card>
+                  <p style={{ color: tokens.muted, fontSize: '0.8rem', fontWeight: 600 }}>Letzte Systemaktivität</p>
+                  {dashboard.latest_activity ? (
+                    <p style={{ color: tokens.mutedMore, fontSize: '0.8rem', marginTop: '0.5rem' }}>
+                      {dashboard.latest_activity.action} · {dashboard.latest_activity.entity_type}
+                      {dashboard.latest_activity.email ? ` · ${dashboard.latest_activity.email}` : ''}
+                      <br />
+                      {new Date(dashboard.latest_activity.created_at).toLocaleString('de-DE')}
+                    </p>
+                  ) : (
+                    <p style={{ color: tokens.mutedMore, fontSize: '0.8rem', marginTop: '0.5rem' }}>Keine Aktivität erfasst.</p>
+                  )}
                 </Card>
               </div>
               <Note>{dashboard.revenue_note}</Note>

@@ -268,6 +268,7 @@ export default function HomeLanding({
             <Link href="/widerrufsrecht" className="transition hover:text-[#58D7D4]">Widerrufsrecht</Link>
             <Link href="/cookie-einstellungen" className="transition hover:text-[#58D7D4]">Cookie-Einstellungen</Link>
             <Link href="/ki-hinweise" className="transition hover:text-[#58D7D4]">KI-Hinweise</Link>
+            <Link href="/kontakt" className="transition hover:text-[#58D7D4]">Kontakt</Link>
           </div>
         </div>
       </footer>

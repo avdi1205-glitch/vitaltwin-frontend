@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { apiUrl } from '@/lib/api';
+import PublicFooter from '../components/PublicFooter';
 
 export default function BetaBewerbung() {
   const [fullName, setFullName] = useState('');
@@ -170,6 +171,8 @@ export default function BetaBewerbung() {
           Schon ein Konto?{' '}
           <Link href="/?auth=login" className="text-[#58D7D4] underline hover:text-[#F3C979]">Anmelden</Link>
         </p>
+
+        <PublicFooter centered />
       </div>
     </div>
   );

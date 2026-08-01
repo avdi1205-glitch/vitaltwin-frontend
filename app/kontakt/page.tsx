@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { apiUrl } from '@/lib/api';
+import PublicFooter from '../components/PublicFooter';
 
 export default function Kontakt() {
   const [fullName, setFullName] = useState('');
@@ -157,11 +158,7 @@ export default function Kontakt() {
           )}
         </div>
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-5 text-sm text-[#8E969F]">
-          <Link href="/" className="transition hover:text-[#58D7D4]">Startseite</Link>
-          <Link href="/impressum" className="transition hover:text-[#58D7D4]">Impressum</Link>
-          <Link href="/datenschutz" className="transition hover:text-[#58D7D4]">Datenschutz</Link>
-        </div>
+        <PublicFooter centered />
       </div>
     </div>
   );

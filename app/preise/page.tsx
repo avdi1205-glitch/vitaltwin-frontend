@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { apiUrl } from '@/lib/api';
+import PublicFooter from '../components/PublicFooter';
 import {
   BillingInterval,
   PLAN_ORDER,
@@ -345,9 +346,7 @@ export default function Preise() {
                   <td className="p-4">KI-Fragen pro Tag</td>
                   {PLAN_ORDER.map((planId) => (
                     <td key={planId} className="p-4">
-                      {PLANS[planId].permissions.aiQuestionsPerDay === 'fair-unlimited'
-                        ? 'Fair begrenzt'
-                        : PLANS[planId].permissions.aiQuestionsPerDay}
+                      {PLANS[planId].permissions.aiQuestionsPerDay}
                     </td>
                   ))}
                 </tr>
@@ -437,15 +436,7 @@ export default function Preise() {
           </div>
         </section>
 
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-5 border-t border-white/10 pt-8 text-sm text-[#8E969F]">
-          <Link href="/" className="transition hover:text-[#58D7D4]">Startseite</Link>
-          <Link href="/datenschutz" className="transition hover:text-[#58D7D4]">Datenschutz</Link>
-          <Link href="/agb" className="transition hover:text-[#58D7D4]">AGB (Nutzungsbedingungen)</Link>
-          <Link href="/widerrufsrecht" className="transition hover:text-[#58D7D4]">Widerrufsrecht</Link>
-          <Link href="/cookie-einstellungen" className="transition hover:text-[#58D7D4]">Cookie-Einstellungen</Link>
-          <Link href="/ki-hinweise" className="transition hover:text-[#58D7D4]">KI-Hinweise</Link>
-          <Link href="/impressum" className="transition hover:text-[#58D7D4]">Impressum</Link>
-        </div>
+        <PublicFooter centered />
       </div>
     </div>
   );
