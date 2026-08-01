@@ -28,10 +28,10 @@ against the actual current code in this repository during this audit.
 |---|---|---|---|---|---|---|---|---|---|
 | Admin/F1 Dashboard | Nutzerzahlen gesamt | `GET /api/admin/dashboard`, `GET /api/admin/founder/dashboard` | `admin.py::admin_dashboard`, `founder.py::founder_dashboard` | `vt_users` | Ja | 1 | — | — | — |
 | Admin/F1 Dashboard | Premium-Nutzer | gleiche Routen | gleiche Services | `vt_users.premium` | Ja | 1 | — | — | — |
-| Admin/Business Center | Stripe-Umsatz (heute/Monat) | `GET /api/admin/business/overview`, `.../founder/dashboard` | `business_overview`, `founder_dashboard` | — (keine Tabelle) | Nein | 4 | Stripe-Reporting-API-Anbindung (Balance/Charges lesen + Speicherung) | `STRIPE_SECRET_KEY` (vorhanden, aber nur für Checkout genutzt) + Reporting-Scope | hoch |
-| Business Center | Abonnements (aktiv) | `.../business/overview` | `business_overview` | `vt_users.premium` (nur bool) | Teilweise | 2 | Echtes Subscription-Datenmodell (Plan/Status/Laufzeit) aus Stripe-Webhook | `STRIPE_WEBHOOK_SECRET` (Subscription-Events) | mittel |
-| Business Center | Kündigungen | `.../daily-briefing` (`users.cancellations`) | `founder_briefing.py` | — | Nein | 4 | `customer.subscription.deleted`-Webhook + Speicherung | `STRIPE_WEBHOOK_SECRET` | mittel |
-| Business Center | Rückerstattungen | — (kein Endpoint) | — | — | Nein | 4 | `charge.refunded`-Webhook + Speicherung | `STRIPE_WEBHOOK_SECRET` | niedrig |
+| Admin/Business Center | Stripe-Umsatz (heute/Monat) | `GET /api/admin/business/overview`, `.../founder/dashboard`, `.../daily-briefing` | `stripe_billing.py` (NEU, 2026-08-01) | `vt_stripe_payments` (Migration 023, noch nicht in Supabase ausgeführt) | Ja, sobald `invoice.paid`-Events im Stripe-Dashboard abonniert sind | 2 | Migration 023 ausführen + `invoice.paid` im Stripe-Dashboard abonnieren (kein Code mehr) | keine neuen (nutzt `STRIPE_WEBHOOK_SECRET`) | erledigt (Code), niedrig (Konfiguration) |
+| Business Center | Abonnements (aktiv/gekündigt) | `.../business/overview` | `stripe_billing.py` (NEU) | `vt_stripe_subscriptions` (Migration 023) | Ja, sobald `customer.subscription.*`-Events abonniert sind | 2 | s.o. | s.o. | erledigt (Code), niedrig (Konfiguration) |
+| Business Center | Kündigungen | `.../daily-briefing` (`users.cancellations`) | `stripe_billing.py::get_cancellations_since` (NEU) | `vt_stripe_subscriptions` | Ja, sobald `customer.subscription.deleted` abonniert ist | 2 | s.o. — zusätzlich setzt der Webhook jetzt auch `premium=False` bei echter Kündigung | s.o. | erledigt (Code), niedrig (Konfiguration) |
+| Business Center | Rückerstattungen | `.../business/overview` | `stripe_billing.py::get_refund_summary` (NEU) | `vt_stripe_refunds` (Migration 023) | Ja, sobald `charge.refunded` abonniert ist | 2 | s.o. | s.o. | erledigt (Code), niedrig (Konfiguration) |
 | Affiliate / Affiliate Intelligence (F) | Affiliate-Produkte | `GET /api/admin/affiliate/products`, `.../founder/affiliate-intelligence/dashboard` | `affiliate_admin.py`, `founder_affiliate_intelligence.py` | `vt_affiliate_products` | Ja | 1 | — | — | — |
 | Affiliate | Affiliate-Klicks | `POST /api/affiliate/track` (event_type=click) | `affiliate.py` | `vt_affiliate_events` | Ja, aber selbst-getrackt | 2 | Verifizierte Klicks über ein echtes Partner-Netzwerk (Postback/Server-to-Server) statt reinem Client-Call | Partner-Netzwerk-API-Keys (z. B. Awin/Impact/CJ) | mittel |
 | Affiliate | Affiliate-Verkäufe (Conversions) | `POST /api/affiliate/track` (event_type=conversion) | `affiliate.py` | `vt_affiliate_events` | Ja, aber selbst-getrackt | 2 | Echte Conversion-Bestätigung durch Partner-Netzwerk statt Client-Aufruf | Partner-Netzwerk-API-Keys | mittel |
@@ -66,14 +66,15 @@ against the actual current code in this repository during this audit.
   Founder Tasks (5 reale Bereiche), Founder Approvals, Strategic Goals,
   Documentation Health — **und neu seit dieser Session:** KI-Requests,
   KI-Tokenverbrauch, KI-Fehler (zentral über alle 7 KI-Aufrufstellen).
-- **Status 2 (teilweise):** Abonnements (nur Boolean, kein echtes
-  Subscription-Modell), Affiliate-Klicks/Verkäufe/Provisionen (real, aber
+- **Status 2 (teilweise):** Stripe-Umsatz/Abonnements/Kündigungen/
+  Rückerstattungen (Code seit 2026-08-01 fertig, wartet nur noch auf
+  Migration 023 + Event-Abo im Stripe-Dashboard), Affiliate-Klicks/Verkäufe/Provisionen (real, aber
   selbst-getrackt statt Netzwerk-verifiziert), API-Status (trivial),
   Error Tracking (real, aber eng begrenzt), Build-/Release-/Backup-Status
   (real, aber manuell statt automatisiert), KI-Kosten (real, aber nur mit
   konfiguriertem Preis).
-- **Status 4 (Datenquelle fehlt komplett):** Stripe-Umsatz, Kündigungen,
-  Rückerstattungen, Serverstatus, 11 von 16 Task-Manager-Quellbereichen.
+- **Status 4 (Datenquelle fehlt komplett):** Serverstatus, 11 von 16
+  Task-Manager-Quellbereichen.
 - **Status 5 (externe Zugangsdaten fehlen):** siehe
   [FOUNDER_OS_MISSING_INTEGRATIONS.md](FOUNDER_OS_MISSING_INTEGRATIONS.md) —
   betrifft dieselben Zeilen wie oben, sobald die interne Seite bereitsteht.

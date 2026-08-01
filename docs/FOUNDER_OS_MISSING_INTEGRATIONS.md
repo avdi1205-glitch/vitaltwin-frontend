@@ -13,30 +13,45 @@ For each: current status, setup steps, and required environment variables.
 
 ## 1. Stripe Reporting (Umsatz, Abonnements, Kündigungen, Rückerstattungen)
 
-**Status: Nicht konfiguriert.** `STRIPE_SECRET_KEY` exists today only for
-creating Checkout Sessions (`backend/app/routers/payments.py`) — it is never
-used to *read back* revenue/subscription/refund data.
+**Status (2026-08-01, aktualisiert): Code fertig, wartet nur noch auf
+Stripe-Dashboard-Konfiguration.** Der bestehende Webhook-Endpoint
+(`POST /api/payments/webhook` in `backend/app/routers/payments.py`)
+verarbeitet jetzt zusätzlich zu `checkout.session.completed`:
 
-**Setup steps**:
-1. Decide on a data model: either (a) call Stripe's Balance/Charges/
-   Subscriptions APIs live on each dashboard request (simple, but adds
-   latency + Stripe API rate-limit exposure), or (b) add real Stripe
-   webhook handlers (`checkout.session.completed` already exists;
-   add `customer.subscription.updated/deleted`, `charge.refunded`,
-   `invoice.paid`) that write to new tables (`vt_subscriptions`,
-   `vt_refunds`) — recommended, since it's push-based and doesn't add
-   per-request Stripe API latency.
-2. Register the new webhook events in the Stripe Dashboard, pointing at
-   the existing webhook endpoint.
-3. Store the new webhook signing secret alongside the existing one.
+- `customer.subscription.created`/`customer.subscription.updated` → echter
+  Abo-Status in `vt_stripe_subscriptions` (neue Migration
+  `023_stripe_billing_events.sql`, noch nicht in Supabase ausgeführt)
+- `customer.subscription.deleted` → Abo wird als `canceled` markiert UND
+  `premium` wird für den Nutzer auf `False` gesetzt (echte Kündigung, kein
+  Feature-Flag-Rest mehr)
+- `invoice.paid` → echte Zahlung in `vt_stripe_payments` (Basis für
+  "Umsatz heute/Monat")
+- `charge.refunded` → echte Rückerstattung in `vt_stripe_refunds`
 
-**Environment variables needed**: `STRIPE_WEBHOOK_SECRET` (if not already
-distinct from the Checkout webhook secret), no new API key required (same
-`STRIPE_SECRET_KEY` covers reads).
+Neues `core/stripe_billing.py` berechnet Umsatz/Abo-Zahlen/Rückerstattungen
+ausschließlich aus diesen drei Tabellen — nie durch einen Live-Stripe-API-
+Call bei jeder Dashboard-Anfrage. Wird bereits angezeigt in
+`GET /api/admin/business/overview`, `GET /api/admin/founder/dashboard`
+(`revenue.stripe`) und `GET /api/admin/founder/daily-briefing`
+(`business.revenue_today/yesterday/month`, `users.cancellations`).
 
-**Priorität**: hoch — this blocks the single most-requested "real" business
-metric (Umsatz) across almost every Founder OS submodule (F1 Dashboard,
-Daily Briefing, Business Coach, CEO Intelligence, Executive Scorecard).
+**Was jetzt noch fehlt, um wirklich Daten zu bekommen** (kein Code, reine
+Konfiguration im Stripe-Dashboard):
+1. Migration `023_stripe_billing_events.sql` in Supabase ausführen (wie
+   Migration 022 zuvor).
+2. Im Stripe-Dashboard unter "Webhooks" beim **bestehenden** Endpoint
+   (derselbe wie für `checkout.session.completed`) die 4 neuen Events
+   zusätzlich abonnieren: `customer.subscription.created`,
+   `customer.subscription.updated`, `customer.subscription.deleted`,
+   `invoice.paid`, `charge.refunded`.
+3. Kein neuer API-Key nötig — derselbe `STRIPE_WEBHOOK_SECRET` gilt für
+   alle Events desselben Endpoints.
+
+**Environment variables needed**: keine neuen — nur die bereits
+konfigurierten `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET`.
+
+**Priorität**: hoch, aber jetzt nur noch ein 5-Minuten-Konfigurationsschritt
+im Stripe-Dashboard + einmal Migration 023 ausführen — kein Code mehr nötig.
 
 ## 2. Affiliate Partner Networks (echte Klicks/Verkäufe/Provisionen)
 
@@ -153,9 +168,9 @@ raw token data is already real and usable without it.
 
 ## Recommended integration order
 
-1. **Stripe Reporting** (webhooks for subscriptions/cancellations/refunds)
-   — highest business value, unblocks Umsatz across almost every Founder OS
-   view.
+1. **Stripe Reporting** — code is DONE (2026-08-01); only remaining steps
+   are running migration 023 in Supabase + subscribing the 4 new event
+   types in the Stripe Dashboard (no code, ~5 minutes).
 2. **Sentry** (or equivalent) — production reliability visibility, cheap to
    add, high signal.
 3. **OPENAI_*_PRICE_PER_1K_USD env vars** — trivial, 5-minute task, turns

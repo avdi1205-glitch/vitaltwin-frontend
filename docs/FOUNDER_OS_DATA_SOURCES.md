@@ -125,7 +125,29 @@ coverage percentages from `vt_documentation_registry` cross-referenced
 against live code scans (`documentation_scanner.py`). Verified during this
 audit to be genuinely computed. No changes made.
 
-## 9. "Integration fehlt" vs. "Keine Daten" (foundation #10)
+## 9. Stripe Billing — real revenue/subscriptions/refunds (2026-08-01 follow-up)
+
+New tables (migration `023_stripe_billing_events.sql`, NOT yet run in
+Supabase): `vt_stripe_subscriptions`, `vt_stripe_payments`,
+`vt_stripe_refunds` — all start empty, populated exclusively by the
+extended Stripe webhook in `routers/payments.py::stripe_webhook`, which now
+handles `customer.subscription.created/updated/deleted`, `invoice.paid`,
+and `charge.refunded` in addition to the pre-existing
+`checkout.session.completed`. `core/stripe_billing.py` computes
+`get_revenue_summary()`/`get_subscription_summary()`/
+`get_refund_summary()`/`get_cancellations_since()` purely from these three
+tables — never a live Stripe API call per dashboard request. Wired into
+`GET /api/admin/business/overview`, `GET /api/admin/founder/dashboard`
+(`revenue.stripe`), and `GET /api/admin/founder/daily-briefing`
+(`business.revenue_today/yesterday/month`, `users.cancellations`).
+`customer.subscription.deleted` also downgrades the user's `premium` flag
+to `False` — a real cancellation now genuinely ends premium access instead
+of leaving it stuck `True` forever. See
+[FOUNDER_OS_MISSING_INTEGRATIONS.md](FOUNDER_OS_MISSING_INTEGRATIONS.md#1-stripe-reporting-umsatz-abonnements-kündigungen-rückerstattungen)
+for the two remaining non-code steps (run migration 023, subscribe the new
+event types in the Stripe Dashboard).
+
+## 10. "Integration fehlt" vs. "Keine Daten" (foundation #10)
 
 Every honest `None` field in the admin/Founder OS responses already carried
 a `*_note` string explaining *why* (this was true before this session too —

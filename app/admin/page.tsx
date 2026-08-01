@@ -58,7 +58,15 @@ type BusinessData = {
   premium_users: number;
   stripe_configured: boolean;
   configured_plan_prices: Record<string, boolean>;
+  revenue_today: number | null;
+  revenue_month: number | null;
   revenue_note: string;
+  active_subscriptions: number | null;
+  canceled_subscriptions: number | null;
+  subscriptions_note: string;
+  refunds_count_30d: number | null;
+  refunds_total_30d: number | null;
+  refunds_note: string;
   affiliate_note: string;
   coupons_note: string;
 };
@@ -218,7 +226,11 @@ export default function AdminDashboardPage() {
                 <Kpi label="Neue Registrierungen (7 Tage)" value={dashboard.registrations_7d} />
                 <Kpi label="Beta-Bewerbungen" value={dashboard.beta_applications_total} hint={dashboard.beta_applications_note} />
                 <Kpi label="Premium-Nutzer" value={dashboard.premium_users} />
-                <Kpi label="Umsatz" value="—" hint="Kein Stripe-Reporting angebunden" />
+                <Kpi
+                  label="Umsatz (Monat)"
+                  value={business?.revenue_month != null ? `${business.revenue_month.toFixed(2)} €` : '—'}
+                  hint={business?.revenue_month == null ? (business?.revenue_note ?? 'Kein Stripe-Reporting angebunden') : undefined}
+                />
                 <Kpi label="Affiliate-Umsatz" value="—" hint={business?.affiliate_note ?? 'Kein Affiliate-Provisions-Tracking implementiert'} />
                 <Kpi label="KI-Nutzung heute" value={dashboard.ai_requests_today} />
                 <Kpi label="KI-Kosten" value="—" hint="Kein Kosten-Tracking implementiert" />
@@ -413,11 +425,23 @@ export default function AdminDashboardPage() {
                   label="Stripe-Status"
                   value={business.stripe_configured ? 'Konfiguriert' : 'Nicht konfiguriert'}
                 />
-                <Kpi label="Umsatz heute" value="—" hint="Kein Stripe-Reporting" />
-                <Kpi label="Umsatz Monat" value="—" hint="Kein Stripe-Reporting" />
-                <Kpi label="Offene Zahlungen" value="—" hint="Nicht getrackt" />
-                <Kpi label="Erstattungen" value="—" hint="Nicht getrackt" />
-                <Kpi label="Aktive Abonnements (Premium)" value={business.premium_users} />
+                <Kpi
+                  label="Umsatz heute"
+                  value={business.revenue_today != null ? `${business.revenue_today.toFixed(2)} €` : '—'}
+                  hint={business.revenue_today == null ? business.revenue_note : undefined}
+                />
+                <Kpi
+                  label="Umsatz Monat"
+                  value={business.revenue_month != null ? `${business.revenue_month.toFixed(2)} €` : '—'}
+                  hint={business.revenue_month == null ? business.revenue_note : undefined}
+                />
+                <Kpi label="Kündigungen gesamt" value={business.canceled_subscriptions} hint={business.canceled_subscriptions == null ? business.subscriptions_note : undefined} />
+                <Kpi
+                  label="Erstattungen (30 Tage)"
+                  value={business.refunds_total_30d != null ? `${business.refunds_total_30d.toFixed(2)} €` : '—'}
+                  hint={business.refunds_note}
+                />
+                <Kpi label="Aktive Abonnements" value={business.active_subscriptions ?? business.premium_users} hint={business.active_subscriptions == null ? business.subscriptions_note : undefined} />
               </div>
               <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                 {Object.entries(business.configured_plan_prices).map(([key, configured]) => (

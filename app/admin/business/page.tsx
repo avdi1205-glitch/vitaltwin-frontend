@@ -9,7 +9,15 @@ type BusinessOverview = {
   stripe_configured: boolean;
   configured_plan_prices: Record<string, boolean>;
   pro_family_note: string;
+  revenue_today: number | null;
+  revenue_month: number | null;
   revenue_note: string;
+  active_subscriptions: number | null;
+  canceled_subscriptions: number | null;
+  subscriptions_note: string;
+  refunds_count_30d: number | null;
+  refunds_total_30d: number | null;
+  refunds_note: string;
   affiliate_note: string;
   coupons_note: string;
 };
@@ -52,6 +60,12 @@ export default function AdminBusinessPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
             <Kpi label="Premium-Nutzer" value={data.premium_users} />
             <Kpi label="Stripe konfiguriert" value={data.stripe_configured ? 'Ja' : 'Nein'} />
+            <Kpi label="Umsatz heute" value={data.revenue_today !== null ? `${data.revenue_today.toFixed(2)} €` : '—'} hint={data.revenue_today === null ? data.revenue_note : undefined} />
+            <Kpi label="Umsatz (Monat)" value={data.revenue_month !== null ? `${data.revenue_month.toFixed(2)} €` : '—'} hint={data.revenue_month === null ? data.revenue_note : undefined} />
+            <Kpi label="Aktive Abonnements" value={data.active_subscriptions} hint={data.active_subscriptions === null ? data.subscriptions_note : undefined} />
+            <Kpi label="Kündigungen gesamt" value={data.canceled_subscriptions} hint={data.canceled_subscriptions === null ? data.subscriptions_note : undefined} />
+            <Kpi label="Rückerstattungen (30 Tage)" value={data.refunds_count_30d} hint={data.refunds_note} />
+            <Kpi label="Rückerstattungssumme (30 Tage)" value={data.refunds_total_30d !== null ? `${data.refunds_total_30d.toFixed(2)} €` : '—'} />
           </div>
 
           <Card style={{ marginTop: '1rem' }}>
