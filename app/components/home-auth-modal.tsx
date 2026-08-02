@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { apiUrl } from '@/lib/api';
 import { trackEvent } from '@/lib/analytics';
 
@@ -16,6 +16,18 @@ declare global {
             callback: (response: { credential?: string }) => void;
           }) => void;
           prompt: () => void;
+          renderButton: (
+            parent: HTMLElement,
+            options: {
+              type?: string;
+              theme?: string;
+              size?: string;
+              text?: string;
+              shape?: string;
+              width?: number;
+              locale?: string;
+            }
+          ) => void;
         };
       };
     };
@@ -38,9 +50,9 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [infoMessage, setInfoMessage] = useState(initialNotice);
-  const [googleReady, setGoogleReady] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const router = useRouter();
+  const googleButtonRef = useRef<HTMLDivElement | null>(null);
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() ?? '';
 
   useEffect(() => {
@@ -106,7 +118,22 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
         },
       });
 
-      setGoogleReady(true);
+      // Google's One Tap `prompt()` is designed to appear unprompted and is
+      // subject to silent exponential-cooldown suppression after a user
+      // dismisses it once — clicking a button and getting nothing is a known,
+      // expected outcome of relying on `prompt()` for a manually-triggered
+      // login. `renderButton()` is Google's own always-visible, always-
+      // clickable Sign-In button and is the correct API for this use case.
+      if (googleButtonRef.current) {
+        window.google.accounts.id.renderButton(googleButtonRef.current, {
+          type: 'standard',
+          theme: 'filled_black',
+          size: 'large',
+          text: 'continue_with',
+          shape: 'rectangular',
+          locale: 'de',
+        });
+      }
     };
 
     if (window.google?.accounts?.id) {
@@ -121,28 +148,6 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
     script.onload = initGoogle;
     document.head.appendChild(script);
   }, [googleClientId, router]);
-
-  const handleGoogleLogin = () => {
-    setErrorMessage('');
-    setInfoMessage('');
-
-    if (tab === 'register' && !acceptedTerms) {
-      setErrorMessage('Bitte akzeptiere die AGB und Datenschutzerklärung, um ein Konto zu erstellen.');
-      return;
-    }
-
-    if (!googleClientId) {
-      setErrorMessage('Google-Login ist noch nicht konfiguriert.');
-      return;
-    }
-
-    if (!googleReady || !window.google?.accounts?.id) {
-      setErrorMessage('Google-Login wird geladen. Bitte in 1-2 Sekunden erneut klicken.');
-      return;
-    }
-
-    window.google.accounts.id.prompt();
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -249,14 +254,27 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
         </div>
 
         <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6">
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={loading}
-          >
-            Mit Google
-          </button>
+          <div className="relative flex items-center justify-center overflow-hidden rounded-xl">
+            <div ref={googleButtonRef} className="flex w-full justify-center [&>div]:w-full" />
+            {!googleClientId && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xs text-[#8E969F]">
+                Google-Login lädt…
+              </div>
+            )}
+            {tab === 'register' && !acceptedTerms && (
+              <button
+                type="button"
+                aria-label="Bitte zuerst AGB und Datenschutzerklärung akzeptieren"
+                className="absolute inset-0 cursor-pointer rounded-xl"
+                onClick={() =>
+                  setErrorMessage('Bitte akzeptiere die AGB und Datenschutzerklärung, um ein Konto zu erstellen.')
+                }
+              />
+            )}
+            {loading && (tab !== 'register' || acceptedTerms) && (
+              <div className="absolute inset-0 cursor-not-allowed rounded-xl bg-[#0B1118]/70" aria-hidden="true" />
+            )}
+          </div>
           <button
             type="button"
             disabled
@@ -265,7 +283,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
           >
             Mit Apple
           </button>
-          <p className="col-span-2 text-center text-xs text-[#8E969F]">Social Login folgt in einem der nächsten Releases.</p>
+          <p className="col-span-2 text-center text-xs text-[#8E969F]">Apple-Login folgt in einem der nächsten Releases.</p>
         </div>
 
         <div className="mb-6 grid grid-cols-2 rounded-2xl border border-white/10 bg-white/5 p-1">
