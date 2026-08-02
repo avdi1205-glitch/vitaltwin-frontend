@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import PublicFooter from '../components/PublicFooter';
 
 export const metadata: Metadata = {
   title: 'Impressum | VitalTwin',
@@ -40,7 +41,7 @@ export default function Impressum() {
                   </Link>
                 </p>
                 <p>
-                  <span className="font-semibold">USt-IdNr.:</span> DE123456789
+                  <span className="font-semibold">USt-IdNr.:</span> DE45336207810
                 </p>
               </div>
             </section>
@@ -59,17 +60,9 @@ export default function Impressum() {
             </p>
           </section>
 
-          <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-white/10 pt-6 text-sm text-[#8E969F]">
-            <Link href="/" className="transition hover:text-[#58D7D4]">Startseite</Link>
-            <Link href="/dashboard" className="transition hover:text-[#58D7D4]">Dashboard</Link>
-            <Link href="/kontakt" className="transition hover:text-[#58D7D4]">Kontakt</Link>
-            <Link href="/datenschutz" className="transition hover:text-[#58D7D4]">Datenschutz</Link>
-            <Link href="/agb" className="transition hover:text-[#58D7D4]">AGB</Link>
-            <Link href="/widerrufsrecht" className="transition hover:text-[#58D7D4]">Widerrufsrecht</Link>
-            <Link href="/cookie-einstellungen" className="transition hover:text-[#58D7D4]">Cookie-Einstellungen</Link>
-            <Link href="/ki-hinweise" className="transition hover:text-[#58D7D4]">KI-Hinweise</Link>
+          <PublicFooter>
             <p className="ml-auto">Gilt für www.vitaltwin.de</p>
-          </div>
+          </PublicFooter>
         </div>
       </div>
     </main>
