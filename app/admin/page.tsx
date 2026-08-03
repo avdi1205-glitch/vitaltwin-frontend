@@ -20,7 +20,10 @@ type DashboardData = {
   stripe_configured: boolean;
   openai_configured: boolean;
   supabase_reachable: boolean;
+  revenue_today: number | null;
+  revenue_month: number | null;
   revenue_note: string;
+  error_count_7d: number | null;
   error_tracking_note: string;
 };
 
@@ -234,6 +237,11 @@ export default function AdminDashboardPage() {
                 <Kpi label="Affiliate-Umsatz" value="—" hint={business?.affiliate_note ?? 'Kein Affiliate-Provisions-Tracking implementiert'} />
                 <Kpi label="KI-Nutzung heute" value={dashboard.ai_requests_today} />
                 <Kpi label="KI-Kosten" value="—" hint="Kein Kosten-Tracking implementiert" />
+                <Kpi
+                  label="Fehler (7 Tage)"
+                  value={dashboard.error_count_7d}
+                  hint={dashboard.error_tracking_note}
+                />
               </div>
               <div style={{ ...gridStyle, marginTop: '1rem' }}>
                 <Card>
@@ -334,8 +342,6 @@ export default function AdminDashboardPage() {
                   )}
                 </Card>
               </div>
-              <Note>{dashboard.revenue_note}</Note>
-              <Note>{dashboard.error_tracking_note}</Note>
             </>
           ) : (
             <Note>Keine Berechtigung oder Daten nicht verfügbar (view_dashboard erforderlich).</Note>

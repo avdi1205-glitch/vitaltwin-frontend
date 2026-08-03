@@ -10,8 +10,11 @@ Sentry.init({
   // Add optional integrations for additional features
   integrations: [Sentry.replayIntegration()],
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  // Define how likely traces are sampled. 100% (the wizard default) measurably
+  // added overhead on this low-traffic beta site (see PERFORMANCE_AUDIT.md —
+  // a live measurement found redundant ~700ms /monitoring round-trips on a
+  // single simple page load); 20% still gives a representative sample.
+  tracesSampleRate: 0.2,
   // Enable logs to be sent to Sentry
   enableLogs: true,
 
