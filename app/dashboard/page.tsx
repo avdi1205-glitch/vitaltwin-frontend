@@ -148,13 +148,17 @@ export default function Dashboard() {
   const fetchProfile = useCallback(async (token: string) => {
     // A blocked/failed request (e.g. browser extensions, transient network issues) should not
     // make the UI briefly claim "Starter" for a Beta/Premium account, so we retry once silently
-    // before giving up.
+    // before giving up. A hard timeout (via AbortController) guards against a genuinely hung
+    // request (e.g. a cold-starting backend) leaving "Lädt..." showing forever with no feedback.
     for (let attempt = 0; attempt < 2; attempt += 1) {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 20000);
       try {
         const response = await fetch(apiUrl('/api/users/me'), {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          signal: controller.signal,
         });
 
         const data = (await response.json().catch(() => null)) as ProfileResponse | { detail?: string } | null;
@@ -163,6 +167,7 @@ export default function Dashboard() {
         if (!response.ok) {
           if (response.status === 401) {
             localStorage.removeItem('token');
+            setLoadingProfile(false);
             router.push('/?auth=login');
             return;
           }
@@ -182,6 +187,8 @@ export default function Dashboard() {
         if (!isMountedRef.current) return;
         setErrorMessage('Backend nicht erreichbar. Bitte versuche es in wenigen Sekunden erneut.');
         setLoadingProfile(false);
+      } finally {
+        window.clearTimeout(timeoutId);
       }
     }
   }, [router]);
