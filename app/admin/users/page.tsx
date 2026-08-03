@@ -19,6 +19,8 @@ type UserDetail = {
   recent_logins: { success: boolean; ip_address: string | null; created_at: string }[];
 };
 
+type DeletionRequest = { email: string; display_name: string | null; deletion_requested_at: string };
+
 const ROLE_OPTIONS = ['super_admin', 'admin', 'support', 'moderator', 'editor', 'analyst', 'developer'];
 
 export default function AdminUsersPage() {
@@ -33,6 +35,8 @@ export default function AdminUsersPage() {
   const [detail, setDetail] = useState<UserDetail | null>(null);
   const [actionMessage, setActionMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const [deletionRequests, setDeletionRequests] = useState<DeletionRequest[]>([]);
+  const [deletionMessage, setDeletionMessage] = useState('');
 
   const canManageUsers = hasPermission('manage_users');
   const canManageRoles = hasPermission('manage_roles');
@@ -59,12 +63,54 @@ export default function AdminUsersPage() {
     }
   }, [authFetch, page, search]);
 
+  const loadDeletionRequests = useCallback(async () => {
+    try {
+      const response = await authFetch('/api/admin/users/deletion-requests');
+      if (!response.ok) return;
+      const data = await response.json();
+      setDeletionRequests(Array.isArray(data.items) ? data.items : []);
+    } catch {
+      // Non-fatal — the main user list already loaded fine.
+    }
+  }, [authFetch]);
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       void loadUsers();
     }, 0);
     return () => window.clearTimeout(timer);
   }, [loadUsers]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void loadDeletionRequests();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [loadDeletionRequests]);
+
+  const completeDeletion = async (email: string) => {
+    if (!window.confirm(`Konto ${email} und ALLE zugehörigen Daten endgültig löschen? Das kann nicht rückgängig gemacht werden.`)) {
+      return;
+    }
+    setBusy(true);
+    setDeletionMessage('');
+    try {
+      const response = await authFetch(`/api/admin/users/${encodeURIComponent(email)}/deletion-requests/complete`, {
+        method: 'POST',
+      });
+      const json = await response.json().catch(() => null);
+      if (!response.ok) {
+        setDeletionMessage(json?.detail || 'Löschung fehlgeschlagen.');
+        return;
+      }
+      setDeletionMessage(json?.message || 'Konto gelöscht.');
+      await Promise.all([loadDeletionRequests(), loadUsers()]);
+    } catch {
+      setDeletionMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const openDetail = async (email: string) => {
     setSelectedEmail(email);
@@ -128,6 +174,42 @@ export default function AdminUsersPage() {
           }}
         />
       </div>
+
+      {deletionRequests.length > 0 && (
+        <Card style={{ marginBottom: '1rem' }}>
+          <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.5rem' }}>
+            Löschanfragen ({deletionRequests.length})
+          </p>
+          <p style={{ color: tokens.muted, fontSize: '0.8rem', marginBottom: '0.75rem' }}>
+            Aus Sicherheitsgründen wird eine Löschung manuell geprüft, nicht automatisch ausgeführt.
+          </p>
+          {deletionRequests.map((request) => (
+            <div
+              key={request.email}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.5rem 0',
+                borderBottom: `1px solid ${tokens.border}`,
+              }}
+            >
+              <div>
+                <p style={{ color: tokens.text, fontSize: '0.85rem' }}>{request.display_name || request.email}</p>
+                <p style={{ color: tokens.mutedMore, fontSize: '0.75rem' }}>
+                  {request.email} · angefragt am {request.deletion_requested_at}
+                </p>
+              </div>
+              {canManageUsers && (
+                <Button variant="danger" disabled={busy} onClick={() => completeDeletion(request.email)}>
+                  Endgültig löschen
+                </Button>
+              )}
+            </div>
+          ))}
+          {deletionMessage && <p style={{ color: tokens.accent, fontSize: '0.85rem', marginTop: '0.5rem' }}>{deletionMessage}</p>}
+        </Card>
+      )}
 
       {loading && <Loading />}
       {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
