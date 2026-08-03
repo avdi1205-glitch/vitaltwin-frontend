@@ -59,6 +59,11 @@ export default function Datenschutz() {
                 <li>Stripe (Zahlungsabwicklung, sobald kostenpflichtige Pläne aktiv sind)</li>
                 <li>Resend (Versand von Transaktions-E-Mails, z. B. Passwort-Reset)</li>
                 <li>
+                  Sentry (Fehler- und Stabilitätsüberwachung für Website und App, Datenverarbeitung in der EU
+                  über die Region &quot;de.sentry.io&quot; — siehe Ziffer 4b für Details, welche Daten dabei
+                  bewusst <em>nicht</em> erfasst werden).
+                </li>
+                <li>
                   Ein KI-Sprachmodell-Anbieter (z. B. OpenAI), ausschließlich für die Funktion &quot;Frag deinen
                   Twin&quot; und nur mit deiner Nachricht sowie einer kompakten Zusammenfassung deiner eigenen
                   Wellness-Daten — siehe{' '}
@@ -77,7 +82,24 @@ export default function Datenschutz() {
               <p className="mt-3 text-[#B7BDC4]">
                 {adsenseEnabled
                   ? 'Zur Anmeldung speichern wir ein Sitzungs-Token technisch notwendig im lokalen Speicher (localStorage) deines Browsers, damit du eingeloggt bleibst. Diese Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG zur Bereitstellung des von dir ausdrücklich gewünschten Dienstes erforderlich und bedarf keiner gesonderten Einwilligung. Im kostenlosen Tarif zeigen wir zusätzlich Werbung über Google AdSense an — dafür lädt Google Werbe-Cookies, aber ausschließlich nachdem du im Cookie-Banner ausdrücklich zugestimmt hast (siehe unten, Ziffer 7).'
-                  : 'Wir setzen kein Tracking und keine Marketing-Cookies ein. Zur Anmeldung speichern wir ein Sitzungs-Token technisch notwendig im lokalen Speicher (localStorage) deines Browsers, damit du eingeloggt bleibst. Diese Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG zur Bereitstellung des von dir ausdrücklich gewünschten Dienstes erforderlich und bedarf keiner gesonderten Einwilligung.'}
+                  : 'Wir setzen kein Marketing- oder Werbe-Tracking und keine Marketing-Cookies ein. Zur Anmeldung speichern wir ein Sitzungs-Token technisch notwendig im lokalen Speicher (localStorage) deines Browsers, damit du eingeloggt bleibst. Diese Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG zur Bereitstellung des von dir ausdrücklich gewünschten Dienstes erforderlich und bedarf keiner gesonderten Einwilligung.'}
+              </p>
+            </section>
+
+            <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+              <h2 className="text-xl font-semibold text-[#F5F2EA]">4b. Fehler- und Stabilitätsüberwachung (Sentry)</h2>
+              <p className="mt-3 text-[#B7BDC4]">
+                Zur technischen Fehlerdiagnose und Stabilitätsüberwachung setzen wir Sentry (Functional Software,
+                Inc., mit EU-Datenverarbeitung über die Region &quot;de.sentry.io&quot;) ein. Rechtsgrundlage ist
+                unser berechtigtes Interesse an einem sicheren und funktionierenden Betrieb der Plattform (Art. 6
+                Abs. 1 lit. f DSGVO). Sentry erhält dabei die technisch unvermeidbare IP-Adresse deiner Anfrage
+                sowie Fehlermeldungen/Stacktraces. Bewusst deaktiviert sind alle zusätzlichen Datenkategorien, die
+                Sentry standardmäßig anbietet: Anfrage-/Antwortinhalte (Request- und Response-Bodies), Cookies,
+                HTTP-Header, URL-Parameter und automatische Nutzerkennungen werden{' '}
+                <strong>nicht</strong> erfasst — damit gelangen keine Gesundheits- oder Wellness-Daten (z. B.
+                Blutzuckerwerte, Ernährungseinträge oder Twin-Gespräche) an Sentry. Session-Replay-Aufnahmen (eine
+                video-ähnliche Fehler-Nachstellung) maskieren standardmäßig sämtliche Texte und blockieren alle
+                Medieninhalte.
               </p>
             </section>
 
