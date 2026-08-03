@@ -55,6 +55,7 @@ type AiUsageData = {
   unique_users_all_time: number;
   requests_today: number;
   token_usage_note: string;
+  usage_today: { requests: number | null; errors: number | null; cost_usd: number | null; cost_note: string | null; avg_latency_ms: number | null };
 };
 
 type BusinessData = {
@@ -232,7 +233,7 @@ export default function AdminDashboardPage() {
                 <Kpi
                   label="Umsatz (Monat)"
                   value={business?.revenue_month != null ? `${business.revenue_month.toFixed(2)} €` : '—'}
-                  hint={business?.revenue_month == null ? (business?.revenue_note ?? 'Kein Stripe-Reporting angebunden') : undefined}
+                  hint={business?.revenue_month == null ? (business?.revenue_note ?? 'Lädt…') : undefined}
                 />
                 <Kpi label="Affiliate-Umsatz" value="—" hint={business?.affiliate_note ?? 'Kein Affiliate-Provisions-Tracking implementiert'} />
                 <Kpi label="KI-Nutzung heute" value={dashboard.ai_requests_today} />
@@ -395,8 +396,16 @@ export default function AdminDashboardPage() {
                 <Kpi label="KI-Anfragen gesamt" value={aiUsage.total_requests_all_time} />
                 <Kpi label="KI-Anfragen heute" value={aiUsage.requests_today} />
                 <Kpi label="Eindeutige Nutzer" value={aiUsage.unique_users_all_time} />
-                <Kpi label="Ø Antwortzeit" value="—" hint="Nicht gemessen" />
-                <Kpi label="Fehler" value="—" hint="Kein Error-Tracking" />
+                <Kpi
+                  label="Ø Antwortzeit"
+                  value={aiUsage.usage_today.avg_latency_ms != null ? `${aiUsage.usage_today.avg_latency_ms} ms` : '—'}
+                  hint={aiUsage.usage_today.avg_latency_ms == null ? 'Noch keine Anfragen heute erfasst' : undefined}
+                />
+                <Kpi
+                  label="Fehler (heute)"
+                  value={aiUsage.usage_today.errors}
+                  hint="Erfasst seit Migration 022 (vt_ai_usage_events), zusätzlich an Sentry gesendet sofern konfiguriert"
+                />
               </div>
               <Note>{aiUsage.token_usage_note}</Note>
             </>

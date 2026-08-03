@@ -127,21 +127,20 @@ function DashboardTab({ onSelectTab }: { onSelectTab: (tab: Tab) => void }) {
     }
 
     (async () => {
-      const [briefingData, approvalsData, recommendationsData] = await Promise.all([
+      const [briefingData, approvalsData, recommendationsData, automationData] = await Promise.all([
         fetchJson<Briefing>('/api/admin/founder/daily-briefing'),
         fetchJson<ApprovalsSummaryData>('/api/admin/founder/approvals'),
         fetchJson<{ items: RecommendationItem[] }>('/api/admin/founder/business-coach/recommendations'),
+        hasPermission('view_automation_engine')
+          ? fetchJson<AutomationDashboardData>('/api/admin/founder/automation/dashboard')
+          : Promise.resolve(null),
       ]);
       if (cancelled) return;
       setBriefing(briefingData);
       setApprovals(approvalsData);
       setRecommendations(recommendationsData?.items ?? null);
+      setAutomation(automationData);
       if (!briefingData) setErrorMessage('Founder-Zusammenfassung konnte nicht geladen werden.');
-
-      if (hasPermission('view_automation_engine')) {
-        const automationData = await fetchJson<AutomationDashboardData>('/api/admin/founder/automation/dashboard');
-        if (!cancelled) setAutomation(automationData);
-      }
       if (!cancelled) setLoading(false);
     })();
 
