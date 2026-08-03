@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
@@ -90,6 +90,13 @@ export default function Profil() {
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   const extractErrorMessage = (data: unknown, fallback: string): string => {
     if (!data || typeof data !== 'object') return fallback;
     const payload = data as { detail?: unknown };
@@ -111,6 +118,7 @@ export default function Profil() {
         return;
       }
       const data = (await res.json().catch(() => null)) as Profile | null;
+      if (!isMountedRef.current) return;
       if (data) {
         setProfile(data);
         setDisplayName(data.display_name ?? '');
@@ -124,9 +132,10 @@ export default function Profil() {
         setGoals(data.wellness_goals ?? []);
       }
     } catch {
+      if (!isMountedRef.current) return;
       setErrorMessage('Profil konnte nicht geladen werden.');
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) setLoading(false);
     }
   }, [router]);
 
@@ -136,8 +145,10 @@ export default function Profil() {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       const data = (await res.json().catch(() => null)) as { items?: Habit[] } | null;
+      if (!isMountedRef.current) return;
       setHabits(data?.items ?? []);
     } catch {
+      if (!isMountedRef.current) return;
       setHabits([]);
     }
   }, []);

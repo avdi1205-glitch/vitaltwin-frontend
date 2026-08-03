@@ -126,6 +126,12 @@ export default function Dashboard() {
   const [cgmMessage, setCgmMessage] = useState('');
   const [nutritionMessage, setNutritionMessage] = useState('');
   const autoStarterTriggeredRef = useRef(false);
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
   const router = useRouter();
 
   useEffect(() => {
@@ -152,6 +158,7 @@ export default function Dashboard() {
         });
 
         const data = (await response.json().catch(() => null)) as ProfileResponse | { detail?: string } | null;
+        if (!isMountedRef.current) return;
 
         if (!response.ok) {
           if (response.status === 401) {
@@ -172,6 +179,7 @@ export default function Dashboard() {
           await new Promise((resolve) => window.setTimeout(resolve, 1200));
           continue;
         }
+        if (!isMountedRef.current) return;
         setErrorMessage('Backend nicht erreichbar. Bitte versuche es in wenigen Sekunden erneut.');
         setLoadingProfile(false);
       }
@@ -187,6 +195,7 @@ export default function Dashboard() {
       });
 
       const data = (await response.json().catch(() => null)) as { items?: HistoryItem[]; detail?: string } | null;
+      if (!isMountedRef.current) return;
 
       if (!response.ok) {
         if (response.status !== 401 && data?.detail) {
@@ -197,9 +206,10 @@ export default function Dashboard() {
 
       setHistory(Array.isArray(data?.items) ? data.items : []);
     } catch {
+      if (!isMountedRef.current) return;
       setHistory([]);
     } finally {
-      setLoadingHistory(false);
+      if (isMountedRef.current) setLoadingHistory(false);
     }
   }, []);
 

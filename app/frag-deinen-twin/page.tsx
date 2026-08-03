@@ -68,6 +68,13 @@ export default function FragDeinenTwin() {
   const [openWhyIndex, setOpenWhyIndex] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   const loadStatus = useCallback(async (token: string) => {
     try {
       const res = await fetch(apiUrl('/api/chat/status'), {
@@ -78,11 +85,12 @@ export default function FragDeinenTwin() {
         return;
       }
       const data = (await res.json().catch(() => null)) as ChatStatus | null;
+      if (!isMountedRef.current) return;
       if (data) setStatus(data);
     } catch {
       // Non-fatal — limit display just stays hidden.
     } finally {
-      setLoadingStatus(false);
+      if (isMountedRef.current) setLoadingStatus(false);
     }
   }, [router]);
 
