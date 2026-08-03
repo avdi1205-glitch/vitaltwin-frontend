@@ -202,8 +202,8 @@ export default function AdminSystemPage() {
             )}
             {data.error_events_7d.note && <Note>{data.error_events_7d.note}</Note>}
             <Note>
-              Erfasst nur unbehandelte Backend-Ausnahmen (vt_error_events). Kein Ersatz für ein externes Tool wie
-              Sentry (keine Stacktrace-Gruppierung, kein Alerting).
+              Erfasst unbehandelte Backend-Ausnahmen (vt_error_events) und sendet sie zusätzlich an Sentry, sofern
+              SENTRY_DSN konfiguriert ist (Stacktrace-Gruppierung, Alerting).
             </Note>
           </Card>
         </div>
