@@ -11,6 +11,7 @@ type BlogPost = {
   slug: string;
   title: string;
   body: string | null;
+  excerpt: string | null;
   published_at: string | null;
   updated_at: string | null;
 };
@@ -54,6 +55,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const post = await getPost(slug);
   if (!post) notFound();
 
+  const showUpdatedDate =
+    post.updated_at &&
+    post.published_at &&
+    new Date(post.updated_at).getTime() - new Date(post.published_at).getTime() > 24 * 60 * 60 * 1000;
+
   return (
     <main className="min-h-screen bg-[#0B1118] text-[#F5F2EA]">
       <div className="mx-auto max-w-3xl px-6 py-16 md:py-20">
@@ -61,11 +67,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           ← Alle Artikel
         </Link>
         <p className="mt-6 text-xs uppercase tracking-[0.18em] text-[#8E969F]">
-          VitalTwin Redaktion{post.published_at ? ` · ${formatDate(post.published_at)}` : ''}
+          VitalTwin Redaktion
+          {post.published_at ? ` · Veröffentlicht am ${formatDate(post.published_at)}` : ''}
+          {showUpdatedDate ? ` · Aktualisiert am ${formatDate(post.updated_at)}` : ''}
         </p>
         <h1 className="mt-3 font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">
           {post.title}
         </h1>
+        {post.excerpt && <p className="mt-5 text-lg leading-relaxed text-[#B7BDC4]">{post.excerpt}</p>}
 
         <article className="mt-8">{renderBody(post.body || '')}</article>
 

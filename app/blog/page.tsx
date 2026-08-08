@@ -16,6 +16,7 @@ type BlogListItem = {
   slug: string;
   title: string;
   body: string | null;
+  excerpt: string | null;
   published_at: string | null;
 };
 
@@ -73,7 +74,7 @@ export default async function BlogIndex() {
                 <p className="text-xs uppercase tracking-widest text-[#8E969F]">{formatDate(post.published_at)}</p>
               )}
               <h2 className="mt-2 text-xl font-semibold text-[#F5F2EA]">{post.title}</h2>
-              <p className="mt-3 text-sm text-[#B7BDC4]">{excerpt(post.body)}</p>
+              <p className="mt-3 text-sm text-[#B7BDC4]">{post.excerpt || excerpt(post.body)}</p>
               <span className="mt-4 inline-block text-sm font-semibold text-[#58D7D4]">Weiterlesen →</span>
             </Link>
           ))}

@@ -56,6 +56,29 @@ export default function AdminContentEditPage() {
     };
   }, []);
 
+  const bodyTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const insertMarkup = (before: string, after: string = '', placeholder: string = '') => {
+    const textarea = bodyTextareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = body.slice(start, end) || placeholder;
+    const nextBody = `${body.slice(0, start)}${before}${selected}${after}${body.slice(end)}`;
+    setBody(nextBody);
+    window.setTimeout(() => {
+      textarea.focus();
+      const cursor = start + before.length + selected.length + after.length;
+      textarea.setSelectionRange(cursor, cursor);
+    }, 0);
+  };
+
+  const insertHeading = () => insertMarkup('\n\n## ', '', 'Überschrift');
+  const insertBold = () => insertMarkup('**', '**', 'fetter Text');
+  const insertList = () => insertMarkup('\n\n- ', '', 'Listenpunkt');
+  const insertLink = () => insertMarkup('[', '](https://)', 'Linktext');
+  const insertParagraph = () => insertMarkup('\n\n', '', '');
+
   const applyItem = (data: ContentItem) => {
     setItem(data);
     setTitle(data.title || '');
@@ -289,7 +312,15 @@ export default function AdminContentEditPage() {
               Artikelinhalt ({body.trim().split(/\s+/).filter(Boolean).length} Wörter) — Absätze durch Leerzeile
               trennen, &quot;## Überschrift&quot; für Zwischenüberschriften, &quot;- Punkt&quot; für Listen
             </span>
+            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+              <Button variant="secondary" onClick={insertHeading}>Überschrift</Button>
+              <Button variant="secondary" onClick={insertBold}>Fett</Button>
+              <Button variant="secondary" onClick={insertList}>Liste</Button>
+              <Button variant="secondary" onClick={insertLink}>Link</Button>
+              <Button variant="secondary" onClick={insertParagraph}>Absatz</Button>
+            </div>
             <textarea
+              ref={bodyTextareaRef}
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={24}
