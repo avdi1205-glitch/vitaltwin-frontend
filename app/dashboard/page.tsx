@@ -59,8 +59,17 @@ type ProfileResponse = {
   email: string;
   full_name?: string | null;
   premium: boolean;
+  plan?: string;
   starter_calc_remaining?: number | null;
 };
+
+const PLAN_DISPLAY_LABELS: Record<string, string> = { premium: 'Premium', pro: 'Pro', family: 'Family' };
+
+function planDisplayLabel(profile: ProfileResponse | null | undefined): string {
+  if (!profile) return 'Unbekannt';
+  if (!profile.premium) return 'Starter';
+  return PLAN_DISPLAY_LABELS[profile.plan || 'premium'] || 'Beta-Zugang';
+}
 
 type HistoryItem = {
   id: number;
@@ -535,7 +544,7 @@ export default function Dashboard() {
 
             <div className="flex flex-wrap items-center gap-3">
               <span className={`rounded-full px-4 py-1 text-sm font-semibold ${profile?.premium ? 'bg-gradient-to-r from-[#F3C979] to-[#C9913D] text-[#0B1118]' : 'border border-white/20 text-[#B7BDC4]'}`}>
-                Plan: {loadingProfile ? 'Lädt...' : !profile ? 'Unbekannt' : profile.premium ? 'Beta-Zugang' : 'Starter'}
+                Plan: {loadingProfile ? 'Lädt...' : !profile ? 'Unbekannt' : planDisplayLabel(profile)}
               </span>
               {!loadingProfile && profile && !profile.premium && (
                 <button
@@ -618,7 +627,7 @@ export default function Dashboard() {
             <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
               <p className="text-sm text-[#8E969F]">Status</p>
               <p className="mt-2 text-2xl font-bold text-[#F5F2EA]">
-                {loadingProfile ? 'Lade...' : profile?.premium ? 'Beta-Zugang aktiv' : 'Starter aktiv'}
+                {loadingProfile ? 'Lade...' : profile?.premium ? `${planDisplayLabel(profile)} aktiv` : 'Starter aktiv'}
               </p>
             </article>
             <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
@@ -654,7 +663,7 @@ export default function Dashboard() {
           )}
           {!loadingProfile && profile?.premium && (
             <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#B7BDC4]">
-              Aktueller Tarif: <span className="font-semibold text-[#F5F2EA]">Beta-Zugang</span>
+              Aktueller Tarif: <span className="font-semibold text-[#F5F2EA]">{planDisplayLabel(profile)}</span>
             </div>
           )}
         </section>
