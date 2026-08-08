@@ -86,7 +86,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       { label: 'Ausführlichere Wellness-Auswertungen', status: 'beta' },
       { label: 'Schlaf-, Stress- und Erholungsübersicht', status: 'beta' },
       { label: 'Wochenberichte', status: 'beta' },
-      { label: 'Erweiterter Verlauf', status: 'coming_soon' },
+      { label: 'Erweiterter Verlauf', status: 'available' },
       { label: 'Individuelle Tagesziele', status: 'beta' },
       { label: 'Keine Werbung', status: 'available' },
       { label: 'Automatische Gesundheitsdaten über Google Health', status: 'beta' },

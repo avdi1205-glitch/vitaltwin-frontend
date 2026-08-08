@@ -82,7 +82,7 @@ export default function Datenschutz() {
               <h2 className="text-xl font-semibold text-[#F5F2EA]">4a. Cookies und lokale Speicherung</h2>
               <p className="mt-3 text-[#B7BDC4]">
                 {adsenseEnabled
-                  ? 'Zur Anmeldung speichern wir ein Sitzungs-Token technisch notwendig im lokalen Speicher (localStorage) deines Browsers, damit du eingeloggt bleibst. Diese Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG zur Bereitstellung des von dir ausdrücklich gewünschten Dienstes erforderlich und bedarf keiner gesonderten Einwilligung. Im kostenlosen Tarif zeigen wir zusätzlich Werbung über Google AdSense an — dafür lädt Google Werbe-Cookies, aber ausschließlich nachdem du im Cookie-Banner ausdrücklich zugestimmt hast (siehe unten, Ziffer 7).'
+                  ? 'Zur Anmeldung speichern wir ein Sitzungs-Token technisch notwendig im lokalen Speicher (localStorage) deines Browsers, damit du eingeloggt bleibst. Diese Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG zur Bereitstellung des von dir ausdrücklich gewünschten Dienstes erforderlich und bedarf keiner gesonderten Einwilligung. Im kostenlosen Tarif zeigen wir zusätzlich Werbung über Google AdSense an — dafür lädt Google Werbe-Cookies, aber ausschließlich nachdem du im Cookie-Banner ausdrücklich zugestimmt hast (siehe unten, Ziffer 5).'
                   : 'Wir setzen kein Marketing- oder Werbe-Tracking und keine Marketing-Cookies ein. Zur Anmeldung speichern wir ein Sitzungs-Token technisch notwendig im lokalen Speicher (localStorage) deines Browsers, damit du eingeloggt bleibst. Diese Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TTDSG zur Bereitstellung des von dir ausdrücklich gewünschten Dienstes erforderlich und bedarf keiner gesonderten Einwilligung.'}
               </p>
             </section>
@@ -106,7 +106,7 @@ export default function Datenschutz() {
 
             {adsenseEnabled && (
               <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-                <h2 className="text-xl font-semibold text-[#F5F2EA]">7. Werbung (Google AdSense)</h2>
+                <h2 className="text-xl font-semibold text-[#F5F2EA]">5. Werbung (Google AdSense)</h2>
                 <p className="mt-3 text-[#B7BDC4]">
                   Im kostenlosen Tarif nutzen wir Google AdSense (Google Ireland Limited, Gordon House, Barrow
                   Street, Dublin 4, Irland) zur Anzeige von Werbung. Google kann dabei Daten wie IP-Adresse,
@@ -129,7 +129,7 @@ export default function Datenschutz() {
             )}
 
             <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-              <h2 className="text-xl font-semibold text-[#F5F2EA]">5. Speicherdauer</h2>
+              <h2 className="text-xl font-semibold text-[#F5F2EA]">6. Speicherdauer</h2>
               <p className="mt-3 text-[#B7BDC4]">
                 Daten werden nur so lange gespeichert, wie es für die jeweiligen Zwecke notwendig ist oder gesetzliche
                 Aufbewahrungsfristen bestehen.
@@ -137,7 +137,7 @@ export default function Datenschutz() {
             </section>
 
             <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-              <h2 className="text-xl font-semibold text-[#F5F2EA]">6. Deine Rechte</h2>
+              <h2 className="text-xl font-semibold text-[#F5F2EA]">7. Deine Rechte</h2>
               <p className="mt-3 text-[#B7BDC4]">
                 Du hast Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und
                 Widerspruch. Zudem besteht ein Beschwerderecht bei einer Datenschutzaufsichtsbehörde.

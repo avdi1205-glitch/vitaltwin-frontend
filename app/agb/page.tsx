@@ -31,8 +31,9 @@ export default function AGB() {
               <h2 className="text-xl font-semibold text-[#F5F2EA]">2. Leistungsbeschreibung</h2>
               <p className="mt-3 text-[#B7BDC4]">
                 VitalTwin ist ein Wellness-Tool zur allgemeinen Gesundheitsorientierung. VitalTwin ist{' '}
-                <strong>kein Medizinprodukt</strong> im Sinne der Verordnung (EU) 2017/745 (MDR) und ersetzt keine
-                ärztliche Diagnose, Beratung oder Therapie. Die berechneten Werte (z. B. &quot;biologisches Alter&quot;) sind
+                <strong>kein Medizinprodukt</strong>{' '}
+                im Sinne der Verordnung (EU) 2017/745 (MDR) und ersetzt keine ärztliche Diagnose, Beratung oder
+                Therapie. Die berechneten Werte (z. B. &quot;biologisches Alter&quot;) sind
                 orientierende Wellness-Kennzahlen ohne medizinischen Aussagewert. Bei gesundheitlichen Beschwerden
                 wende dich immer an eine Ärztin oder einen Arzt.
               </p>
