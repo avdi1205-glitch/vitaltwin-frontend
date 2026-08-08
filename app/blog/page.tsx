@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { apiUrl } from '@/lib/api';
 import PublicFooter from '../components/PublicFooter';
+import { excerptFromBody, formatContentDate } from '../components/blog-content-renderer';
 
 export const metadata: Metadata = {
   title: 'Blog | VitalTwin',
@@ -30,14 +31,11 @@ async function getPublishedPosts(): Promise<BlogListItem[]> {
 }
 
 function excerpt(body: string | null, maxLength = 200): string {
-  if (!body) return '';
-  const plain = body.replace(/^#+\s.*$/gm, '').replace(/\s+/g, ' ').trim();
-  return plain.length > maxLength ? `${plain.slice(0, maxLength).trim()}…` : plain;
+  return excerptFromBody(body, maxLength);
 }
 
 function formatDate(iso: string | null): string {
-  if (!iso) return '';
-  return new Date(iso).toLocaleDateString('de-DE', { year: 'numeric', month: 'long', day: 'numeric' });
+  return formatContentDate(iso);
 }
 
 export default async function BlogIndex() {

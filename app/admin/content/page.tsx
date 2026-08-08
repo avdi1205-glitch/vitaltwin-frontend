@@ -1,6 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAdmin } from '../_lib/AdminContext';
 import { Badge, Button, Card, ErrorText, Loading, SectionTitle } from '../_lib/AdminUI';
 
@@ -12,6 +14,7 @@ type ContentItem = {
   body: string | null;
   status: string;
   created_by: string | null;
+  updated_at: string | null;
   published_at: string | null;
 };
 
@@ -19,21 +22,27 @@ const CONTENT_TYPES = ['blog', 'faq', 'landing_page', 'help_page', 'notification
 const STATUSES = ['draft', 'published', 'archived'];
 
 export default function AdminContentPage() {
+  const router = useRouter();
   const { authFetch, tokens, hasPermission } = useAdmin();
   const canManage = hasPermission('manage_content');
   const [items, setItems] = useState<ContentItem[]>([]);
   const [filterType, setFilterType] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [message, setMessage] = useState('');
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [form, setForm] = useState({ content_type: 'blog', title: '', slug: '', body: '', status: 'draft' });
 
   const loadItems = useCallback(async () => {
     setLoading(true);
     setErrorMessage('');
     try {
-      const params = filterType ? `?content_type=${encodeURIComponent(filterType)}` : '';
-      const response = await authFetch(`/api/admin/content${params}`);
+      const params = new URLSearchParams();
+      if (filterType) params.set('content_type', filterType);
+      if (filterStatus) params.set('status', filterStatus);
+      const query = params.toString();
+      const response = await authFetch(`/api/admin/content${query ? `?${query}` : ''}`);
       if (!response.ok) {
         setErrorMessage('Inhalte konnten nicht geladen werden.');
         return;
@@ -45,7 +54,7 @@ export default function AdminContentPage() {
     } finally {
       setLoading(false);
     }
-  }, [authFetch, filterType]);
+  }, [authFetch, filterType, filterStatus]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -75,19 +84,42 @@ export default function AdminContentPage() {
         return;
       }
       setForm({ content_type: 'blog', title: '', slug: '', body: '', status: 'draft' });
-      setMessage('Inhalt angelegt.');
+      setMessage('Inhalt angelegt. Öffne ihn in der Liste, um ihn zu bearbeiten.');
       await loadItems();
     } catch {
       setMessage('Backend gerade nicht erreichbar.');
     }
   };
 
-  const deleteItem = async (id: string) => {
+  const publishItem = async (id: string) => {
+    setBusyId(id);
     try {
-      await authFetch(`/api/admin/content/${id}`, { method: 'DELETE' });
+      const response = await authFetch(`/api/admin/content/${id}/publish`, { method: 'POST' });
+      const json = await response.json().catch(() => null);
+      if (!response.ok) {
+        setMessage(json?.detail || 'Veröffentlichen fehlgeschlagen.');
+        return;
+      }
+      await loadItems();
+    } catch {
+      setMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const deleteItem = async (item: ContentItem) => {
+    if (!window.confirm(`"${item.title}" wirklich endgültig löschen? Das kann nicht rückgängig gemacht werden.`)) {
+      return;
+    }
+    setBusyId(item.id);
+    try {
+      await authFetch(`/api/admin/content/${item.id}`, { method: 'DELETE' });
       await loadItems();
     } catch {
       setMessage('Löschen fehlgeschlagen.');
+    } finally {
+      setBusyId(null);
     }
   };
 
@@ -98,7 +130,7 @@ export default function AdminContentPage() {
         subtitle="Blog, FAQ, Landing Pages, Hilfeseiten und Benachrichtigungen — ein gemeinsames Modell."
       />
 
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
         <Button variant={filterType === '' ? 'primary' : 'secondary'} onClick={() => setFilterType('')}>
           Alle
         </Button>
@@ -109,49 +141,68 @@ export default function AdminContentPage() {
         ))}
       </div>
 
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+        <Button variant={filterStatus === '' ? 'primary' : 'secondary'} onClick={() => setFilterStatus('')}>
+          Alle Status
+        </Button>
+        {STATUSES.map((status) => (
+          <Button
+            key={status}
+            variant={filterStatus === status ? 'primary' : 'secondary'}
+            onClick={() => setFilterStatus(status)}
+          >
+            {status}
+          </Button>
+        ))}
+      </div>
+
       {loading && <Loading />}
       {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
+      {message && <p style={{ color: tokens.accent, fontSize: '0.85rem', marginBottom: '0.75rem' }}>{message}</p>}
 
       {!loading && !errorMessage && (
-        <Card style={{ padding: 0, overflow: 'hidden', marginBottom: '1.5rem' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${tokens.border}` }}>
-                {['Titel', 'Typ', 'Status', 'Erstellt von', ''].map((label) => (
-                  <th key={label} style={{ textAlign: 'left', padding: '0.6rem 0.9rem', color: tokens.muted }}>
-                    {label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id} style={{ borderBottom: `1px solid ${tokens.border}` }}>
-                  <td style={{ padding: '0.6rem 0.9rem', color: tokens.text }}>{item.title}</td>
-                  <td style={{ padding: '0.6rem 0.9rem', color: tokens.muted }}>{item.content_type}</td>
-                  <td style={{ padding: '0.6rem 0.9rem' }}>
-                    <Badge tone={item.status === 'published' ? 'success' : 'neutral'}>{item.status}</Badge>
-                  </td>
-                  <td style={{ padding: '0.6rem 0.9rem', color: tokens.muted }}>{item.created_by || '—'}</td>
-                  <td style={{ padding: '0.6rem 0.9rem' }}>
-                    {canManage && (
-                      <Button variant="danger" onClick={() => deleteItem(item.id)}>
-                        Löschen
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {items.length === 0 && (
-                <tr>
-                  <td colSpan={5} style={{ padding: '1rem', color: tokens.mutedMore, textAlign: 'center' }}>
-                    Keine Inhalte vorhanden.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </Card>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '1.5rem' }}>
+          {items.map((item) => (
+            <Card key={item.id} style={{ padding: '1rem 1.2rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '0.75rem' }}>
+                <Link
+                  href={`/admin/content/${item.id}`}
+                  style={{ color: tokens.text, fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}
+                >
+                  {item.title}
+                </Link>
+                <Badge tone={item.status === 'published' ? 'success' : item.status === 'archived' ? 'neutral' : 'danger'}>
+                  {item.status}
+                </Badge>
+              </div>
+              <p style={{ color: tokens.mutedMore, fontSize: '0.78rem', marginTop: '0.3rem' }}>
+                {item.content_type} · erstellt von {item.created_by || 'unbekannt'} · zuletzt geändert{' '}
+                {item.updated_at || '—'}
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+                <Button variant="secondary" onClick={() => router.push(`/admin/content/${item.id}`)}>
+                  Öffnen
+                </Button>
+                <Button variant="secondary" onClick={() => window.open(`/admin/content/${item.id}/preview`, '_blank')}>
+                  Vorschau
+                </Button>
+                {canManage && item.status !== 'published' && (
+                  <Button disabled={busyId === item.id} onClick={() => publishItem(item.id)}>
+                    Veröffentlichen
+                  </Button>
+                )}
+                {canManage && (
+                  <Button variant="danger" disabled={busyId === item.id} onClick={() => deleteItem(item)}>
+                    Löschen
+                  </Button>
+                )}
+              </div>
+            </Card>
+          ))}
+          {items.length === 0 && (
+            <Card style={{ textAlign: 'center', color: tokens.mutedMore }}>Keine Inhalte vorhanden.</Card>
+          )}
+        </div>
       )}
 
       {canManage && (
@@ -194,7 +245,7 @@ export default function AdminContentPage() {
             />
           </div>
           <textarea
-            placeholder="Inhalt (optional)"
+            placeholder="Inhalt (optional — kann nach dem Anlegen bequem im Editor ergänzt werden)"
             value={form.body}
             onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))}
             rows={4}
@@ -211,9 +262,9 @@ export default function AdminContentPage() {
           <div style={{ marginTop: '0.75rem' }}>
             <Button onClick={createItem}>Anlegen</Button>
           </div>
-          {message && <p style={{ color: tokens.accent, fontSize: '0.85rem', marginTop: '0.5rem' }}>{message}</p>}
         </Card>
       )}
     </div>
   );
 }
+

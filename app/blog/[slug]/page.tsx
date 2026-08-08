@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
 import PublicFooter from '../../components/PublicFooter';
+import { excerptFromBody, formatContentDate, renderContentBody } from '../../components/blog-content-renderer';
 
 export const revalidate = 3600;
 
@@ -27,52 +28,15 @@ async function getPost(slug: string): Promise<BlogPost | null> {
 }
 
 function formatDate(iso: string | null): string {
-  if (!iso) return '';
-  return new Date(iso).toLocaleDateString('de-DE', { year: 'numeric', month: 'long', day: 'numeric' });
+  return formatContentDate(iso);
 }
 
 function excerpt(body: string | null, maxLength = 160): string {
-  if (!body) return '';
-  const plain = body.replace(/^#+\s.*$/gm, '').replace(/\s+/g, ' ').trim();
-  return plain.length > maxLength ? `${plain.slice(0, maxLength).trim()}…` : plain;
+  return excerptFromBody(body, maxLength);
 }
 
-// The CMS stores body as plain text with lightweight "## "/"### " heading
-// markers and blank-line paragraph breaks — no markdown library dependency
-// needed for this simple, controlled content format.
 function renderBody(body: string) {
-  const blocks = body.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
-  return blocks.map((block, index) => {
-    if (block.startsWith('### ')) {
-      return (
-        <h3 key={index} className="mt-8 text-xl font-semibold text-[#F5F2EA]">
-          {block.slice(4)}
-        </h3>
-      );
-    }
-    if (block.startsWith('## ')) {
-      return (
-        <h2 key={index} className="mt-10 text-2xl font-semibold text-[#F5F2EA]">
-          {block.slice(3)}
-        </h2>
-      );
-    }
-    if (block.startsWith('- ')) {
-      const items = block.split('\n').map((line) => line.replace(/^- /, ''));
-      return (
-        <ul key={index} className="mt-4 list-disc space-y-2 pl-5 text-[#B7BDC4]">
-          {items.map((item, itemIndex) => (
-            <li key={itemIndex}>{item}</li>
-          ))}
-        </ul>
-      );
-    }
-    return (
-      <p key={index} className="mt-4 leading-relaxed text-[#B7BDC4]">
-        {block}
-      </p>
-    );
-  });
+  return renderContentBody(body);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
