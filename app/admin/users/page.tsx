@@ -149,6 +149,36 @@ export default function AdminUsersPage() {
     }
   };
 
+  const deleteUserDirectly = async (email: string) => {
+    const confirmed = window.confirm(
+      `ACHTUNG: Konto ${email} und ALLE zugehörigen Daten (Check-ins, Gewohnheiten, Ziele, Tagespläne, Chat-Verlauf, Empfehlungen, Zustimmungen) werden ENDGÜLTIG gelöscht. Der Nutzer kann sich danach nicht mehr anmelden. Das kann nicht rückgängig gemacht werden. Fortfahren?`
+    );
+    if (!confirmed) return;
+    const typed = window.prompt(`Zur Bestätigung bitte die E-Mail-Adresse exakt eingeben: ${email}`);
+    if (typed !== email) {
+      setActionMessage('Löschung abgebrochen — Bestätigung stimmte nicht überein.');
+      return;
+    }
+    setBusy(true);
+    setActionMessage('');
+    try {
+      const response = await authFetch(`/api/admin/users/${encodeURIComponent(email)}`, { method: 'DELETE' });
+      const json = await response.json().catch(() => null);
+      if (!response.ok) {
+        setActionMessage(json?.detail || 'Löschung fehlgeschlagen.');
+        return;
+      }
+      setActionMessage(json?.message || 'Nutzer gelöscht.');
+      setSelectedEmail(null);
+      setDetail(null);
+      await loadUsers();
+    } catch {
+      setActionMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const totalPages = Math.max(1, Math.ceil(total / 20));
 
   return (
@@ -371,6 +401,25 @@ export default function AdminUsersPage() {
                   </p>
                 ))}
               </div>
+
+              {canManageUsers && detail.admin_role !== 'super_admin' && (
+                <div style={{ borderTop: `1px solid ${tokens.border}`, paddingTop: '1rem' }}>
+                  <p style={{ color: tokens.danger, fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>
+                    Gefahrenzone
+                  </p>
+                  <Button variant="danger" disabled={busy} onClick={() => deleteUserDirectly(selectedEmail)}>
+                    Nutzer endgültig löschen
+                  </Button>
+                  <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginTop: '0.4rem' }}>
+                    Löscht Konto und alle Daten sofort, unabhängig von einer eigenen Löschanfrage des Nutzers.
+                  </p>
+                </div>
+              )}
+              {canManageUsers && detail.admin_role === 'super_admin' && (
+                <p style={{ color: tokens.mutedMore, fontSize: '0.75rem' }}>
+                  Super-Admin-Konten können aus Sicherheitsgründen nicht gelöscht werden.
+                </p>
+              )}
 
               {actionMessage && <p style={{ color: tokens.accent, fontSize: '0.85rem' }}>{actionMessage}</p>}
             </div>
