@@ -8,6 +8,7 @@ import DashboardHabits from '../components/dashboard-habits';
 import DashboardCheckin from '../components/dashboard-checkin';
 import DashboardGoals from '../components/dashboard-goals';
 import DashboardTrends from '../components/dashboard-trends';
+import DashboardPersonalBaseline from '../components/dashboard-personal-baseline';
 import DashboardRecommendations from '../components/dashboard-recommendations';
 import DashboardTwinMemory from '../components/dashboard-twin-memory';
 import DashboardDailyPlan from '../components/dashboard-daily-plan';
@@ -1282,6 +1283,7 @@ export default function Dashboard() {
                 Dein KI-Zwilling
               </p>
               <DashboardRecommendations />
+              <DashboardPersonalBaseline />
               <DashboardTrends />
               <DashboardTwinProgress />
               <DashboardTwinMemory />
