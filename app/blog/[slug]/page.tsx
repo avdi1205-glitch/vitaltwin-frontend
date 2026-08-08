@@ -5,7 +5,7 @@ import { apiUrl } from '@/lib/api';
 import PublicFooter from '../../components/PublicFooter';
 import { excerptFromBody, formatContentDate, renderContentBody } from '../../components/blog-content-renderer';
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 type BlogPost = {
   slug: string;
@@ -19,7 +19,7 @@ type BlogPost = {
 async function getPost(slug: string): Promise<BlogPost | null> {
   try {
     const response = await fetch(apiUrl(`/api/content/blog/${encodeURIComponent(slug)}`), {
-      next: { revalidate: 3600 },
+      next: { revalidate: 60 },
     });
     if (!response.ok) return null;
     return await response.json();

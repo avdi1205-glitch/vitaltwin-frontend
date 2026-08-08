@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     'Verständliche Artikel zu Schlaf, Bewegung, Ernährung, Gewohnheiten, Wearables und Datenschutz bei Wellness-Apps.',
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 type BlogListItem = {
   slug: string;
@@ -22,7 +22,7 @@ type BlogListItem = {
 
 async function getPublishedPosts(): Promise<BlogListItem[]> {
   try {
-    const response = await fetch(apiUrl('/api/content/blog?page_size=50'), { next: { revalidate: 3600 } });
+    const response = await fetch(apiUrl('/api/content/blog?page_size=50'), { next: { revalidate: 60 } });
     if (!response.ok) return [];
     const data = await response.json();
     return Array.isArray(data.items) ? data.items : [];
