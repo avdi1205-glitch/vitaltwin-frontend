@@ -116,11 +116,11 @@ const FAQ_GROUPS: { heading: string; items: { q: string; a: React.ReactNode }[] 
     items: [
       {
         q: 'Kann ich Google Health verbinden?',
-        a: 'Diese Anbindung befindet sich aktuell in Entwicklung und ist noch nicht für alle Nutzer verfügbar. Wir kennzeichnen sie erst als aktiv nutzbar, sobald sie es wirklich ist.',
+        a: 'Ja, die Anbindung ist als Beta-Funktion verfügbar und wurde erfolgreich getestet (Verbindung und Synchronisierung funktionieren). Da sie sich noch in einer begrenzten Testphase befindet, ist der Zugang aktuell auf eine kleine Zahl von Testnutzern beschränkt — wir erweitern das schrittweise.',
       },
       {
         q: 'Unterstützt VitalTwin Fitbit oder die Pixel Watch?',
-        a: 'Eine Anbindung über Google Health, die auch Fitbit- und Pixel-Watch-Daten einschließen kann, ist geplant. Aktuell arbeiten wir daran, sie zuverlässig und sicher bereitzustellen.',
+        a: 'Über Google Health lassen sich unter anderem Fitbit- und Pixel-Watch-Daten anbinden. Diese Anbindung befindet sich in der Beta-Phase — die Grundfunktionen (Verbinden, Synchronisieren) funktionieren bereits, die volle Freigabe für alle Nutzer folgt, sobald wir sie ausreichend getestet haben.',
       },
       {
         q: 'Was ist CGM?',

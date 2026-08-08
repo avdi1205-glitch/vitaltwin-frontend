@@ -76,6 +76,7 @@ export default function UeberUns() {
             <li>&quot;Frag deinen Twin&quot; — ein KI-gestützter Wellness-Assistent auf Basis deiner eigenen Daten.</li>
             <li>Wochenrückblick und Musterserkennung bei ausreichender Datenlage.</li>
             <li>Premium: Blutzucker-Tracking (CGM-Import) und Ernährungstagebuch.</li>
+            <li>Automatische Gesundheitsdaten über Google Health (Beta) — Verbinden und Synchronisieren funktionieren bereits, aktuell in begrenzter Testphase.</li>
             <li>Vollständiger Datenexport und selbstständige Löschung im Profilbereich.</li>
           </ul>
         </section>
@@ -83,8 +84,7 @@ export default function UeberUns() {
         <section className="mt-10 space-y-4">
           <h2 className="text-2xl font-semibold text-[#F5F2EA]">Welche Funktionen sind geplant?</h2>
           <p className="text-[#B7BDC4]">
-            Wir bauen VitalTwin schrittweise aus. Geplant sind unter anderem eine tiefere Anbindung an
-            Wearable-Daten über Google Health (z. B. Fitbit, Pixel Watch), erweiterte Lifestyle-Simulationen im
+            Wir bauen VitalTwin schrittweise aus. Geplant sind unter anderem eine breitere Freigabe der Google-Health-Anbindung (aktuell Beta mit begrenzter Testnutzerzahl), erweiterte Lifestyle-Simulationen im
             Pro-Tarif und Mehrfamilienprofile im Family-Tarif. Funktionen, die noch nicht fertig sind, kennzeichnen
             wir auf der <Link href="/preise" className="underline hover:text-[#58D7D4]">Preise-Seite</Link> ausdrücklich
             als &quot;bald verfügbar&quot; — wir stellen nichts als aktiv verfügbar dar, was es noch nicht ist.
