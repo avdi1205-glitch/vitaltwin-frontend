@@ -257,12 +257,20 @@ export default function Preise() {
 
                 <ul className={`mt-6 space-y-2 text-sm ${isHighlighted ? 'text-[#F5F2EA]' : 'text-[#B7BDC4]'}`}>
                   {plan.features.map((feature) => (
-                    <li key={feature.label}>
-                      ✓ {feature.label}
-                      {feature.comingSoon && (
-                        <span className={`ml-1 text-xs ${isHighlighted ? 'text-[#8E969F]' : 'text-[#6B7480]'}`}>
-                          (bald verfügbar)
+                    <li key={feature.label} className="flex items-start gap-2">
+                      <span className={feature.status === 'coming_soon' ? 'text-[#6B7480]' : 'text-[#58D7D4]'}>
+                        {feature.status === 'coming_soon' ? '○' : '✓'}
+                      </span>
+                      <span className={feature.status === 'coming_soon' ? 'text-[#8E969F]' : undefined}>
+                        {feature.label}
+                      </span>
+                      {feature.status === 'beta' && (
+                        <span className="ml-1 rounded-full bg-[#58D7D4]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#58D7D4]">
+                          Beta
                         </span>
+                      )}
+                      {feature.status === 'coming_soon' && (
+                        <span className="ml-1 text-xs text-[#6B7480]">(bald verfügbar)</span>
                       )}
                     </li>
                   ))}
@@ -395,8 +403,9 @@ export default function Preise() {
             </table>
           </div>
           <p className="mt-3 text-xs text-[#8E969F]">
-            Simulationen sind Wellness-Szenarien und keine medizinischen Vorhersagen. Mit &bdquo;(bald verfügbar)&ldquo;
-            markierte Funktionen befinden sich noch in der Entwicklung.
+            Simulationen sind Wellness-Szenarien und keine medizinischen Vorhersagen. Mit &bdquo;BETA&ldquo; markierte
+            Funktionen laufen bereits mit echten Daten, befinden sich aber noch in kontrollierter Testphase. Mit
+            &bdquo;(bald verfügbar)&ldquo; markierte Funktionen sind noch nicht zuverlässig nutzbar.
           </p>
         </section>
 

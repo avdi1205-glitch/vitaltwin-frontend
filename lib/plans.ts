@@ -20,11 +20,20 @@ export type PlanPermissions = {
 
 export type PlanFeature = {
   label: string;
-  // Marks features described in the Release-1 product spec that are not
-  // technically implemented yet. Shown with a "(bald verfügbar)" hint so a
-  // currently-purchasable plan (Premium) never silently oversells.
-  comingSoon?: boolean;
+  // Every feature has exactly one of three honest states — never derived
+  // from "code/UI exists", only from a real audit against backend gating,
+  // DB storage, permissions, and (for `available`) real tested usage:
+  //   available:   backend + DB + UI + permissions + real flow all tested.
+  //   beta:        works with real data, still in controlled test phase
+  //                (e.g. not yet plan-gated the way the tier promises, or
+  //                not yet live-verified end-to-end).
+  //   coming_soon: not yet reliably usable (missing backend/DB
+  //                infrastructure, or an unfulfilled tier-exclusivity).
+  // See docs/VITALTWIN_CONSTITUTION.md section 2 + 18 (Feature Quality Gate).
+  status: FeatureStatus;
 };
+
+export type FeatureStatus = 'available' | 'beta' | 'coming_soon';
 
 export type PlanDefinition = {
   id: PlanId;
@@ -45,13 +54,13 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     priceYearly: 0,
     ctaLabel: 'Kostenlos starten',
     features: [
-      { label: 'Grundlegendes Wellness-Profil' },
-      { label: 'Basis-Dashboard' },
-      { label: 'Grundlegender VitalTwin-Score' },
-      { label: 'Schlaf-, Bewegungs- und Gewohnheitserfassung' },
-      { label: 'Begrenzter Verlauf' },
-      { label: 'Bis zu 3 KI-Fragen pro Tag' },
-      { label: 'Grundlegende Empfehlungen' },
+      { label: 'Grundlegendes Wellness-Profil', status: 'available' },
+      { label: 'Basis-Dashboard', status: 'available' },
+      { label: 'Grundlegender VitalTwin-Score', status: 'available' },
+      { label: 'Schlaf-, Bewegungs- und Gewohnheitserfassung', status: 'available' },
+      { label: 'Begrenzter Verlauf', status: 'available' },
+      { label: 'Bis zu 3 KI-Fragen pro Tag', status: 'available' },
+      { label: 'Grundlegende Empfehlungen', status: 'available' },
     ],
     permissions: {
       aiQuestionsPerDay: 3,
@@ -71,15 +80,16 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     badge: 'Beliebteste Wahl',
     ctaLabel: 'Premium wählen',
     features: [
-      { label: 'Alles aus Free' },
-      { label: 'Blutzucker-Tracking (CGM-Import) & Ernährungstagebuch' },
-      { label: 'Bis zu 30 KI-Fragen pro Tag' },
-      { label: 'Ausführlichere Wellness-Auswertungen' },
-      { label: 'Schlaf-, Stress- und Erholungsübersicht' },
-      { label: 'Wochenberichte' },
-      { label: 'Erweiterter Verlauf' },
-      { label: 'Individuelle Tagesziele' },
-      { label: 'Keine Werbung' },
+      { label: 'Alles aus Free', status: 'available' },
+      { label: 'Blutzucker-Tracking (CGM-Import) & Ernährungstagebuch', status: 'beta' },
+      { label: 'Bis zu 30 KI-Fragen pro Tag', status: 'available' },
+      { label: 'Ausführlichere Wellness-Auswertungen', status: 'beta' },
+      { label: 'Schlaf-, Stress- und Erholungsübersicht', status: 'beta' },
+      { label: 'Wochenberichte', status: 'beta' },
+      { label: 'Erweiterter Verlauf', status: 'coming_soon' },
+      { label: 'Individuelle Tagesziele', status: 'beta' },
+      { label: 'Keine Werbung', status: 'available' },
+      { label: 'Automatische Gesundheitsdaten über Google Health', status: 'coming_soon' },
     ],
     permissions: {
       aiQuestionsPerDay: 30,
@@ -98,14 +108,14 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     priceYearly: 249,
     ctaLabel: 'Pro wählen',
     features: [
-      { label: 'Alles aus Premium' },
-      { label: 'Vollständiger erweiterter digitaler Zwilling', comingSoon: true },
-      { label: 'Mehrere persönliche Ziele', comingSoon: true },
-      { label: 'Lifestyle-Simulationen (Wellness-Szenarien, keine medizinischen Vorhersagen)', comingSoon: true },
-      { label: 'Langfristige Trends', comingSoon: true },
-      { label: 'Erweiterte Berichte', comingSoon: true },
-      { label: 'Prioritätszugang zu neuen Funktionen' },
-      { label: 'Später: erweiterte Wearable-Integrationen', comingSoon: true },
+      { label: 'Alles aus Premium', status: 'available' },
+      { label: 'Vollständiger erweiterter digitaler Zwilling', status: 'coming_soon' },
+      { label: 'Mehrere persönliche Ziele', status: 'beta' },
+      { label: 'Lifestyle-Simulationen (Wellness-Szenarien, keine medizinischen Vorhersagen)', status: 'coming_soon' },
+      { label: 'Langfristige Trends', status: 'beta' },
+      { label: 'Erweiterte Berichte', status: 'beta' },
+      { label: 'Prioritätszugang zu neuen Funktionen', status: 'coming_soon' },
+      { label: 'Später: erweiterte Wearable-Integrationen', status: 'coming_soon' },
     ],
     permissions: {
       aiQuestionsPerDay: 60,
@@ -124,12 +134,12 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     priceYearly: 399,
     ctaLabel: 'Family wählen',
     features: [
-      { label: 'Alles aus Premium' },
-      { label: 'Bis zu 6 eigenständige Profile', comingSoon: true },
-      { label: 'Getrennte private Nutzerdaten' },
-      { label: 'Gemeinsame Wellness-Challenges', comingSoon: true },
-      { label: 'Familienziele', comingSoon: true },
-      { label: 'Familienübersicht nur mit klar geregelten Berechtigungen', comingSoon: true },
+      { label: 'Alles aus Premium', status: 'available' },
+      { label: 'Bis zu 6 eigenständige Profile', status: 'coming_soon' },
+      { label: 'Getrennte private Nutzerdaten', status: 'coming_soon' },
+      { label: 'Gemeinsame Wellness-Challenges', status: 'coming_soon' },
+      { label: 'Familienziele', status: 'coming_soon' },
+      { label: 'Familienübersicht nur mit klar geregelten Berechtigungen', status: 'coming_soon' },
     ],
     permissions: {
       aiQuestionsPerDay: 30,
