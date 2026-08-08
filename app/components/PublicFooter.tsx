@@ -4,6 +4,9 @@ import Link from 'next/link';
 
 const LINKS = [
   { href: '/', label: 'Startseite' },
+  { href: '/ueber-uns', label: 'Über uns' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/faq', label: 'FAQ' },
   { href: '/preise', label: 'Preise' },
   { href: '/impressum', label: 'Impressum' },
   { href: '/datenschutz', label: 'Datenschutz' },

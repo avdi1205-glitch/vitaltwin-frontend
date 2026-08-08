@@ -254,12 +254,18 @@ export default function HomeLanding({
             </p>
           </div>
         </div>
+        <Link href="/faq" className="mt-6 inline-block text-sm font-semibold text-[#58D7D4] underline hover:text-[#F3C979]">
+          Alle häufigen Fragen ansehen →
+        </Link>
       </section>
 
       <footer className="border-t border-white/10 bg-white/[0.02]">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-[#8E969F]">
           <p>VitalTwin DE</p>
           <div className="flex flex-wrap items-center gap-5">
+            <Link href="/ueber-uns" className="transition hover:text-[#58D7D4]">Über uns</Link>
+            <Link href="/blog" className="transition hover:text-[#58D7D4]">Blog</Link>
+            <Link href="/faq" className="transition hover:text-[#58D7D4]">FAQ</Link>
             <Link href="/beta-bewerbung" className="transition hover:text-[#58D7D4]">Beta-Bewerbung</Link>
             <Link href="/preise" className="transition hover:text-[#58D7D4]">Preise</Link>
             <Link href="/impressum" className="transition hover:text-[#58D7D4]">Impressum</Link>
