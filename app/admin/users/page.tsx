@@ -8,18 +8,25 @@ type UserListItem = {
   email: string;
   full_name: string | null;
   premium: boolean;
+  plan: string;
+  status: string;
   suspended: boolean;
+  deletion_requested_at: string | null;
   created_at: string | null;
   role: string | null;
   last_login_at: string | null;
 };
 
 type UserDetail = {
-  user: UserListItem & { id?: number; suspended_reason?: string | null };
+  user: UserListItem & { id?: number; suspended_reason?: string | null; beta_access?: boolean };
   consents: Record<string, { granted?: boolean }>;
   admin_role: string | null;
   recent_logins: { success: boolean; ip_address: string | null; created_at: string }[];
 };
+
+const PLAN_LABELS: Record<string, string> = { free: 'Free', premium: 'Premium', pro: 'Pro', family: 'Family' };
+const PLAN_OPTIONS = ['free', 'premium', 'pro', 'family'];
+const STATUS_LABELS: Record<string, string> = { active: 'Aktiv', deactivated: 'Deaktiviert', deletion_requested: 'Löschung angefragt' };
 
 function formatDateTime(iso: string | null | undefined): string {
   if (!iso) return '—';
@@ -31,6 +38,8 @@ function formatDateTime(iso: string | null | undefined): string {
 }
 
 type DeletionRequest = { email: string; display_name: string | null; deletion_requested_at: string };
+type QACleanupItem = { email: string; full_name: string | null; created_at?: string | null };
+type QACleanupResultItem = { email: string; success: boolean; error?: string };
 
 const ROLE_OPTIONS = ['super_admin', 'admin', 'support', 'moderator', 'editor', 'analyst', 'developer'];
 
@@ -48,10 +57,15 @@ export default function AdminUsersPage() {
   const [busy, setBusy] = useState(false);
   const [deletionRequests, setDeletionRequests] = useState<DeletionRequest[]>([]);
   const [deletionMessage, setDeletionMessage] = useState('');
+  const [qaPreview, setQaPreview] = useState<QACleanupItem[] | null>(null);
+  const [qaBusy, setQaBusy] = useState(false);
+  const [qaMessage, setQaMessage] = useState('');
+  const [qaResults, setQaResults] = useState<QACleanupResultItem[] | null>(null);
 
   const canManageUsers = hasPermission('manage_users');
   const canManageRoles = hasPermission('manage_roles');
   const canManagePremium = hasPermission('manage_premium');
+  const isSuperAdmin = principal.role === 'super_admin';
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -100,7 +114,16 @@ export default function AdminUsersPage() {
   }, [loadDeletionRequests]);
 
   const completeDeletion = async (email: string) => {
-    if (!window.confirm(`Konto ${email} und ALLE zugehörigen Daten endgültig löschen? Das kann nicht rückgängig gemacht werden.`)) {
+    if (
+      !window.confirm(
+        'Diese Aktion entfernt oder anonymisiert personenbezogene Daten dieses Accounts. Fortfahren?'
+      )
+    ) {
+      return;
+    }
+    const typed = window.prompt(`Zur Bestätigung bitte die E-Mail-Adresse exakt eingeben: ${email}`);
+    if (typed !== email) {
+      setDeletionMessage('Löschung abgebrochen — Bestätigung stimmte nicht überein.');
       return;
     }
     setBusy(true);
@@ -120,6 +143,58 @@ export default function AdminUsersPage() {
       setDeletionMessage('Backend gerade nicht erreichbar.');
     } finally {
       setBusy(false);
+    }
+  };
+
+  const runQaPreview = async () => {
+    setQaBusy(true);
+    setQaMessage('');
+    setQaResults(null);
+    try {
+      const response = await authFetch('/api/admin/users/qa-cleanup/preview');
+      const json = await response.json().catch(() => null);
+      if (!response.ok) {
+        setQaMessage(json?.detail || 'Vorschau konnte nicht geladen werden.');
+        return;
+      }
+      setQaPreview(Array.isArray(json?.items) ? json.items : []);
+    } catch {
+      setQaMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setQaBusy(false);
+    }
+  };
+
+  const runQaCleanup = async () => {
+    if (!qaPreview || qaPreview.length === 0) return;
+    if (
+      !window.confirm(
+        `${qaPreview.length} QA-Testaccounts (Muster "qa-test-" + "QA TEST ACCOUNT") werden endgültig entfernt. Fortfahren?`
+      )
+    ) {
+      return;
+    }
+    setQaBusy(true);
+    setQaMessage('');
+    try {
+      const response = await authFetch('/api/admin/users/qa-cleanup/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: true }),
+      });
+      const json = await response.json().catch(() => null);
+      if (!response.ok) {
+        setQaMessage(json?.detail || 'Bereinigung fehlgeschlagen.');
+        return;
+      }
+      setQaMessage(json?.message || 'Erledigt.');
+      setQaResults(Array.isArray(json?.results) ? json.results : []);
+      setQaPreview(null);
+      await loadUsers();
+    } catch {
+      setQaMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setQaBusy(false);
     }
   };
 
@@ -161,11 +236,11 @@ export default function AdminUsersPage() {
   };
 
   const suspendUser = async (email: string) => {
-    if (!window.confirm(`Nutzer ${email} wirklich sperren? Der Nutzer kann sich danach nicht mehr anmelden.`)) {
+    if (!window.confirm(`Account ${email} wirklich deaktivieren? Der Nutzer kann sich danach nicht mehr anmelden.`)) {
       return;
     }
     await runAction(`/api/admin/users/${encodeURIComponent(email)}/suspend`, 'POST', {
-      reason: 'Über Admin Control Center gesperrt',
+      reason: 'Über Admin Control Center deaktiviert',
     });
   };
 
@@ -203,7 +278,7 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <SectionTitle title="Nutzerverwaltung" subtitle="Suche, Sperren/Entsperren, Rollen, Premium-Status. Passwörter werden nie angezeigt." />
+      <SectionTitle title="Nutzerverwaltung" subtitle="Suche, Aktivieren/Deaktivieren, Rollen, Tarife (Free/Premium/Pro/Family). Passwörter werden nie angezeigt." />
 
       <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
         <input
@@ -261,6 +336,53 @@ export default function AdminUsersPage() {
         </Card>
       )}
 
+      {isSuperAdmin && (
+        <Card style={{ marginBottom: '1rem' }}>
+          <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.4rem' }}>QA-Testaccount-Bereinigung</p>
+          <p style={{ color: tokens.muted, fontSize: '0.8rem', marginBottom: '0.75rem' }}>
+            Entfernt ausschließlich Accounts, deren E-Mail mit &quot;qa-test-&quot; beginnt UND deren Name
+            &quot;QA TEST ACCOUNT&quot; enthält — niemals reguläre Nutzer per Wildcard. Erst Vorschau (Dry-Run), dann
+            bestätigte Bereinigung.
+          </p>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+            <Button variant="secondary" disabled={qaBusy} onClick={runQaPreview}>
+              QA-Accounts anzeigen (Dry-Run)
+            </Button>
+            {qaPreview && qaPreview.length > 0 && (
+              <Button variant="danger" disabled={qaBusy} onClick={runQaCleanup}>
+                {qaPreview.length} QA-Testaccounts endgültig bereinigen
+              </Button>
+            )}
+          </div>
+
+          {qaPreview && (
+            <div style={{ marginBottom: '0.75rem' }}>
+              <p style={{ color: tokens.text, fontSize: '0.85rem', marginBottom: '0.4rem' }}>
+                {qaPreview.length === 0 ? 'Keine QA-Testaccounts gefunden.' : `${qaPreview.length} QA-Testaccounts gefunden:`}
+              </p>
+              {qaPreview.map((item) => (
+                <p key={item.email} style={{ color: tokens.muted, fontSize: '0.78rem' }}>
+                  {item.email} — {item.full_name || 'kein Name'}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {qaResults && (
+            <div style={{ marginBottom: '0.5rem' }}>
+              {qaResults.map((result) => (
+                <p key={result.email} style={{ color: result.success ? tokens.muted : tokens.danger, fontSize: '0.78rem' }}>
+                  {result.success ? '✅' : '❌'} {result.email}
+                  {result.error ? ` — ${result.error}` : ''}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {qaMessage && <p style={{ color: tokens.accent, fontSize: '0.85rem' }}>{qaMessage}</p>}
+        </Card>
+      )}
+
       {loading && <Loading />}
       {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
 
@@ -269,7 +391,7 @@ export default function AdminUsersPage() {
           <table className="vt-user-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
               <tr style={{ borderBottom: `1px solid ${tokens.border}` }}>
-                {['E-Mail', 'Name', 'Rolle', 'Premium', 'Status', 'Registriert', 'Letzte Anmeldung', ''].map((label) => (
+                {['E-Mail', 'Name', 'Rolle', 'Tarif', 'Status', 'Löschung', 'Registriert', 'Letzte Anmeldung', ''].map((label) => (
                   <th key={label} style={{ textAlign: 'left', padding: '0.6rem 0.9rem', color: tokens.muted }}>
                     {label}
                   </th>
@@ -292,11 +414,18 @@ export default function AdminUsersPage() {
                   <td data-label="Rolle" style={{ padding: '0.6rem 0.9rem', color: tokens.muted }}>
                     {user.role || '—'}
                   </td>
-                  <td data-label="Premium" style={{ padding: '0.6rem 0.9rem' }}>
-                    <Badge tone={user.premium ? 'success' : 'neutral'}>{user.premium ? 'Premium' : 'Standard'}</Badge>
+                  <td data-label="Tarif" style={{ padding: '0.6rem 0.9rem' }}>
+                    <Badge tone={user.plan === 'free' ? 'neutral' : 'success'}>{PLAN_LABELS[user.plan] || user.plan}</Badge>
                   </td>
                   <td data-label="Status" style={{ padding: '0.6rem 0.9rem' }}>
-                    <Badge tone={user.suspended ? 'danger' : 'success'}>{user.suspended ? 'Gesperrt' : 'Aktiv'}</Badge>
+                    <Badge tone={user.suspended ? 'danger' : 'success'}>{user.suspended ? 'Deaktiviert' : 'Aktiv'}</Badge>
+                  </td>
+                  <td data-label="Löschung" style={{ padding: '0.6rem 0.9rem' }}>
+                    {user.deletion_requested_at ? (
+                      <Badge tone="danger">Angefragt</Badge>
+                    ) : (
+                      <span style={{ color: tokens.mutedMore }}>—</span>
+                    )}
                   </td>
                   <td data-label="Registriert" style={{ padding: '0.6rem 0.9rem', color: tokens.muted }}>
                     {formatDateTime(user.created_at)}
@@ -313,7 +442,7 @@ export default function AdminUsersPage() {
               ))}
               {items.length === 0 && (
                 <tr>
-                  <td colSpan={8} style={{ padding: '1rem', color: tokens.mutedMore, textAlign: 'center' }}>
+                  <td colSpan={9} style={{ padding: '1rem', color: tokens.mutedMore, textAlign: 'center' }}>
                     Keine Nutzer gefunden.
                   </td>
                 </tr>
@@ -349,6 +478,7 @@ export default function AdminUsersPage() {
           {detail && (
             <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
+                <p style={{ color: tokens.text, fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.4rem' }}>Account</p>
                 {detail.user.id !== undefined && (
                   <p style={{ color: tokens.muted, fontSize: '0.8rem' }}>
                     Benutzer-ID: <strong style={{ color: tokens.text }}>{detail.user.id}</strong>
@@ -358,10 +488,14 @@ export default function AdminUsersPage() {
                   Admin-Rolle: <strong style={{ color: tokens.text }}>{detail.admin_role || 'keine'}</strong>
                 </p>
                 <p style={{ color: tokens.muted, fontSize: '0.8rem' }}>
-                  Gesperrt: {detail.user.suspended ? `ja (${detail.user.suspended_reason || 'kein Grund angegeben'})` : 'nein'}
+                  Tarif: <strong style={{ color: tokens.text }}>{PLAN_LABELS[detail.user.plan] || detail.user.plan}</strong>
                 </p>
                 <p style={{ color: tokens.muted, fontSize: '0.8rem' }}>
-                  Premium-/Planstatus: <strong style={{ color: tokens.text }}>{detail.user.premium ? 'Premium' : 'Standard (kein Premium)'}</strong>
+                  Status: <strong style={{ color: tokens.text }}>{STATUS_LABELS[detail.user.status] || detail.user.status}</strong>
+                  {detail.user.suspended && ` (${detail.user.suspended_reason || 'kein Grund angegeben'})`}
+                </p>
+                <p style={{ color: tokens.muted, fontSize: '0.8rem' }}>
+                  Beta-Zugang: <strong style={{ color: tokens.text }}>{detail.user.beta_access ? 'ja (kostenlos aktiviert, keine Zahlung)' : 'nein'}</strong>
                 </p>
                 <p style={{ color: tokens.muted, fontSize: '0.8rem' }}>
                   Registriert am: {formatDateTime(detail.user.created_at)}
@@ -371,36 +505,57 @@ export default function AdminUsersPage() {
                 </p>
               </div>
 
-              {canManageUsers && (
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {detail.user.suspended ? (
-                    <Button
-                      disabled={busy}
-                      onClick={() => runAction(`/api/admin/users/${encodeURIComponent(selectedEmail)}/unsuspend`, 'POST')}
-                    >
-                      Entsperren
-                    </Button>
-                  ) : (
-                    <Button variant="danger" disabled={busy} onClick={() => suspendUser(selectedEmail)}>
-                      Sperren
-                    </Button>
-                  )}
-                </div>
-              )}
+              {(canManageUsers || canManagePremium) && (
+                <div>
+                  <p style={{ color: tokens.text, fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.4rem' }}>
+                    Account-Aktionen
+                  </p>
 
-              {canManagePremium && (
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Button
-                    variant="secondary"
-                    disabled={busy}
-                    onClick={() =>
-                      runAction(`/api/admin/users/${encodeURIComponent(selectedEmail)}/premium`, 'POST', {
-                        premium: !detail.user.premium,
-                      })
-                    }
-                  >
-                    {detail.user.premium ? 'Premium entziehen' : 'Premium gewähren'}
-                  </Button>
+                  {canManageUsers && (
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
+                      {detail.user.suspended ? (
+                        <Button
+                          disabled={busy}
+                          onClick={() => runAction(`/api/admin/users/${encodeURIComponent(selectedEmail)}/unsuspend`, 'POST')}
+                        >
+                          Account reaktivieren
+                        </Button>
+                      ) : (
+                        <Button variant="danger" disabled={busy} onClick={() => suspendUser(selectedEmail)}>
+                          Account deaktivieren
+                        </Button>
+                      )}
+                    </div>
+                  )}
+
+                  {canManagePremium && (
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.6rem' }}>
+                      <span style={{ color: tokens.muted, fontSize: '0.8rem' }}>Tarif ändern (administrativ, keine Stripe-Zahlung):</span>
+                      {PLAN_OPTIONS.map((plan) => (
+                        <Button
+                          key={plan}
+                          variant={detail.user.plan === plan ? 'primary' : 'secondary'}
+                          disabled={busy}
+                          onClick={() =>
+                            runAction(`/api/admin/users/${encodeURIComponent(selectedEmail)}/plan`, 'POST', { plan })
+                          }
+                        >
+                          {PLAN_LABELS[plan]}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+
+                  {canManageUsers && detail.user.deletion_requested_at && (
+                    <div style={{ marginBottom: '0.6rem' }}>
+                      <p style={{ color: tokens.muted, fontSize: '0.8rem', marginBottom: '0.4rem' }}>
+                        Löschanforderung vom {formatDateTime(detail.user.deletion_requested_at)}.
+                      </p>
+                      <Button variant="danger" disabled={busy} onClick={() => completeDeletion(selectedEmail)}>
+                        Löschung abschließen
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
 
