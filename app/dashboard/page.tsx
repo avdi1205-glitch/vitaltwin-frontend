@@ -6,6 +6,7 @@ import { apiUrl } from '@/lib/api';
 import DashboardNav from '../components/dashboard-nav';
 import DashboardHabits from '../components/dashboard-habits';
 import DashboardCheckin from '../components/dashboard-checkin';
+import GoogleHealthConnect from '../components/GoogleHealthConnect';
 import DashboardGoals from '../components/dashboard-goals';
 import DashboardTrends from '../components/dashboard-trends';
 import DashboardPersonalBaseline from '../components/dashboard-personal-baseline';
@@ -772,6 +773,10 @@ export default function Dashboard() {
           </div>
           )}
         </section>
+
+        <div className="mt-6">
+          <GoogleHealthConnect />
+        </div>
 
         {!loadingProfile && profile && !profile.premium && (
           <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#F5F2EA]">
