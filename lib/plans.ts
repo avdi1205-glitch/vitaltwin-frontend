@@ -89,7 +89,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       { label: 'Erweiterter Verlauf', status: 'coming_soon' },
       { label: 'Individuelle Tagesziele', status: 'beta' },
       { label: 'Keine Werbung', status: 'available' },
-      { label: 'Automatische Gesundheitsdaten über Google Health', status: 'coming_soon' },
+      { label: 'Automatische Gesundheitsdaten über Google Health', status: 'beta' },
     ],
     permissions: {
       aiQuestionsPerDay: 30,
