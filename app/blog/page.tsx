@@ -5,7 +5,7 @@ import PublicFooter from '../components/PublicFooter';
 import { excerptFromBody, formatContentDate } from '../components/blog-content-renderer';
 
 export const metadata: Metadata = {
-  title: 'Blog | VitalTwin',
+  title: 'Blog',
   description:
     'Verständliche Artikel zu Schlaf, Bewegung, Ernährung, Gewohnheiten, Wearables und Datenschutz bei Wellness-Apps.',
   alternates: { canonical: '/blog' },

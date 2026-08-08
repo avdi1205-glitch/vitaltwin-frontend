@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import PublicFooter from '../components/PublicFooter';
 
 export const metadata: Metadata = {
-  title: 'Cookie-Einstellungen | VitalTwin',
+  title: 'Cookie-Einstellungen',
   description: 'Übersicht zu Cookies und lokaler Speicherung bei VitalTwin.',
   alternates: { canonical: '/cookie-einstellungen' },
 };

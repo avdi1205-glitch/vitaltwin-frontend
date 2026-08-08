@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import PublicFooter from '../components/PublicFooter';
 
 export const metadata: Metadata = {
-  title: 'Widerrufsrecht | VitalTwin',
+  title: 'Widerrufsrecht',
   description: 'Informationen zum Widerrufsrecht bei VitalTwin.',
   alternates: { canonical: '/widerrufsrecht' },
 };

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import PublicFooter from '../components/PublicFooter';
 
 export const metadata: Metadata = {
-  title: 'Über uns | VitalTwin',
+  title: 'Über uns',
   description:
     'Was ist VitalTwin, warum wurde es entwickelt, was kann die Plattform heute wirklich und wo liegen ihre Grenzen?',
   alternates: { canonical: '/ueber-uns' },

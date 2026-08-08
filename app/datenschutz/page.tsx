@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import PublicFooter from '../components/PublicFooter';
 
 export const metadata: Metadata = {
-  title: 'Datenschutz | VitalTwin',
+  title: 'Datenschutz',
   description: 'Datenschutzerklärung von VitalTwin gemäß DSGVO.',
   alternates: { canonical: '/datenschutz' },
 };

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import PublicFooter from '../components/PublicFooter';
 
 export const metadata: Metadata = {
-  title: 'KI-Hinweise | VitalTwin',
+  title: 'KI-Hinweise',
   description: 'Informationen zur Funktion "Frag deinen Twin" und zum KI-Einsatz bei VitalTwin.',
   alternates: { canonical: '/ki-hinweise' },
 };

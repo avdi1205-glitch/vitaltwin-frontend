@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import PublicFooter from '../components/PublicFooter';
 
 export const metadata: Metadata = {
-  title: 'Impressum | VitalTwin',
+  title: 'Impressum',
   description: 'Impressum und Anbieterkennzeichnung von VitalTwin.',
   alternates: { canonical: '/impressum' },
 };

@@ -43,9 +43,9 @@ function renderBody(body: string) {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPost(slug);
-  if (!post) return { title: 'Artikel nicht gefunden | VitalTwin' };
+  if (!post) return { title: 'Artikel nicht gefunden' };
   return {
-    title: `${post.title} | VitalTwin Blog`,
+    title: `${post.title} | Blog`,
     description: excerpt(post.body),
     alternates: { canonical: `/blog/${slug}` },
   };

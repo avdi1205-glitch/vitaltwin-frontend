@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import PublicFooter from '../components/PublicFooter';
 
 export const metadata: Metadata = {
-  title: 'Häufige Fragen (FAQ) | VitalTwin',
+  title: 'Häufige Fragen (FAQ)',
   description: 'Antworten zu VitalTwin: Kosten, Datenschutz, Google Health, CGM, KI-Funktionen, Konto und mehr.',
   alternates: { canonical: '/faq' },
 };
