@@ -10,21 +10,32 @@ type UserListItem = {
   premium: boolean;
   suspended: boolean;
   created_at: string | null;
+  role: string | null;
+  last_login_at: string | null;
 };
 
 type UserDetail = {
-  user: UserListItem & { suspended_reason?: string | null };
+  user: UserListItem & { id?: number; suspended_reason?: string | null };
   consents: Record<string, { granted?: boolean }>;
   admin_role: string | null;
   recent_logins: { success: boolean; ip_address: string | null; created_at: string }[];
 };
+
+function formatDateTime(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleString('de-DE');
+  } catch {
+    return iso;
+  }
+}
 
 type DeletionRequest = { email: string; display_name: string | null; deletion_requested_at: string };
 
 const ROLE_OPTIONS = ['super_admin', 'admin', 'support', 'moderator', 'editor', 'analyst', 'developer'];
 
 export default function AdminUsersPage() {
-  const { authFetch, tokens, hasPermission } = useAdmin();
+  const { authFetch, tokens, hasPermission, principal } = useAdmin();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<UserListItem[]>([]);
@@ -149,6 +160,15 @@ export default function AdminUsersPage() {
     }
   };
 
+  const suspendUser = async (email: string) => {
+    if (!window.confirm(`Nutzer ${email} wirklich sperren? Der Nutzer kann sich danach nicht mehr anmelden.`)) {
+      return;
+    }
+    await runAction(`/api/admin/users/${encodeURIComponent(email)}/suspend`, 'POST', {
+      reason: 'Über Admin Control Center gesperrt',
+    });
+  };
+
   const deleteUserDirectly = async (email: string) => {
     const confirmed = window.confirm(
       `ACHTUNG: Konto ${email} und ALLE zugehörigen Daten (Check-ins, Gewohnheiten, Ziele, Tagespläne, Chat-Verlauf, Empfehlungen, Zustimmungen) werden ENDGÜLTIG gelöscht. Der Nutzer kann sich danach nicht mehr anmelden. Das kann nicht rückgängig gemacht werden. Fortfahren?`
@@ -246,10 +266,10 @@ export default function AdminUsersPage() {
 
       {!loading && !errorMessage && (
         <Card style={{ padding: 0, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+          <table className="vt-user-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
               <tr style={{ borderBottom: `1px solid ${tokens.border}` }}>
-                {['E-Mail', 'Name', 'Premium', 'Status', ''].map((label) => (
+                {['E-Mail', 'Name', 'Rolle', 'Premium', 'Status', 'Registriert', 'Letzte Anmeldung', ''].map((label) => (
                   <th key={label} style={{ textAlign: 'left', padding: '0.6rem 0.9rem', color: tokens.muted }}>
                     {label}
                   </th>
@@ -258,16 +278,33 @@ export default function AdminUsersPage() {
             </thead>
             <tbody>
               {items.map((user) => (
-                <tr key={user.email} style={{ borderBottom: `1px solid ${tokens.border}` }}>
-                  <td style={{ padding: '0.6rem 0.9rem', color: tokens.text }}>{user.email}</td>
-                  <td style={{ padding: '0.6rem 0.9rem', color: tokens.muted }}>{user.full_name || '—'}</td>
-                  <td style={{ padding: '0.6rem 0.9rem' }}>
+                <tr
+                  key={user.email}
+                  onClick={() => openDetail(user.email)}
+                  style={{ borderBottom: `1px solid ${tokens.border}`, cursor: 'pointer' }}
+                >
+                  <td data-label="E-Mail" style={{ padding: '0.6rem 0.9rem', color: tokens.text, fontWeight: 600 }}>
+                    {user.email}
+                  </td>
+                  <td data-label="Name" style={{ padding: '0.6rem 0.9rem', color: tokens.muted }}>
+                    {user.full_name || '—'}
+                  </td>
+                  <td data-label="Rolle" style={{ padding: '0.6rem 0.9rem', color: tokens.muted }}>
+                    {user.role || '—'}
+                  </td>
+                  <td data-label="Premium" style={{ padding: '0.6rem 0.9rem' }}>
                     <Badge tone={user.premium ? 'success' : 'neutral'}>{user.premium ? 'Premium' : 'Standard'}</Badge>
                   </td>
-                  <td style={{ padding: '0.6rem 0.9rem' }}>
+                  <td data-label="Status" style={{ padding: '0.6rem 0.9rem' }}>
                     <Badge tone={user.suspended ? 'danger' : 'success'}>{user.suspended ? 'Gesperrt' : 'Aktiv'}</Badge>
                   </td>
-                  <td style={{ padding: '0.6rem 0.9rem' }}>
+                  <td data-label="Registriert" style={{ padding: '0.6rem 0.9rem', color: tokens.muted }}>
+                    {formatDateTime(user.created_at)}
+                  </td>
+                  <td data-label="Letzte Anmeldung" style={{ padding: '0.6rem 0.9rem', color: tokens.muted }}>
+                    {formatDateTime(user.last_login_at)}
+                  </td>
+                  <td data-label="" style={{ padding: '0.6rem 0.9rem' }}>
                     <Button variant="secondary" onClick={() => openDetail(user.email)}>
                       Details
                     </Button>
@@ -276,7 +313,7 @@ export default function AdminUsersPage() {
               ))}
               {items.length === 0 && (
                 <tr>
-                  <td colSpan={5} style={{ padding: '1rem', color: tokens.mutedMore, textAlign: 'center' }}>
+                  <td colSpan={8} style={{ padding: '1rem', color: tokens.mutedMore, textAlign: 'center' }}>
                     Keine Nutzer gefunden.
                   </td>
                 </tr>
@@ -312,11 +349,25 @@ export default function AdminUsersPage() {
           {detail && (
             <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
+                {detail.user.id !== undefined && (
+                  <p style={{ color: tokens.muted, fontSize: '0.8rem' }}>
+                    Benutzer-ID: <strong style={{ color: tokens.text }}>{detail.user.id}</strong>
+                  </p>
+                )}
                 <p style={{ color: tokens.muted, fontSize: '0.8rem' }}>
                   Admin-Rolle: <strong style={{ color: tokens.text }}>{detail.admin_role || 'keine'}</strong>
                 </p>
                 <p style={{ color: tokens.muted, fontSize: '0.8rem' }}>
                   Gesperrt: {detail.user.suspended ? `ja (${detail.user.suspended_reason || 'kein Grund angegeben'})` : 'nein'}
+                </p>
+                <p style={{ color: tokens.muted, fontSize: '0.8rem' }}>
+                  Premium-/Planstatus: <strong style={{ color: tokens.text }}>{detail.user.premium ? 'Premium' : 'Standard (kein Premium)'}</strong>
+                </p>
+                <p style={{ color: tokens.muted, fontSize: '0.8rem' }}>
+                  Registriert am: {formatDateTime(detail.user.created_at)}
+                </p>
+                <p style={{ color: tokens.muted, fontSize: '0.8rem' }}>
+                  Letzte Anmeldung: {formatDateTime(detail.user.last_login_at)}
                 </p>
               </div>
 
@@ -330,15 +381,7 @@ export default function AdminUsersPage() {
                       Entsperren
                     </Button>
                   ) : (
-                    <Button
-                      variant="danger"
-                      disabled={busy}
-                      onClick={() =>
-                        runAction(`/api/admin/users/${encodeURIComponent(selectedEmail)}/suspend`, 'POST', {
-                          reason: 'Über Admin Control Center gesperrt',
-                        })
-                      }
-                    >
+                    <Button variant="danger" disabled={busy} onClick={() => suspendUser(selectedEmail)}>
                       Sperren
                     </Button>
                   )}
@@ -402,7 +445,7 @@ export default function AdminUsersPage() {
                 ))}
               </div>
 
-              {canManageUsers && detail.admin_role !== 'super_admin' && (
+              {canManageUsers && principal.role === 'super_admin' && detail.admin_role !== 'super_admin' && (
                 <div style={{ borderTop: `1px solid ${tokens.border}`, paddingTop: '1rem' }}>
                   <p style={{ color: tokens.danger, fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>
                     Gefahrenzone
@@ -411,9 +454,15 @@ export default function AdminUsersPage() {
                     Nutzer endgültig löschen
                   </Button>
                   <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginTop: '0.4rem' }}>
-                    Löscht Konto und alle Daten sofort, unabhängig von einer eigenen Löschanfrage des Nutzers.
+                    Löscht Konto und alle Daten sofort, unabhängig von einer eigenen Löschanfrage des Nutzers. Nur
+                    Super-Admins können diese Aktion ausführen.
                   </p>
                 </div>
+              )}
+              {canManageUsers && principal.role !== 'super_admin' && detail.admin_role !== 'super_admin' && (
+                <p style={{ color: tokens.mutedMore, fontSize: '0.75rem' }}>
+                  Nutzer endgültig löschen können aus Sicherheitsgründen nur Super-Admins.
+                </p>
               )}
               {canManageUsers && detail.admin_role === 'super_admin' && (
                 <p style={{ color: tokens.mutedMore, fontSize: '0.75rem' }}>
@@ -426,6 +475,39 @@ export default function AdminUsersPage() {
           )}
         </Card>
       )}
+      <style jsx>{`
+        @media (max-width: 760px) {
+          :global(.vt-user-table thead) {
+            display: none;
+          }
+          :global(.vt-user-table),
+          :global(.vt-user-table tbody),
+          :global(.vt-user-table tr),
+          :global(.vt-user-table td) {
+            display: block;
+            width: 100%;
+          }
+          :global(.vt-user-table tr) {
+            padding: 0.75rem 0.9rem;
+          }
+          :global(.vt-user-table td) {
+            padding: 0.25rem 0 !important;
+            text-align: left;
+          }
+          :global(.vt-user-table td[data-label]:not([data-label=''])::before) {
+            content: attr(data-label);
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: ${tokens.mutedMore};
+            margin-bottom: 0.1rem;
+          }
+          :global(.vt-user-table td[data-label='']) {
+            margin-top: 0.4rem;
+          }
+        }
+      `}</style>
     </div>
   );
 }
