@@ -109,6 +109,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     ctaLabel: 'Pro wählen',
     features: [
       { label: 'Alles aus Premium', status: 'available' },
+      { label: 'Bis zu 60 KI-Fragen pro Tag', status: 'available' },
       { label: 'Vollständiger erweiterter digitaler Zwilling', status: 'coming_soon' },
       { label: 'Mehrere persönliche Ziele', status: 'beta' },
       { label: 'Lifestyle-Simulationen (Wellness-Szenarien, keine medizinischen Vorhersagen)', status: 'coming_soon' },
@@ -119,7 +120,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     ],
     permissions: {
       aiQuestionsPerDay: 60,
-      historyDays: 'unlimited',
+      historyDays: 'extended',
       maxProfiles: 1,
       hasAds: false,
       hasWeeklyReports: true,
@@ -143,7 +144,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     ],
     permissions: {
       aiQuestionsPerDay: 30,
-      historyDays: 'unlimited',
+      historyDays: 'extended',
       maxProfiles: 6,
       hasAds: false,
       hasWeeklyReports: true,
