@@ -340,22 +340,50 @@ export default function AdminContentEditPage() {
             />
           </label>
 
-          <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', marginTop: '1rem' }}>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem', width: '100%' }}>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', width: '100%' }}>
               <span style={{ color: tokens.muted, fontSize: '0.8rem' }}>Meta Title (SEO, optional)</span>
               <input
                 value={metaTitle}
                 onChange={(e) => setMetaTitle(e.target.value)}
-                style={{ background: tokens.card, border: `1px solid ${tokens.border}`, borderRadius: '0.5rem', padding: '0.5rem 0.7rem', color: tokens.text }}
+                style={{
+                  background: tokens.card,
+                  border: `1px solid ${tokens.border}`,
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem 0.7rem',
+                  color: tokens.text,
+                  width: '100%',
+                  boxSizing: 'border-box',
+                }}
               />
+              <span style={{ color: metaTitle.length > 60 ? tokens.mutedMore : tokens.muted, fontSize: '0.75rem' }}>
+                {metaTitle.length} Zeichen (empfohlen: ca. 50–60)
+              </span>
             </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', width: '100%' }}>
               <span style={{ color: tokens.muted, fontSize: '0.8rem' }}>Meta Description (SEO, optional)</span>
-              <input
+              <textarea
                 value={metaDescription}
                 onChange={(e) => setMetaDescription(e.target.value)}
-                style={{ background: tokens.card, border: `1px solid ${tokens.border}`, borderRadius: '0.5rem', padding: '0.5rem 0.7rem', color: tokens.text }}
+                rows={4}
+                style={{
+                  background: tokens.card,
+                  border: `1px solid ${tokens.border}`,
+                  borderRadius: '0.5rem',
+                  padding: '0.6rem 0.8rem',
+                  color: tokens.text,
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  resize: 'vertical',
+                  fontFamily: 'inherit',
+                  lineHeight: 1.5,
+                  whiteSpace: 'pre-wrap',
+                  overflowWrap: 'break-word',
+                }}
               />
+              <span style={{ color: metaDescription.length > 160 ? tokens.mutedMore : tokens.muted, fontSize: '0.75rem' }}>
+                {metaDescription.length} Zeichen (empfohlen: ca. 140–160)
+              </span>
             </label>
           </div>
 
