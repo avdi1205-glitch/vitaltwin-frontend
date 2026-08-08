@@ -5,6 +5,7 @@ import PublicFooter from '../components/PublicFooter';
 export const metadata: Metadata = {
   title: 'Häufige Fragen (FAQ) | VitalTwin',
   description: 'Antworten zu VitalTwin: Kosten, Datenschutz, Google Health, CGM, KI-Funktionen, Konto und mehr.',
+  alternates: { canonical: '/faq' },
 };
 
 const FAQ_GROUPS: { heading: string; items: { q: string; a: React.ReactNode }[] }[] = [

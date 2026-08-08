@@ -5,6 +5,7 @@ import PublicFooter from '../components/PublicFooter';
 export const metadata: Metadata = {
   title: 'AGB | VitalTwin',
   description: 'Allgemeine Geschäftsbedingungen für die Nutzung der VitalTwin-Plattform.',
+  alternates: { canonical: '/agb' },
 };
 
 export default function AGB() {

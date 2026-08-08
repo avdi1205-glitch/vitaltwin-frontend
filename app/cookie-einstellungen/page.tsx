@@ -4,6 +4,7 @@ import PublicFooter from '../components/PublicFooter';
 export const metadata: Metadata = {
   title: 'Cookie-Einstellungen | VitalTwin',
   description: 'Übersicht zu Cookies und lokaler Speicherung bei VitalTwin.',
+  alternates: { canonical: '/cookie-einstellungen' },
 };
 
 export default function CookieEinstellungen() {

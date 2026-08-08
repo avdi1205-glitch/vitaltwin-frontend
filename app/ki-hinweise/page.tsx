@@ -5,6 +5,7 @@ import PublicFooter from '../components/PublicFooter';
 export const metadata: Metadata = {
   title: 'KI-Hinweise | VitalTwin',
   description: 'Informationen zur Funktion "Frag deinen Twin" und zum KI-Einsatz bei VitalTwin.',
+  alternates: { canonical: '/ki-hinweise' },
 };
 
 export default function KiHinweise() {

@@ -5,6 +5,7 @@ import PublicFooter from '../components/PublicFooter';
 export const metadata: Metadata = {
   title: 'Datenschutz | VitalTwin',
   description: 'Datenschutzerklärung von VitalTwin gemäß DSGVO.',
+  alternates: { canonical: '/datenschutz' },
 };
 
 export default function Datenschutz() {

@@ -5,6 +5,7 @@ import PublicFooter from '../components/PublicFooter';
 export const metadata: Metadata = {
   title: 'Impressum | VitalTwin',
   description: 'Impressum und Anbieterkennzeichnung von VitalTwin.',
+  alternates: { canonical: '/impressum' },
 };
 
 export default function Impressum() {

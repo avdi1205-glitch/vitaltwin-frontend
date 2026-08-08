@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'Über uns | VitalTwin',
   description:
     'Was ist VitalTwin, warum wurde es entwickelt, was kann die Plattform heute wirklich und wo liegen ihre Grenzen?',
+  alternates: { canonical: '/ueber-uns' },
 };
 
 export default function UeberUns() {
@@ -100,6 +101,14 @@ export default function UeberUns() {
             Daten, die du selbst einträgst — bei fehlenden oder ungenauen Angaben sind auch die Einschätzungen
             entsprechend eingeschränkt. Details zur KI-Funktion findest du in unseren{' '}
             <Link href="/ki-hinweise" className="underline hover:text-[#58D7D4]">KI-Hinweisen</Link>.
+          </p>
+        </section>
+
+        <section className="mt-10 space-y-4">
+          <h2 className="text-2xl font-semibold text-[#F5F2EA]">Wer steht hinter VitalTwin?</h2>
+          <p className="text-[#B7BDC4]">
+            VitalTwin wird von Avdi Morina entwickelt und betrieben. Vollständige Anbieterangaben (Anschrift,
+            Kontakt, USt-IdNr.) findest du im <Link href="/impressum" className="underline hover:text-[#58D7D4]">Impressum</Link>.
           </p>
         </section>
 

@@ -21,6 +21,7 @@ export default function HumanMetricsCard() {
       </p>
 
       <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
+        <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[#8E969F]">Beispielhafte Werte</p>
         <div className="divide-y divide-white/5">
           {HUMAN_METRICS.map((metric) => (
             <MetricRow key={metric.label} icon={metric.icon} label={metric.label} value={metric.value} max={metric.max} tone="gold" />

@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: 'Blog | VitalTwin',
   description:
     'Verständliche Artikel zu Schlaf, Bewegung, Ernährung, Gewohnheiten, Wearables und Datenschutz bei Wellness-Apps.',
+  alternates: { canonical: '/blog' },
 };
 
 export const revalidate = 60;

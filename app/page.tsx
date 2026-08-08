@@ -1,4 +1,12 @@
+import type { Metadata } from 'next';
 import HomeLanding from './components/home-landing';
+
+export const metadata: Metadata = {
+  title: 'VitalTwin | Digitaler Wellness-Zwilling',
+  description:
+    'VitalTwin ordnet deine freiwillig eingetragenen Biomarker ein und gibt allgemeine Wellness-Impulse zur Orientierung für mehr Wohlbefinden im Alltag. Kein Medizinprodukt.',
+  alternates: { canonical: '/' },
+};
 
 type HomePageProps = {
   searchParams?: Promise<{ auth?: string; registered?: string; reset?: string; premium?: string }>;
