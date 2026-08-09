@@ -153,7 +153,7 @@ export default function PreiseClient() {
             <div className="mx-auto mt-8 grid max-w-3xl gap-4 sm:grid-cols-3">
               {[
                 'Ausführlichere Wellness-Auswertungen',
-                'Erweiterter Verlauf',
+                'Erweiterter Verlauf bis zu 90 Tage',
                 'Keine Werbung',
               ].map((feature) => (
                 <div
