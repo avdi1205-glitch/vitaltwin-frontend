@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import VitalTwinMark from './brand/VitalTwinMark';
 
 type SiteNavProps = {
@@ -11,6 +11,17 @@ type SiteNavProps = {
 
 export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  // Starts false (matches server render, avoids a hydration mismatch) and is
+  // corrected in an effect right after mount — a real logged-in session must
+  // never keep showing "Anmelden"/"Kostenlos starten" on public pages.
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setIsAuthenticated(Boolean(localStorage.getItem('token')));
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -34,18 +45,37 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <button
-            onClick={onOpenLogin}
-            className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
-          >
-            Anmelden
-          </button>
-          <button
-            onClick={onOpenRegister}
-            className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
-          >
-            Kostenlos starten
-          </button>
+          {isAuthenticated ? (
+            <>
+              <Link
+                href="/profil"
+                className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
+              >
+                Mein Konto
+              </Link>
+              <Link
+                href="/dashboard"
+                className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
+              >
+                Zum Dashboard
+              </Link>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={onOpenLogin}
+                className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
+              >
+                Anmelden
+              </button>
+              <button
+                onClick={onOpenRegister}
+                className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
+              >
+                Kostenlos starten
+              </button>
+            </>
+          )}
         </div>
 
         <button
@@ -79,24 +109,45 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
               Preise
             </Link>
             <div className="mt-3 flex flex-col gap-3">
-              <button
-                onClick={() => {
-                  closeMenu();
-                  onOpenLogin();
-                }}
-                className="rounded-full border border-white/20 px-5 py-3 text-center font-semibold text-[#F5F2EA]"
-              >
-                Anmelden
-              </button>
-              <button
-                onClick={() => {
-                  closeMenu();
-                  onOpenRegister();
-                }}
-                className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-3 text-center font-semibold text-[#0B1118]"
-              >
-                Kostenlos starten
-              </button>
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/profil"
+                    onClick={closeMenu}
+                    className="rounded-full border border-white/20 px-5 py-3 text-center font-semibold text-[#F5F2EA]"
+                  >
+                    Mein Konto
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    onClick={closeMenu}
+                    className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-3 text-center font-semibold text-[#0B1118]"
+                  >
+                    Zum Dashboard
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => {
+                      closeMenu();
+                      onOpenLogin();
+                    }}
+                    className="rounded-full border border-white/20 px-5 py-3 text-center font-semibold text-[#F5F2EA]"
+                  >
+                    Anmelden
+                  </button>
+                  <button
+                    onClick={() => {
+                      closeMenu();
+                      onOpenRegister();
+                    }}
+                    className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-3 text-center font-semibold text-[#0B1118]"
+                  >
+                    Kostenlos starten
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
