@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
+import DashboardBrandMark from '../components/brand/DashboardBrandMark';
 
 // Force dynamic rendering: this page's content is entirely driven by
 // client-side auth/chat state, and a previous static/cached build of this
@@ -159,6 +160,7 @@ export default function FragDeinenTwin() {
   return (
     <div className="flex min-h-screen flex-col bg-[#0B1118] text-[#F5F2EA]">
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8 md:px-6">
+        <DashboardBrandMark />
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">VitalTwin Intelligence</p>

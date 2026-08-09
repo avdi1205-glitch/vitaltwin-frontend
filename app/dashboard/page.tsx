@@ -17,6 +17,7 @@ import DashboardDailyPlan from '../components/dashboard-daily-plan';
 import DashboardTwinProgress from '../components/dashboard-twin-progress';
 import { DomainCard, TodayActionsCard } from '../components/dashboard-cards';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
+import DashboardBrandMark from '../components/brand/DashboardBrandMark';
 import AdSlot from '../components/AdSlot';
 
 function getGreeting(): string {
@@ -661,6 +662,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-[#0B1118] text-[#F5F2EA]">
       <div className="mx-auto max-w-7xl px-6 py-8 md:py-10">
         <DashboardNav />
+        <DashboardBrandMark />
         <header className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:p-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
