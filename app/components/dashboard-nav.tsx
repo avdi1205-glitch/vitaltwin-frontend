@@ -29,11 +29,12 @@ export default function DashboardNav() {
   }, []);
 
   const links = [
-    { href: '#uebersicht', label: 'Übersicht' },
-    { href: '#cgm-ernaehrung', label: 'Blutzucker & Ernährung' },
-    { href: '#gewohnheiten', label: 'Gewohnheiten' },
-    { href: '#mein-twin', label: 'Mein Twin' },
-    { href: '#verlauf', label: 'Verlauf' },
+    { href: '/dashboard', label: 'Übersicht' },
+    { href: '/dashboard/blutzucker', label: 'Blutzucker & Ernährung' },
+    { href: '/dashboard/gesundheitsdaten', label: 'Gesundheitsdaten' },
+    { href: '/dashboard/gewohnheiten', label: 'Gewohnheiten' },
+    { href: '/dashboard/mein-twin', label: 'Mein Twin' },
+    { href: '/dashboard/verlauf', label: 'Verlauf' },
     { href: '/frag-deinen-twin', label: 'Frag deinen Twin' },
     { href: '/passwort-zuruecksetzen', label: 'Konto' },
     { href: '/preise', label: 'Tarif' },

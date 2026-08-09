@@ -155,11 +155,7 @@ export default function GoogleHealthConnect() {
 
   return (
     <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-      <p className="font-[family-name:var(--font-serif-display)] text-lg font-semibold text-[#F5F2EA]">
-        Gesundheitsdaten verbinden
-      </p>
-      <p className="mt-1 text-sm font-semibold text-[#58D7D4]">Google Health</p>
-      <p className="mt-2 text-sm text-[#B7BDC4]">
+      <p className="text-sm text-[#B7BDC4]">
         Verbinde Fitbit, Pixel Watch und unterstützte Gesundheitsdaten sicher über Google Health.
       </p>
 
