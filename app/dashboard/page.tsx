@@ -301,7 +301,10 @@ export default function Dashboard() {
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">VitalTwin Intelligence</p>
-            <h1 className="mt-2 font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-[#F5F2EA] md:text-5xl">
+            <h1
+              className="mt-2 font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-[#F5F2EA] md:text-5xl"
+              suppressHydrationWarning
+            >
               {getGreeting()}{profile?.full_name ? `, ${profile.full_name}` : ''}
             </h1>
             <p className="mt-3 text-[#B7BDC4]">Hier ist dein heutiger VitalTwin-Überblick.</p>
