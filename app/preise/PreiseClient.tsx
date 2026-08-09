@@ -74,6 +74,13 @@ export default function PreiseClient() {
     }
   };
 
+  // Already-logged-in users clicking the Free-plan CTA should land on their
+  // own dashboard, not get sent through the public registration flow again.
+  const goToFreeStart = () => {
+    const token = localStorage.getItem('token');
+    window.location.assign(token ? '/dashboard' : '/?auth=register');
+  };
+
   const activateFreeBeta = async () => {
     setBetaMessage('');
     const token = localStorage.getItem('token');
@@ -278,16 +285,16 @@ export default function PreiseClient() {
 
                 <div className="mt-8">
                   {isFree ? (
-                    <Link
-                      href="/?auth=register"
-                      className={`block rounded-2xl py-3 text-center text-sm font-semibold transition ${
+                    <button
+                      onClick={goToFreeStart}
+                      className={`block w-full rounded-2xl py-3 text-center text-sm font-semibold transition ${
                         isHighlighted
                           ? 'bg-gradient-to-r from-[#F3C979] to-[#C9913D] text-[#0B1118] hover:brightness-110'
                           : 'border border-white/20 text-[#F5F2EA] hover:border-[#58D7D4]/60 hover:text-[#58D7D4]'
                       }`}
                     >
                       {plan.ctaLabel}
-                    </Link>
+                    </button>
                   ) : purchasable ? (
                     <button
                       onClick={() => startCheckout(planId)}
