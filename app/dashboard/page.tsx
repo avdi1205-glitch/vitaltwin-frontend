@@ -64,6 +64,97 @@ type ProfileResponse = {
   starter_calc_remaining?: number | null;
 };
 
+type TodayCheckin = {
+  entry_date: string;
+  sleep_hours?: number | null;
+  sleep_quality?: number | null;
+  movement_minutes?: number | null;
+  water_habit?: string | null;
+  stress?: number | null;
+  energy?: number | null;
+  recovery?: number | null;
+} | null;
+
+const WATER_HABIT_LABELS: Record<string, string> = { wenig: 'Wenig Wasser', mittel: 'Mittel viel Wasser', viel: 'Viel Wasser' };
+
+type DomainCardContent = { status: string | null; hint: string };
+
+/**
+ * "Tagesübersicht": real values from today's own check-in only — never a
+ * computed/fabricated number. Falls back to an honest empty-state hint
+ * with a real next action when the field wasn't filled in today.
+ */
+function domainCardContent(field: 'sleep' | 'movement' | 'nutrition' | 'stress' | 'energy' | 'recovery', checkin: TodayCheckin): DomainCardContent {
+  switch (field) {
+    case 'sleep':
+      if (checkin?.sleep_hours != null) return { status: `${checkin.sleep_hours} Std.`, hint: 'Heutige Schlafdauer aus deinem Check-in.' };
+      if (checkin?.sleep_quality != null) return { status: `${checkin.sleep_quality}/10`, hint: 'Heutige Schlafqualität aus deinem Check-in.' };
+      return { status: null, hint: 'Schlaf im heutigen Check-in ergänzen.' };
+    case 'movement':
+      if (checkin?.movement_minutes != null) return { status: `${checkin.movement_minutes} Min.`, hint: 'Heutige Bewegung aus deinem Check-in.' };
+      return { status: null, hint: 'Bewegung im heutigen Check-in ergänzen.' };
+    case 'nutrition':
+      if (checkin?.water_habit) return { status: WATER_HABIT_LABELS[checkin.water_habit] ?? checkin.water_habit, hint: 'Heutige Wasserzufuhr aus deinem Check-in.' };
+      return { status: null, hint: 'Ernährung/Wasser im heutigen Check-in ergänzen.' };
+    case 'stress':
+      if (checkin?.stress != null) return { status: `${checkin.stress}/10`, hint: 'Heutiger Stresswert aus deinem Check-in.' };
+      return { status: null, hint: 'Stress im heutigen Check-in ergänzen.' };
+    case 'energy':
+      if (checkin?.energy != null) return { status: `${checkin.energy}/10`, hint: 'Heutige Energie aus deinem Check-in.' };
+      return { status: null, hint: 'Energie im heutigen Check-in ergänzen.' };
+    case 'recovery':
+      if (checkin?.recovery != null) return { status: `${checkin.recovery}/10`, hint: 'Heutige Erholung aus deinem Check-in.' };
+      return { status: null, hint: 'Erholung im heutigen Check-in ergänzen (unter "Motivation, Erholung, Notiz").' };
+  }
+}
+
+type NextStep = { headline: string; text: string; ctaLabel: string | null; ctaHref: string | null } | null;
+
+/**
+ * Onboarding-Gate anhand des ECHTEN Datenstands (Check-ins, Twin-Berechnungen)
+ * plus `onboarding_completed` — kein Fake-Fortschrittsbalken, keine erfundene
+ * Prozentzahl, nur eine klare nächste Aktion. Gibt `null` zurück (kein
+ * Banner) sobald genug echte Daten vorhanden sind, damit erfahrene Nutzer
+ * das volle Dashboard ganz normal sehen.
+ */
+function nextStepFor(onboardingCompleted: boolean | null, checkinCount: number | null, historyCount: number): NextStep {
+  if (onboardingCompleted === null || checkinCount === null) return null; // still loading — don't flash a wrong state
+
+  if (!onboardingCompleted && checkinCount === 0 && historyCount === 0) {
+    return {
+      headline: 'Willkommen bei deinem VitalTwin',
+      text: 'Starte mit dem kurzen Onboarding, damit dein Twin deine Ziele und ersten Gewohnheiten kennt.',
+      ctaLabel: 'Onboarding starten',
+      ctaHref: '/onboarding',
+    };
+  }
+  if (checkinCount === 0) {
+    return {
+      headline: 'Dein nächster Schritt',
+      text: 'Noch kein Check-in vorhanden. Mit deinem ersten Check-in beginnt dein Twin, deinen Verlauf aufzubauen.',
+      ctaLabel: 'Ersten Check-in durchführen',
+      ctaHref: '#gewohnheiten',
+    };
+  }
+  if (historyCount === 0) {
+    return {
+      headline: 'Dein nächster Schritt',
+      text: 'Du hast bereits Check-ins erfasst. Ergänze jetzt deine Wellness-Marker für dein erstes Ergebnis.',
+      ctaLabel: 'Marker ergänzen',
+      ctaHref: '#mein-twin',
+    };
+  }
+  if (checkinCount < 7) {
+    return {
+      headline: 'Dein Twin lernt dich noch kennen',
+      text: `Bisher ${checkinCount} ${checkinCount === 1 ? 'Check-in' : 'Check-ins'}. Mit ein paar weiteren Tagen werden Trends und Empfehlungen zuverlässiger.`,
+      ctaLabel: 'Weiteren Check-in ergänzen',
+      ctaHref: '#gewohnheiten',
+    };
+  }
+  return null;
+}
+
 const PLAN_DISPLAY_LABELS: Record<string, string> = { premium: 'Premium', pro: 'Pro', family: 'Family' };
 
 function planDisplayLabel(profile: ProfileResponse | null | undefined): string {
@@ -116,6 +207,9 @@ export default function Dashboard() {
   const [twin, setTwin] = useState<TwinResponse | null>(null);
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [todayCheckin, setTodayCheckin] = useState<TodayCheckin>(null);
+  const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
+  const [checkinCount, setCheckinCount] = useState<number | null>(null);
   const [progressCounts, setProgressCounts] = useState({ week: 0, month: 0 });
   const [loading, setLoading] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -232,6 +326,37 @@ export default function Dashboard() {
     }
   }, []);
 
+  const fetchTodayCheckin = useCallback(async (token: string) => {
+    try {
+      const response = await fetch(apiUrl('/api/profile/daily/today'), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = (await response.json().catch(() => null)) as { item?: TodayCheckin } | null;
+      if (!isMountedRef.current) return;
+      if (response.ok) {
+        setTodayCheckin(data?.item ?? null);
+      }
+    } catch {
+      // Non-fatal — Tagesübersicht just falls back to its honest empty state.
+    }
+  }, []);
+
+  const fetchOnboardingState = useCallback(async (token: string) => {
+    try {
+      const [profileRes, dailyRes] = await Promise.all([
+        fetch(apiUrl('/api/profile/me'), { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(apiUrl('/api/profile/daily?days=90'), { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
+      const profileData = (await profileRes.json().catch(() => null)) as { onboarding_completed?: boolean } | null;
+      const dailyData = (await dailyRes.json().catch(() => null)) as { items?: unknown[] } | null;
+      if (!isMountedRef.current) return;
+      if (profileRes.ok) setOnboardingCompleted(Boolean(profileData?.onboarding_completed));
+      if (dailyRes.ok) setCheckinCount(Array.isArray(dailyData?.items) ? dailyData.items.length : 0);
+    } catch {
+      // Non-fatal — the "nächster Schritt" hint just stays hidden.
+    }
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -242,6 +367,8 @@ export default function Dashboard() {
     const profileTimer = window.setTimeout(() => {
       void fetchProfile(token);
       void fetchHistory(token);
+      void fetchTodayCheckin(token);
+      void fetchOnboardingState(token);
     }, 0);
 
     const params = new URLSearchParams(window.location.search);
@@ -274,7 +401,7 @@ export default function Dashboard() {
         window.clearTimeout(paymentTimer);
       }
     };
-  }, [fetchHistory, fetchProfile, router]);
+  }, [fetchHistory, fetchOnboardingState, fetchProfile, fetchTodayCheckin, router]);
 
   const calculate = useCallback(async () => {
     setErrorMessage('');
@@ -374,6 +501,8 @@ export default function Dashboard() {
       ],
     }
     : null);
+
+  const nextStep = nextStepFor(onboardingCompleted, checkinCount, history.length);
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -604,16 +733,31 @@ export default function Dashboard() {
             </div>
           )}
 
+          {nextStep && (
+            <div className="mt-6 rounded-2xl border border-[#58D7D4]/30 bg-white/[0.03] px-5 py-5">
+              <p className="font-[family-name:var(--font-serif-display)] text-lg font-semibold text-[#F5F2EA]">{nextStep.headline}</p>
+              <p className="mt-2 text-sm text-[#B7BDC4]">{nextStep.text}</p>
+              {nextStep.ctaLabel && nextStep.ctaHref && (
+                <Link
+                  href={nextStep.ctaHref}
+                  className="mt-4 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
+                >
+                  {nextStep.ctaLabel}
+                </Link>
+              )}
+            </div>
+          )}
+
           <h2 className="mt-8 font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
             Tagesübersicht
           </h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            <DomainCard label="Schlaf" hint="Noch keine Schlafdaten erfasst." detailHref="#mein-twin" />
-            <DomainCard label="Bewegung" hint="Noch keine Bewegungsdaten erfasst." detailHref="#gewohnheiten" />
-            <DomainCard label="Ernährung" hint="Noch keine Ernährungsdaten erfasst." detailHref="#gewohnheiten" />
-            <DomainCard label="Stress" hint="Noch keine Stressdaten erfasst." detailHref="#mein-twin" />
-            <DomainCard label="Energie" hint="Noch keine Energiedaten erfasst." detailHref="#gewohnheiten" />
-            <DomainCard label="Erholung" hint="Noch keine Erholungsdaten erfasst." detailHref="#mein-twin" />
+            <DomainCard label="Schlaf" status={domainCardContent('sleep', todayCheckin).status} hint={domainCardContent('sleep', todayCheckin).hint} detailHref="#gewohnheiten" />
+            <DomainCard label="Bewegung" status={domainCardContent('movement', todayCheckin).status} hint={domainCardContent('movement', todayCheckin).hint} detailHref="#gewohnheiten" />
+            <DomainCard label="Ernährung" status={domainCardContent('nutrition', todayCheckin).status} hint={domainCardContent('nutrition', todayCheckin).hint} detailHref="#gewohnheiten" />
+            <DomainCard label="Stress" status={domainCardContent('stress', todayCheckin).status} hint={domainCardContent('stress', todayCheckin).hint} detailHref="#gewohnheiten" />
+            <DomainCard label="Energie" status={domainCardContent('energy', todayCheckin).status} hint={domainCardContent('energy', todayCheckin).hint} detailHref="#gewohnheiten" />
+            <DomainCard label="Erholung" status={domainCardContent('recovery', todayCheckin).status} hint={domainCardContent('recovery', todayCheckin).hint} detailHref="#gewohnheiten" />
           </div>
 
           <h2 className="mt-10 font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
@@ -787,6 +931,52 @@ export default function Dashboard() {
         <div className="mt-6">
           <GoogleHealthConnect />
         </div>
+
+        <section id="gewohnheiten" className="mt-8 scroll-mt-24">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">
+                Du und dein KI-Zwilling
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm text-[#B7BDC4]">
+                Mensch und Twin arbeiten im Takt: Du bringst deine Angaben ein — dein Twin erkennt Trends, Erinnerungen
+                und mögliche Muster daraus. Keine medizinische Bewertung, nur Wellness-Orientierung.
+              </p>
+            </div>
+            <Link
+              href="/profil#datenschutz"
+              className="inline-block shrink-0 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-[#B7BDC4] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
+            >
+              Datenschutz, Export &amp; Löschung
+            </Link>
+          </div>
+
+          <div className="mt-6">
+            <DashboardDailyPlan />
+          </div>
+
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
+            <div className="min-w-0 space-y-6">
+              <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">
+                Du
+              </p>
+              <DashboardCheckin />
+              <DashboardGoals />
+              <DashboardHabits />
+            </div>
+
+            <div className="min-w-0 space-y-6">
+              <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">
+                Dein KI-Zwilling
+              </p>
+              <DashboardTwinMemory />
+              <DashboardRecommendations />
+              <DashboardTrends />
+              <DashboardPersonalBaseline />
+              <DashboardTwinProgress />
+            </div>
+          </div>
+        </section>
 
         {!loadingProfile && profile && !profile.premium && (
           <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#F5F2EA]">
@@ -1260,51 +1450,6 @@ export default function Dashboard() {
           </div>
         </section>
 
-        <section id="gewohnheiten" className="mt-8 scroll-mt-24">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">
-                Du und dein KI-Zwilling
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm text-[#B7BDC4]">
-                Mensch und Twin arbeiten im Takt: Du bringst deine Angaben ein — dein Twin erkennt Trends, Erinnerungen
-                und mögliche Muster daraus. Keine medizinische Bewertung, nur Wellness-Orientierung.
-              </p>
-            </div>
-            <Link
-              href="/profil#datenschutz"
-              className="inline-block shrink-0 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-[#B7BDC4] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
-            >
-              Datenschutz, Export &amp; Löschung
-            </Link>
-          </div>
-
-          <div className="mt-6">
-            <DashboardDailyPlan />
-          </div>
-
-          <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            <div className="min-w-0 space-y-6">
-              <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">
-                Du
-              </p>
-              <DashboardCheckin />
-              <DashboardGoals />
-              <DashboardHabits />
-            </div>
-
-            <div className="min-w-0 space-y-6">
-              <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">
-                Dein KI-Zwilling
-              </p>
-              <DashboardRecommendations />
-              <DashboardPersonalBaseline />
-              <DashboardTrends />
-              <DashboardTwinProgress />
-              <DashboardTwinMemory />
-            </div>
-          </div>
-
           <article className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Frag deinen Twin</h3>
             <p className="mt-2 text-sm text-[#B7BDC4]">
@@ -1324,7 +1469,6 @@ export default function Dashboard() {
               Twin fragen
             </Link>
           </article>
-        </section>
 
         <section className="mt-8">
           <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Fortschritt</h2>

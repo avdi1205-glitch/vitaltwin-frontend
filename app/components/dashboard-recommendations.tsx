@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { apiUrl } from '@/lib/api';
 
@@ -149,9 +150,17 @@ export default function DashboardRecommendations() {
       {errorMessage && <p className="mt-2 text-xs text-red-300">{errorMessage}</p>}
 
       {items.length === 0 ? (
-        <p className="mt-3 text-sm text-[#B7BDC4]">
-          Aktuell keine neuen Empfehlungen. Trag ein paar Tage lang deinen Check-in ein, damit dein Twin Muster erkennen kann.
-        </p>
+        <div className="mt-3">
+          <p className="text-sm text-[#B7BDC4]">
+            Dein Twin braucht noch einige Check-ins, bevor persönliche Empfehlungen möglich sind.
+          </p>
+          <Link
+            href="#gewohnheiten"
+            className="mt-3 inline-block rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
+          >
+            Check-in starten
+          </Link>
+        </div>
       ) : (
         <div className="mt-4 space-y-4">
           {items.map((item) => (
