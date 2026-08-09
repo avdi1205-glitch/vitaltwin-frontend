@@ -9,6 +9,7 @@ import DashboardCheckin from '../components/dashboard-checkin';
 import GoogleHealthConnect from '../components/GoogleHealthConnect';
 import DashboardGoals from '../components/dashboard-goals';
 import DashboardTrends from '../components/dashboard-trends';
+import DashboardChatUsage from '../components/dashboard-chat-usage';
 import DashboardPersonalBaseline from '../components/dashboard-personal-baseline';
 import DashboardRecommendations from '../components/dashboard-recommendations';
 import DashboardTwinMemory from '../components/dashboard-twin-memory';
@@ -1315,6 +1316,7 @@ export default function Dashboard() {
               <li>„Was kann ich heute verbessern?&quot;</li>
               <li>„Welche Gewohnheit hat den größten Einfluss?&quot;</li>
             </ul>
+            <DashboardChatUsage />
             <Link
               href="/frag-deinen-twin"
               className="mt-4 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
