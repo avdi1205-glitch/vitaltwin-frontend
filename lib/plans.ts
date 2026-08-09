@@ -138,6 +138,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     features: [
       { label: 'Alles aus Premium', status: 'available' },
       { label: '90-Tage-Verlauf inklusive', status: 'available' },
+      { label: 'Bis zu 60 KI-Fragen pro Tag', status: 'available' },
       { label: 'Bis zu 6 eigenständige Profile', status: 'coming_soon' },
       { label: 'Getrennte private Nutzerdaten', status: 'coming_soon' },
       { label: 'Gemeinsame Wellness-Challenges', status: 'coming_soon' },
@@ -145,7 +146,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       { label: 'Familienübersicht nur mit klar geregelten Berechtigungen', status: 'coming_soon' },
     ],
     permissions: {
-      aiQuestionsPerDay: 30,
+      aiQuestionsPerDay: 60,
       historyDays: 'extended',
       maxProfiles: 6,
       hasAds: false,
