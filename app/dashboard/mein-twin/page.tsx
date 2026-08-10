@@ -200,8 +200,9 @@ export default function MeinTwinPage() {
             <span className="mb-2 block text-sm text-[#B7BDC4]">Alter</span>
             <input
               type="number"
-              value={form.age}
-              onChange={(e) => setForm({ ...form, age: Number(e.target.value) })}
+              value={form.age === 0 ? '' : form.age}
+              onChange={(e) => setForm({ ...form, age: e.target.value === '' ? 0 : Number(e.target.value) })}
+              onFocus={(e) => e.target.select()}
               className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             />
           </label>
@@ -221,8 +222,9 @@ export default function MeinTwinPage() {
             <input
               type="number"
               step="0.1"
-              value={form.hba1c}
-              onChange={(e) => setForm({ ...form, hba1c: Number(e.target.value) })}
+              value={form.hba1c === 0 ? '' : form.hba1c}
+              onChange={(e) => setForm({ ...form, hba1c: e.target.value === '' ? 0 : Number(e.target.value) })}
+              onFocus={(e) => e.target.select()}
               className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             />
           </label>
@@ -231,8 +233,9 @@ export default function MeinTwinPage() {
             <input
               type="number"
               step="0.1"
-              value={form.crp}
-              onChange={(e) => setForm({ ...form, crp: Number(e.target.value) })}
+              value={form.crp === 0 ? '' : form.crp}
+              onChange={(e) => setForm({ ...form, crp: e.target.value === '' ? 0 : Number(e.target.value) })}
+              onFocus={(e) => e.target.select()}
               className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             />
           </label>
@@ -240,8 +243,9 @@ export default function MeinTwinPage() {
             <span className="mb-2 block text-sm text-[#B7BDC4]">Vitamin D</span>
             <input
               type="number"
-              value={form.vitamin_d}
-              onChange={(e) => setForm({ ...form, vitamin_d: Number(e.target.value) })}
+              value={form.vitamin_d === 0 ? '' : form.vitamin_d}
+              onChange={(e) => setForm({ ...form, vitamin_d: e.target.value === '' ? 0 : Number(e.target.value) })}
+              onFocus={(e) => e.target.select()}
               className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             />
           </label>
@@ -249,8 +253,9 @@ export default function MeinTwinPage() {
             <span className="mb-2 block text-sm text-[#B7BDC4]">ApoB</span>
             <input
               type="number"
-              value={form.apob}
-              onChange={(e) => setForm({ ...form, apob: Number(e.target.value) })}
+              value={form.apob === 0 ? '' : form.apob}
+              onChange={(e) => setForm({ ...form, apob: e.target.value === '' ? 0 : Number(e.target.value) })}
+              onFocus={(e) => e.target.select()}
               className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             />
           </label>
@@ -273,8 +278,9 @@ export default function MeinTwinPage() {
                   <span className="mb-2 block text-sm text-[#B7BDC4]">Nüchternglukose (mg/dL)</span>
                   <input
                     type="number"
-                    value={form.fasting_glucose}
-                    onChange={(e) => setForm({ ...form, fasting_glucose: Number(e.target.value) })}
+                    value={form.fasting_glucose === 0 ? '' : form.fasting_glucose}
+                    onChange={(e) => setForm({ ...form, fasting_glucose: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -282,8 +288,9 @@ export default function MeinTwinPage() {
                   <span className="mb-2 block text-sm text-[#B7BDC4]">HDL-Cholesterin (mg/dL)</span>
                   <input
                     type="number"
-                    value={form.hdl}
-                    onChange={(e) => setForm({ ...form, hdl: Number(e.target.value) })}
+                    value={form.hdl === 0 ? '' : form.hdl}
+                    onChange={(e) => setForm({ ...form, hdl: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -291,8 +298,9 @@ export default function MeinTwinPage() {
                   <span className="mb-2 block text-sm text-[#B7BDC4]">Triglyceride (mg/dL)</span>
                   <input
                     type="number"
-                    value={form.triglycerides}
-                    onChange={(e) => setForm({ ...form, triglycerides: Number(e.target.value) })}
+                    value={form.triglycerides === 0 ? '' : form.triglycerides}
+                    onChange={(e) => setForm({ ...form, triglycerides: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -301,8 +309,9 @@ export default function MeinTwinPage() {
                   <input
                     type="number"
                     step="0.1"
-                    value={form.homocysteine}
-                    onChange={(e) => setForm({ ...form, homocysteine: Number(e.target.value) })}
+                    value={form.homocysteine === 0 ? '' : form.homocysteine}
+                    onChange={(e) => setForm({ ...form, homocysteine: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -311,8 +320,9 @@ export default function MeinTwinPage() {
                   <input
                     type="number"
                     step="0.1"
-                    value={form.tsh}
-                    onChange={(e) => setForm({ ...form, tsh: Number(e.target.value) })}
+                    value={form.tsh === 0 ? '' : form.tsh}
+                    onChange={(e) => setForm({ ...form, tsh: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -320,8 +330,9 @@ export default function MeinTwinPage() {
                   <span className="mb-2 block text-sm text-[#B7BDC4]">Ferritin (ng/mL)</span>
                   <input
                     type="number"
-                    value={form.ferritin}
-                    onChange={(e) => setForm({ ...form, ferritin: Number(e.target.value) })}
+                    value={form.ferritin === 0 ? '' : form.ferritin}
+                    onChange={(e) => setForm({ ...form, ferritin: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -329,8 +340,9 @@ export default function MeinTwinPage() {
                   <span className="mb-2 block text-sm text-[#B7BDC4]">Vitamin B12 (pg/mL)</span>
                   <input
                     type="number"
-                    value={form.vitamin_b12}
-                    onChange={(e) => setForm({ ...form, vitamin_b12: Number(e.target.value) })}
+                    value={form.vitamin_b12 === 0 ? '' : form.vitamin_b12}
+                    onChange={(e) => setForm({ ...form, vitamin_b12: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -339,8 +351,9 @@ export default function MeinTwinPage() {
                   <input
                     type="number"
                     step="0.1"
-                    value={form.omega3_index}
-                    onChange={(e) => setForm({ ...form, omega3_index: Number(e.target.value) })}
+                    value={form.omega3_index === 0 ? '' : form.omega3_index}
+                    onChange={(e) => setForm({ ...form, omega3_index: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -354,8 +367,9 @@ export default function MeinTwinPage() {
                   <span className="mb-2 block text-sm text-[#B7BDC4]">Ruhepuls (bpm)</span>
                   <input
                     type="number"
-                    value={form.resting_heart_rate}
-                    onChange={(e) => setForm({ ...form, resting_heart_rate: Number(e.target.value) })}
+                    value={form.resting_heart_rate === 0 ? '' : form.resting_heart_rate}
+                    onChange={(e) => setForm({ ...form, resting_heart_rate: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -363,8 +377,9 @@ export default function MeinTwinPage() {
                   <span className="mb-2 block text-sm text-[#B7BDC4]">Blutdruck systolisch (mmHg)</span>
                   <input
                     type="number"
-                    value={form.blood_pressure_systolic}
-                    onChange={(e) => setForm({ ...form, blood_pressure_systolic: Number(e.target.value) })}
+                    value={form.blood_pressure_systolic === 0 ? '' : form.blood_pressure_systolic}
+                    onChange={(e) => setForm({ ...form, blood_pressure_systolic: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -372,8 +387,9 @@ export default function MeinTwinPage() {
                   <span className="mb-2 block text-sm text-[#B7BDC4]">Blutdruck diastolisch (mmHg)</span>
                   <input
                     type="number"
-                    value={form.blood_pressure_diastolic}
-                    onChange={(e) => setForm({ ...form, blood_pressure_diastolic: Number(e.target.value) })}
+                    value={form.blood_pressure_diastolic === 0 ? '' : form.blood_pressure_diastolic}
+                    onChange={(e) => setForm({ ...form, blood_pressure_diastolic: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -381,8 +397,9 @@ export default function MeinTwinPage() {
                   <span className="mb-2 block text-sm text-[#B7BDC4]">Taillenumfang (cm)</span>
                   <input
                     type="number"
-                    value={form.waist_circumference}
-                    onChange={(e) => setForm({ ...form, waist_circumference: Number(e.target.value) })}
+                    value={form.waist_circumference === 0 ? '' : form.waist_circumference}
+                    onChange={(e) => setForm({ ...form, waist_circumference: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -391,8 +408,9 @@ export default function MeinTwinPage() {
                   <input
                     type="number"
                     step="0.1"
-                    value={form.sleep_hours}
-                    onChange={(e) => setForm({ ...form, sleep_hours: Number(e.target.value) })}
+                    value={form.sleep_hours === 0 ? '' : form.sleep_hours}
+                    onChange={(e) => setForm({ ...form, sleep_hours: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>
@@ -400,8 +418,9 @@ export default function MeinTwinPage() {
                   <span className="mb-2 block text-sm text-[#B7BDC4]">Griffkraft (kg)</span>
                   <input
                     type="number"
-                    value={form.grip_strength}
-                    onChange={(e) => setForm({ ...form, grip_strength: Number(e.target.value) })}
+                    value={form.grip_strength === 0 ? '' : form.grip_strength}
+                    onChange={(e) => setForm({ ...form, grip_strength: e.target.value === '' ? 0 : Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   />
                 </label>

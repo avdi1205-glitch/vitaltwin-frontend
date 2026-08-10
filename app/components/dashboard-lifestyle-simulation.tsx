@@ -79,14 +79,20 @@ export default function DashboardLifestyleSimulation() {
           className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
         >
           {FIELD_OPTIONS.map((option) => (
-            <option key={option.id} value={option.id}>{option.label}</option>
+            // Explicit dark-on-light colors: the native dropdown popup
+            // ignores the dark theme and renders a light background, so an
+            // inherited light text color would be nearly invisible there.
+            <option key={option.id} value={option.id} className="bg-white text-[#0B1118]">
+              {option.label}
+            </option>
           ))}
         </select>
         <input
           type="number"
           step={activeOption.step}
-          value={delta}
-          onChange={(e) => setDelta(Number(e.target.value))}
+          value={delta === 0 ? '' : delta}
+          onChange={(e) => setDelta(e.target.value === '' ? 0 : Number(e.target.value))}
+          onFocus={(e) => e.target.select()}
           placeholder={`Veränderung (${activeOption.unit})`}
           className="flex-1 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
         />
