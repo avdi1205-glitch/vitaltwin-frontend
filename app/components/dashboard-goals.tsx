@@ -90,15 +90,24 @@ export default function DashboardGoals() {
   };
 
   const setStatus = async (goalId: string, status: Goal['status']) => {
+    setErrorMessage('');
     try {
-      await fetch(apiUrl(`/api/profile/goals/${goalId}`), {
+      const response = await fetch(apiUrl(`/api/profile/goals/${goalId}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...authHeader() },
         body: JSON.stringify({ status }),
       });
+      // A tier limit (e.g. Free/Premium's single-active-goal cap) responds
+      // with a real 403 + explanatory `detail` — must be surfaced, not
+      // silently swallowed (fetch only throws on network failure, not 4xx).
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        setErrorMessage(data?.detail ?? 'Status konnte nicht geändert werden.');
+        return;
+      }
       await loadGoals();
     } catch {
-      setErrorMessage('Status konnte nicht geändert werden.');
+      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
     }
   };
 

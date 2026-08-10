@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { apiUrl } from '@/lib/api';
 import { DEFAULT_TWIN_FORM } from '@/lib/twin-defaults';
+import DashboardAdvancedTwinOverview from '../../components/dashboard-advanced-twin-overview';
+import DashboardLifestyleSimulation from '../../components/dashboard-lifestyle-simulation';
 import { useDashboardShell } from '../dashboard-shell';
 
 type TwinResponse = {
@@ -533,6 +535,25 @@ export default function MeinTwinPage() {
             ))}
           </ul>
         </div>
+
+        {!loadingProfile && profile && (profile.plan === 'pro' || profile.plan === 'family') ? (
+          <DashboardLifestyleSimulation />
+        ) : (
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+            <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Wellness-Szenarien</h3>
+            <p className="mt-2 text-sm text-[#8E969F]">
+              Simuliere rein rechnerisch, wie sich dein eigener 7-Tage-Durchschnitt verändern würde — ein Pro-Feature.
+            </p>
+            <a
+              href="/preise"
+              className="mt-4 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
+            >
+              Pro ansehen
+            </a>
+          </div>
+        )}
+
+        <DashboardAdvancedTwinOverview />
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
           <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Referenzdaten & Quellen</h3>

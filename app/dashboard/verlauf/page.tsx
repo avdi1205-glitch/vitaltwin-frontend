@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { apiUrl } from '@/lib/api';
 import DashboardTrends from '../../components/dashboard-trends';
 import DashboardPersonalBaseline from '../../components/dashboard-personal-baseline';
+import DashboardThirtyDayReport from '../../components/dashboard-thirty-day-report';
 import DashboardTwinProgress from '../../components/dashboard-twin-progress';
 import { useDashboardShell } from '../dashboard-shell';
 
@@ -108,6 +109,7 @@ export default function VerlaufPage() {
 
         <DashboardTrends />
         <DashboardPersonalBaseline />
+        <DashboardThirtyDayReport />
         <DashboardTwinProgress />
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">

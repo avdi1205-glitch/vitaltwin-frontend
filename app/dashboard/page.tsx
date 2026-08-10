@@ -203,9 +203,13 @@ export default function Dashboard() {
 
   const fetchOnboardingState = useCallback(async (token: string) => {
     try {
+      // nextStepFor() only distinguishes 0 / <7 / >=7 check-ins — the
+      // backend already caps rows to whatever `days` is passed, so 7 is
+      // enough to make that exact distinction (was 90, a needlessly heavy
+      // full-row payload just to compute a small count on this light page).
       const [profileRes, dailyRes] = await Promise.all([
         fetch(apiUrl('/api/profile/me'), { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(apiUrl('/api/profile/daily?days=90'), { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(apiUrl('/api/profile/daily?days=7'), { headers: { Authorization: `Bearer ${token}` } }),
       ]);
       const profileData = (await profileRes.json().catch(() => null)) as { onboarding_completed?: boolean } | null;
       const dailyData = (await dailyRes.json().catch(() => null)) as { items?: unknown[] } | null;
