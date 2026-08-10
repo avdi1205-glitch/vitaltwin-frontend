@@ -555,7 +555,12 @@ export default function MeinTwinPage() {
           </ul>
         </div>
 
-        {!loadingProfile && profile && (profile.plan === 'pro' || profile.plan === 'family') ? (
+        {loadingProfile ? (
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+            <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Wellness-Szenarien</h3>
+            <p className="mt-2 text-sm text-[#8E969F]">Lädt...</p>
+          </div>
+        ) : profile && (profile.plan === 'pro' || profile.plan === 'family') ? (
           <DashboardLifestyleSimulation />
         ) : (
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
