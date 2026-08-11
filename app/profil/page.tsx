@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
 import PrivacyControls from '../components/privacy-controls';
+import FamilySection from '../components/family-section';
 
 const WELLNESS_GOALS: { id: string; label: string }[] = [
   { id: 'besser_schlafen', label: 'Besser schlafen' },
@@ -642,6 +643,8 @@ export default function Profil() {
             <PrivacyControls />
           </div>
         </section>
+
+        <FamilySection />
       </div>
     </div>
   );
