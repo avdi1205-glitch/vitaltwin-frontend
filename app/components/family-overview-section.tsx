@@ -2,6 +2,7 @@
 
 import type { FamilyState } from './family-section';
 import type { FamilyGoal } from './family-goals-section';
+import type { FamilyChallenge } from './family-challenges-section';
 
 const ROLE_LABEL: Record<string, string> = { owner: 'Owner', member: 'Mitglied' };
 const STATUS_LABEL: Record<string, string> = {
@@ -17,9 +18,14 @@ type FamilyOverviewSectionProps = {
   goals: FamilyGoal[] | null;
   goalsLoading: boolean;
   goalsError: string;
+  challenges: FamilyChallenge[] | null;
+  challengesLoading: boolean;
+  challengesError: string;
   onInviteMember: () => void;
   onCreateGoal: () => void;
   onViewGoals: () => void;
+  onCreateChallenge: () => void;
+  onViewChallenges: () => void;
   onLeaveFamily: () => void;
 };
 
@@ -38,15 +44,23 @@ export default function FamilyOverviewSection({
   goals,
   goalsLoading,
   goalsError,
+  challenges,
+  challengesLoading,
+  challengesError,
   onInviteMember,
   onCreateGoal,
   onViewGoals,
+  onCreateChallenge,
+  onViewChallenges,
   onLeaveFamily,
 }: FamilyOverviewSectionProps) {
   const activeGoals = goals ?? [];
+  const activeChallenges = challenges ?? [];
   const pendingInvites = state.members.filter((m) => m.status === 'invited').length;
   const participatingUserIds = new Set<number>();
   activeGoals.forEach((goal) => goal.participants.forEach((p) => participatingUserIds.add(p.user_id)));
+  const challengeParticipantIds = new Set<number>();
+  activeChallenges.forEach((c) => c.participants.forEach((p) => challengeParticipantIds.add(p.user_id)));
 
   return (
     <div className="rounded-2xl border border-[#58D7D4]/20 bg-white/[0.02] p-5">
@@ -117,6 +131,12 @@ export default function FamilyOverviewSection({
             </li>
           )}
           {pendingInvites > 0 && <li>{pendingInvites} Einladung(en) ausstehend</li>}
+          {!challengesLoading && !challengesError && (
+            <>
+              <li>{activeChallenges.length} aktive Challenges</li>
+              <li>{challengeParticipantIds.size} Teilnehmer insgesamt bei Challenges</li>
+            </>
+          )}
         </ul>
       )}
 
@@ -136,6 +156,12 @@ export default function FamilyOverviewSection({
             >
               Familienziel erstellen
             </button>
+            <button
+              onClick={onCreateChallenge}
+              className="rounded-lg border border-white/20 px-3 py-1.5 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
+            >
+              Challenge erstellen
+            </button>
           </>
         )}
         {state.role === 'member' && (
@@ -145,6 +171,12 @@ export default function FamilyOverviewSection({
               className="rounded-lg border border-white/20 px-3 py-1.5 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
             >
               Familienziele ansehen
+            </button>
+            <button
+              onClick={onViewChallenges}
+              className="rounded-lg border border-white/20 px-3 py-1.5 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
+            >
+              Challenges ansehen
             </button>
             {state.status === 'active' && (
               <button

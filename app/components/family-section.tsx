@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { apiUrl } from '@/lib/api';
 import FamilyGoalsSection, { type FamilyGoal } from './family-goals-section';
+import FamilyChallengesSection, { type FamilyChallenge } from './family-challenges-section';
 import FamilyOverviewSection from './family-overview-section';
 
 export type FamilyMember = {
@@ -42,6 +43,11 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
   const [goalsLoading, setGoalsLoading] = useState(true);
   const [goalsError, setGoalsError] = useState('');
   const [openCreateGoalSignal, setOpenCreateGoalSignal] = useState(0);
+
+  const [challenges, setChallenges] = useState<FamilyChallenge[] | null>(null);
+  const [challengesLoading, setChallengesLoading] = useState(true);
+  const [challengesError, setChallengesError] = useState('');
+  const [openCreateChallengeSignal, setOpenCreateChallengeSignal] = useState(0);
 
   const inviteInputRef = useRef<HTMLInputElement>(null);
 
@@ -86,20 +92,41 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
     }
   }, [authHeader]);
 
+  const loadChallenges = useCallback(async () => {
+    setChallengesLoading(true);
+    setChallengesError('');
+    try {
+      const response = await fetch(apiUrl('/api/family/challenges'), { headers: authHeader() });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setChallengesError(data?.detail ?? 'Familien-Challenges konnten nicht geladen werden.');
+        return;
+      }
+      setChallenges(data.challenges ?? []);
+    } catch {
+      setChallengesError('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+    } finally {
+      setChallengesLoading(false);
+    }
+  }, [authHeader]);
+
   useEffect(() => {
     const timer = window.setTimeout(() => void load(), 0);
     return () => window.clearTimeout(timer);
   }, [load]);
 
-  // Family Goals are only meaningful once membership is active — fetched
-  // exactly once here and shared by both FamilyOverviewSection and
-  // FamilyGoalsSection (no duplicate requests).
+  // Family Goals/Challenges are only meaningful once membership is active —
+  // each fetched exactly once here and shared by FamilyOverviewSection and
+  // their respective detail sections (no duplicate requests).
   useEffect(() => {
     if (state?.in_family && state.status === 'active') {
-      const timer = window.setTimeout(() => void loadGoals(), 0);
+      const timer = window.setTimeout(() => {
+        void loadGoals();
+        void loadChallenges();
+      }, 0);
       return () => window.clearTimeout(timer);
     }
-  }, [state?.in_family, state?.status, loadGoals]);
+  }, [state?.in_family, state?.status, loadGoals, loadChallenges]);
 
   const runAction = async (path: string, method: string, body?: object) => {
     setBusy(true);
@@ -138,6 +165,10 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
 
   const scrollToGoals = () => {
     document.getElementById('family-goals-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const scrollToChallenges = () => {
+    document.getElementById('family-challenges-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const ROLE_LABEL: Record<string, string> = { owner: 'Owner', member: 'Mitglied' };
@@ -199,9 +230,14 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
             goals={goals}
             goalsLoading={goalsLoading}
             goalsError={goalsError}
+            challenges={challenges}
+            challengesLoading={challengesLoading}
+            challengesError={challengesError}
             onInviteMember={focusInvite}
             onCreateGoal={() => setOpenCreateGoalSignal((n) => n + 1)}
             onViewGoals={scrollToGoals}
+            onCreateChallenge={() => setOpenCreateChallengeSignal((n) => n + 1)}
+            onViewChallenges={scrollToChallenges}
             onLeaveFamily={() => void runAction('/api/family/leave', 'POST')}
           />
 
@@ -287,6 +323,17 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
               errorMessage={goalsError}
               onChanged={() => void loadGoals()}
               openCreateFormSignal={openCreateGoalSignal}
+            />
+          )}
+
+          {state.status === 'active' && (
+            <FamilyChallengesSection
+              role={state.role}
+              challenges={challenges}
+              loading={challengesLoading}
+              errorMessage={challengesError}
+              onChanged={() => void loadChallenges()}
+              openCreateFormSignal={openCreateChallengeSignal}
             />
           )}
         </div>
