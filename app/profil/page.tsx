@@ -644,7 +644,7 @@ export default function Profil() {
           </div>
         </section>
 
-        <FamilySection />
+        <FamilySection currentUserEmail={profile?.email ?? null} />
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { apiUrl } from '@/lib/api';
 
-type GoalParticipant = {
+export type GoalParticipant = {
   user_id: number;
   email: string;
   display_name: string | null;
@@ -11,7 +11,7 @@ type GoalParticipant = {
   completed: boolean | null;
 };
 
-type FamilyGoal = {
+export type FamilyGoal = {
   id: number;
   title: string;
   description: string | null;
@@ -26,55 +26,58 @@ type FamilyGoal = {
   completed_count: number;
 };
 
+type FamilyGoalsSectionProps = {
+  role: 'owner' | 'member' | null;
+  goals: FamilyGoal[] | null;
+  loading: boolean;
+  errorMessage: string;
+  onChanged: () => void;
+  /** Incrementing signal from the Family Overview's "Familienziel erstellen" quick action — opens the create form when it changes. */
+  openCreateFormSignal?: number;
+};
+
 /**
  * Familienziele (Beta, Family tier): gemeinsame Koordinations-Ziele — NIE
  * private Wellness-Daten. Zeigt nur explizit für dieses Ziel eingetragenen
  * Fortschritt (Teilnahme/Zahl/erledigt), niemals Check-ins, CGM, Google
  * Health, Twin-Chat, persönliche Ziele/Gewohnheiten. Backend:
- * /api/family/goals*.
+ * /api/family/goals*. Goals are fetched ONCE by the parent FamilySection
+ * (shared with FamilyOverviewSection) — this component only mutates.
  */
-export default function FamilyGoalsSection({ role }: { role: 'owner' | 'member' | null }) {
-  const [goals, setGoals] = useState<FamilyGoal[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
+export default function FamilyGoalsSection({
+  role,
+  goals,
+  loading,
+  errorMessage,
+  onChanged,
+  openCreateFormSignal,
+}: FamilyGoalsSectionProps) {
   const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [title, setTitle] = useState('');
   const [progressDrafts, setProgressDrafts] = useState<Record<number, string>>({});
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const lastSignalRef = useRef(openCreateFormSignal);
+
+  useEffect(() => {
+    if (openCreateFormSignal !== undefined && openCreateFormSignal !== lastSignalRef.current) {
+      lastSignalRef.current = openCreateFormSignal;
+      setShowCreateForm(true);
+      window.setTimeout(() => titleInputRef.current?.focus(), 50);
+    }
+  }, [openCreateFormSignal]);
 
   const authHeader = useCallback((): Record<string, string> => {
     const token = localStorage.getItem('token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   }, []);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setErrorMessage('');
-    try {
-      const response = await fetch(apiUrl('/api/family/goals'), { headers: authHeader() });
-      const data = await response.json().catch(() => null);
-      if (!response.ok) {
-        setErrorMessage(data?.detail ?? 'Familienziele konnten nicht geladen werden.');
-        return;
-      }
-      setGoals(data.goals ?? []);
-    } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
-    } finally {
-      setLoading(false);
-    }
-  }, [authHeader]);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => void load(), 0);
-    return () => window.clearTimeout(timer);
-  }, [load]);
-
   const createGoal = async () => {
     const trimmed = title.trim();
     if (!trimmed || busy) return;
     setBusy(true);
-    setErrorMessage('');
+    setActionError('');
     try {
       const response = await fetch(apiUrl('/api/family/goals'), {
         method: 'POST',
@@ -83,14 +86,14 @@ export default function FamilyGoalsSection({ role }: { role: 'owner' | 'member' 
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage(data?.detail ?? 'Familienziel konnte nicht gespeichert werden.');
+        setActionError(data?.detail ?? 'Familienziel konnte nicht gespeichert werden.');
         return;
       }
       setTitle('');
       setShowCreateForm(false);
-      await load();
+      onChanged();
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setActionError('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
     } finally {
       setBusy(false);
     }
@@ -98,7 +101,7 @@ export default function FamilyGoalsSection({ role }: { role: 'owner' | 'member' 
 
   const joinGoal = async (goalId: number) => {
     setBusy(true);
-    setErrorMessage('');
+    setActionError('');
     try {
       const response = await fetch(apiUrl(`/api/family/goals/${goalId}/join`), {
         method: 'POST',
@@ -106,12 +109,12 @@ export default function FamilyGoalsSection({ role }: { role: 'owner' | 'member' 
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage(data?.detail ?? 'Teilnahme fehlgeschlagen.');
+        setActionError(data?.detail ?? 'Teilnahme fehlgeschlagen.');
         return;
       }
-      await load();
+      onChanged();
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setActionError('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
     } finally {
       setBusy(false);
     }
@@ -119,7 +122,7 @@ export default function FamilyGoalsSection({ role }: { role: 'owner' | 'member' 
 
   const updateProgress = async (goalId: number, completed?: boolean) => {
     setBusy(true);
-    setErrorMessage('');
+    setActionError('');
     try {
       const draft = progressDrafts[goalId];
       const body: { progress_value?: number; completed?: boolean } = {};
@@ -132,12 +135,12 @@ export default function FamilyGoalsSection({ role }: { role: 'owner' | 'member' 
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage(data?.detail ?? 'Fortschritt konnte nicht gespeichert werden.');
+        setActionError(data?.detail ?? 'Fortschritt konnte nicht gespeichert werden.');
         return;
       }
-      await load();
+      onChanged();
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setActionError('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
     } finally {
       setBusy(false);
     }
@@ -145,28 +148,29 @@ export default function FamilyGoalsSection({ role }: { role: 'owner' | 'member' 
 
   const archiveGoal = async (goalId: number) => {
     setBusy(true);
-    setErrorMessage('');
+    setActionError('');
     try {
       const response = await fetch(apiUrl(`/api/family/goals/${goalId}`), { method: 'DELETE', headers: authHeader() });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage(data?.detail ?? 'Familienziel konnte nicht archiviert werden.');
+        setActionError(data?.detail ?? 'Familienziel konnte nicht archiviert werden.');
         return;
       }
-      await load();
+      onChanged();
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setActionError('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="mt-6 border-t border-white/10 pt-6">
+    <div id="family-goals-section" className="mt-6 border-t border-white/10 pt-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="font-[family-name:var(--font-serif-display)] text-lg font-semibold text-[#F5F2EA]">Familienziele</h3>
         {role === 'owner' && (
           <button
+            id="family-goals-create-button"
             onClick={() => setShowCreateForm((current) => !current)}
             className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
           >
@@ -182,6 +186,7 @@ export default function FamilyGoalsSection({ role }: { role: 'owner' | 'member' 
       {showCreateForm && role === 'owner' && (
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <input
+            ref={titleInputRef}
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -199,6 +204,7 @@ export default function FamilyGoalsSection({ role }: { role: 'owner' | 'member' 
       )}
 
       {errorMessage && <p className="mt-4 text-sm text-red-300">{errorMessage}</p>}
+      {actionError && <p className="mt-4 text-sm text-red-300">{actionError}</p>}
 
       {loading && <p className="mt-4 text-[#8E969F]">Lädt...</p>}
 

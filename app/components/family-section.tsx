@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { apiUrl } from '@/lib/api';
-import FamilyGoalsSection from './family-goals-section';
+import FamilyGoalsSection, { type FamilyGoal } from './family-goals-section';
+import FamilyOverviewSection from './family-overview-section';
 
-type FamilyMember = {
+export type FamilyMember = {
   user_id: number;
   email: string;
   display_name: string | null;
@@ -12,7 +13,7 @@ type FamilyMember = {
   status: 'active' | 'invited' | 'removed' | 'left';
 };
 
-type FamilyState = {
+export type FamilyState = {
   in_family: boolean;
   eligible_to_create: boolean;
   family_id: number | null;
@@ -29,13 +30,20 @@ type FamilyState = {
  * Mitglied bleibt ein vollständig unabhängiges VitalTwin-Konto. Backend:
  * /api/family/*.
  */
-export default function FamilySection() {
+export default function FamilySection({ currentUserEmail }: { currentUserEmail?: string | null }) {
   const [state, setState] = useState<FamilyState | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [actionMessage, setActionMessage] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   const [busy, setBusy] = useState(false);
+
+  const [goals, setGoals] = useState<FamilyGoal[] | null>(null);
+  const [goalsLoading, setGoalsLoading] = useState(true);
+  const [goalsError, setGoalsError] = useState('');
+  const [openCreateGoalSignal, setOpenCreateGoalSignal] = useState(0);
+
+  const inviteInputRef = useRef<HTMLInputElement>(null);
 
   const authHeader = useCallback((): Record<string, string> => {
     const token = localStorage.getItem('token');
@@ -60,10 +68,38 @@ export default function FamilySection() {
     }
   }, [authHeader]);
 
+  const loadGoals = useCallback(async () => {
+    setGoalsLoading(true);
+    setGoalsError('');
+    try {
+      const response = await fetch(apiUrl('/api/family/goals'), { headers: authHeader() });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setGoalsError(data?.detail ?? 'Familienziele konnten nicht geladen werden.');
+        return;
+      }
+      setGoals(data.goals ?? []);
+    } catch {
+      setGoalsError('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+    } finally {
+      setGoalsLoading(false);
+    }
+  }, [authHeader]);
+
   useEffect(() => {
     const timer = window.setTimeout(() => void load(), 0);
     return () => window.clearTimeout(timer);
   }, [load]);
+
+  // Family Goals are only meaningful once membership is active — fetched
+  // exactly once here and shared by both FamilyOverviewSection and
+  // FamilyGoalsSection (no duplicate requests).
+  useEffect(() => {
+    if (state?.in_family && state.status === 'active') {
+      const timer = window.setTimeout(() => void loadGoals(), 0);
+      return () => window.clearTimeout(timer);
+    }
+  }, [state?.in_family, state?.status, loadGoals]);
 
   const runAction = async (path: string, method: string, body?: object) => {
     setBusy(true);
@@ -93,6 +129,15 @@ export default function FamilySection() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const focusInvite = () => {
+    inviteInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(() => inviteInputRef.current?.focus(), 300);
+  };
+
+  const scrollToGoals = () => {
+    document.getElementById('family-goals-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const ROLE_LABEL: Record<string, string> = { owner: 'Owner', member: 'Mitglied' };
@@ -148,6 +193,18 @@ export default function FamilySection() {
 
       {!loading && state && state.in_family && (
         <div className="mt-4 space-y-4">
+          <FamilyOverviewSection
+            state={state}
+            currentUserEmail={currentUserEmail ?? null}
+            goals={goals}
+            goalsLoading={goalsLoading}
+            goalsError={goalsError}
+            onInviteMember={focusInvite}
+            onCreateGoal={() => setOpenCreateGoalSignal((n) => n + 1)}
+            onViewGoals={scrollToGoals}
+            onLeaveFamily={() => void runAction('/api/family/leave', 'POST')}
+          />
+
           <div className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-[#F5F2EA]">
             Deine Rolle: {ROLE_LABEL[state.role ?? ''] ?? state.role} · Status: {STATUS_LABEL[state.status ?? ''] ?? state.status} ·
             Mitglieder: {state.member_count_active} / {state.max_members}
@@ -181,6 +238,7 @@ export default function FamilySection() {
           {state.role === 'owner' && state.status === 'active' && (
             <div className="flex flex-col gap-2 sm:flex-row">
               <input
+                ref={inviteInputRef}
                 type="email"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
@@ -213,6 +271,7 @@ export default function FamilySection() {
           )}
 
           <button
+            id="family-leave-button"
             onClick={() => void runAction('/api/family/leave', 'POST')}
             disabled={busy}
             className="rounded-lg border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 disabled:cursor-not-allowed disabled:opacity-60"
@@ -220,9 +279,19 @@ export default function FamilySection() {
             Family verlassen
           </button>
 
-          {state.status === 'active' && <FamilyGoalsSection role={state.role} />}
+          {state.status === 'active' && (
+            <FamilyGoalsSection
+              role={state.role}
+              goals={goals}
+              loading={goalsLoading}
+              errorMessage={goalsError}
+              onChanged={() => void loadGoals()}
+              openCreateFormSignal={openCreateGoalSignal}
+            />
+          )}
         </div>
       )}
     </section>
   );
 }
+
