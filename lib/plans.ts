@@ -88,7 +88,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       { label: 'Wochenberichte', status: 'available' },
       { label: 'Erweiterter Verlauf bis zu 90 Tage', status: 'available' },
       { label: 'Keine Werbung', status: 'available' },
-      { label: 'Automatische Gesundheitsdaten über Google Health', status: 'beta' },
+      { label: 'Automatische Gesundheitsdaten über Google Health', status: 'available' },
     ],
     permissions: {
       aiQuestionsPerDay: 30,
