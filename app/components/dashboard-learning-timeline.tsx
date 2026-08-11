@@ -9,7 +9,8 @@ type TimelineCategory =
   | 'UPDATED'
   | 'CORRECTED_BY_USER'
   | 'DISCARDED'
-  | 'FEEDBACK_ADAPTATION';
+  | 'FEEDBACK_ADAPTATION'
+  | 'CONTRADICTED';
 
 type TimelineEntry = {
   id: string;
@@ -38,6 +39,7 @@ const CATEGORY_LABELS: Record<TimelineCategory, string> = {
   CORRECTED_BY_USER: 'Von dir korrigiert',
   DISCARDED: 'Verworfen',
   FEEDBACK_ADAPTATION: 'Feedback berücksichtigt',
+  CONTRADICTED: 'Infrage gestellt',
 };
 
 const CATEGORY_COLORS: Record<TimelineCategory, string> = {
@@ -47,6 +49,7 @@ const CATEGORY_COLORS: Record<TimelineCategory, string> = {
   CORRECTED_BY_USER: 'border-[#F3C979]/40 text-[#F3C979]',
   DISCARDED: 'border-white/20 text-[#8E969F]',
   FEEDBACK_ADAPTATION: 'border-[#58D7D4]/40 text-[#58D7D4]',
+  CONTRADICTED: 'border-[#F3C979]/40 text-[#F3C979]',
 };
 
 const PAGE_SIZE = 20;
