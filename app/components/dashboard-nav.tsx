@@ -30,7 +30,7 @@ export default function DashboardNav() {
 
   const links = [
     { href: '/dashboard', label: 'Übersicht' },
-    { href: '/dashboard/blutzucker', label: 'Blutzucker & Ernährung' },
+    { href: '/dashboard/blutzucker', label: 'Blutzucker & Ernährung', badge: 'Premium' },
     { href: '/dashboard/gesundheitsdaten', label: 'Gesundheitsdaten' },
     { href: '/dashboard/gewohnheiten', label: 'Gewohnheiten' },
     { href: '/dashboard/mein-twin', label: 'Mein Twin' },
@@ -64,8 +64,13 @@ export default function DashboardNav() {
         </button>
         <div className="hidden flex-wrap items-center gap-4 text-sm font-medium text-[#B7BDC4] md:flex">
           {links.map((link) => (
-            <Link key={link.label} href={link.href} className="transition hover:text-[#58D7D4]">
+            <Link key={link.label} href={link.href} className="flex items-center gap-1.5 transition hover:text-[#58D7D4]">
               {link.label}
+              {link.badge && (
+                <span className="rounded-full border border-white/15 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-[#8E969F]">
+                  {link.badge}
+                </span>
+              )}
             </Link>
           ))}
         </div>
@@ -78,9 +83,14 @@ export default function DashboardNav() {
               key={link.label}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              className="rounded-xl px-2 py-3"
+              className="flex items-center gap-1.5 rounded-xl px-2 py-3"
             >
               {link.label}
+              {link.badge && (
+                <span className="rounded-full border border-white/15 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-[#8E969F]">
+                  {link.badge}
+                </span>
+              )}
             </Link>
           ))}
         </div>

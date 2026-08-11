@@ -31,6 +31,7 @@ export default function Datenschutz() {
                 <li>Accountdaten wie Name und E-Mail-Adresse</li>
                 <li>Biomarker und Eingaben aus dem Dashboard</li>
                 <li>Freiwillige Profil-, Ziele-, Alltags- und Gewohnheitsangaben</li>
+                <li>Abgeleitete, verdichtete Zusammenfassungen deines Twin-Zustands im Zeitverlauf (keine doppelte Rohdaten-Speicherung), um dir zu zeigen, wie sich dein Twin und deine Wellness-Entwicklung über Zeit verändern</li>
                 <li>Nachrichten an &quot;Frag deinen Twin&quot; (nur zur Erzeugung der Antwort, siehe KI-Hinweise) sowie die Anzahl deiner täglichen Anfragen</li>
                 <li>Technische Logdaten zur Stabilität und Sicherheit</li>
                 <li>Zahlungsinformationen bei Premium-Abschluss über Stripe</li>
@@ -43,6 +44,11 @@ export default function Datenschutz() {
                 Die Verarbeitung erfolgt zur Bereitstellung der Plattform, zur Berechnung deines Digital Twins, zur
                 Vertragserfüllung sowie zur sicheren Zahlungsabwicklung. Rechtsgrundlagen sind insbesondere Art. 6
                 Abs. 1 lit. b und lit. f DSGVO.
+              </p>
+              <p className="mt-3 text-[#B7BDC4]">
+                Die abgeleiteten Twin-Zustands-Zusammenfassungen dienen ausschließlich der langfristigen
+                Personalisierung und der Darstellung deiner eigenen Entwicklung über Zeit. Sie sind deinem Konto
+                zugeordnet und in unsere bestehende Export- und Lösch-Architektur eingebunden (siehe Ziffer 7).
               </p>
             </section>
 

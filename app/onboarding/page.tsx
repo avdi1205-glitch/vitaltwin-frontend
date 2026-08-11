@@ -31,6 +31,7 @@ export default function Onboarding() {
   const [newHabitName, setNewHabitName] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('token');
@@ -86,7 +87,7 @@ export default function Onboarding() {
         });
       }
 
-      router.push('/dashboard');
+      setCompleted(true);
     } catch {
       setMessage('Speichern hat nicht ganz geklappt — du kannst alles jederzeit in deinem Profil nachtragen.');
     } finally {
@@ -216,7 +217,7 @@ export default function Onboarding() {
             </>
           )}
 
-          {step === 4 && (
+          {step === 4 && !completed && (
             <>
               <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">Zusammenfassung</h2>
               <div className="mt-4 space-y-3 text-sm text-[#B7BDC4]">
@@ -232,7 +233,41 @@ export default function Onboarding() {
             </>
           )}
 
-          {step > 0 && (
+          {completed && (() => {
+            const hasStartedData = Boolean(sleepHours || movementDays || habitNames.length > 0);
+            const primaryAction = hasStartedData
+              ? { label: 'Frag deinen Twin', href: '/frag-deinen-twin' }
+              : { label: 'Ersten Check-in machen', href: '/dashboard/gewohnheiten' };
+            return (
+              <div className="text-center">
+                <VitalTwinMark variant="icon" theme="dark" className="mx-auto h-9 w-auto" />
+                <h2 className="mt-5 font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">Dein Twin ist bereit</h2>
+                <p className="mx-auto mt-3 max-w-md text-sm text-[#B7BDC4]">
+                  Dein Twin startet jetzt mit dem, was du ihm gegeben hast — und wird mit jedem Check-in, verbundenen
+                  Datenpunkt und Feedback persönlicher.
+                </p>
+                <Link
+                  href={primaryAction.href}
+                  className="mt-6 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-8 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
+                >
+                  {primaryAction.label}
+                </Link>
+                <div className="mt-4 flex flex-wrap justify-center gap-3">
+                  <Link href="/dashboard/gesundheitsdaten" className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60">
+                    Gesundheitsdaten verbinden
+                  </Link>
+                  <Link href="/dashboard/mein-twin" className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60">
+                    Mein Twin ansehen
+                  </Link>
+                </div>
+                <Link href="/dashboard" className="mt-5 inline-block text-xs text-[#8E969F] underline hover:text-[#58D7D4]">
+                  Später zum Dashboard
+                </Link>
+              </div>
+            );
+          })()}
+
+          {step > 0 && !completed && (
             <div className="mt-8 flex flex-wrap justify-between gap-3">
               <button
                 onClick={goBack}

@@ -14,11 +14,11 @@ import DashboardBrandMark from '../components/brand/DashboardBrandMark';
 export const dynamic = 'force-dynamic';
 
 const EXAMPLE_QUESTIONS = [
-  'Wie war meine Woche?',
-  'Was kann ich heute verbessern?',
-  'Wie kann ich regelmäßiger schlafen?',
-  'Welche Gewohnheit sollte ich zuerst aufbauen?',
-  'Wie entwickle ich mehr Bewegung im Alltag?',
+  'Was hat mein Twin über mich gelernt?',
+  'Wie hat sich mein Twin bisher entwickelt?',
+  'Welche Muster erkennst du in meinen Daten?',
+  'Wie war meine letzte Woche im Vergleich zu meinem persönlichen Verlauf?',
+  'Welche meiner Daten nutzt du für diese Antwort?',
 ];
 
 const MAX_INPUT_LENGTH = 500;
@@ -177,6 +177,10 @@ export default function FragDeinenTwin() {
         </div>
         <p className="mt-2 text-sm text-[#B7BDC4]">
           Erhalte persönliche Impulse auf Basis deiner freiwillig gespeicherten Wellness-Daten.
+        </p>
+        <p className="mt-1 text-xs text-[#8E969F]">
+          Antworten basieren auf deinen freigegebenen VitalTwin-Daten, Erinnerungen, Mustern und deinem persönlichen
+          Verlauf – soweit genügend Daten vorhanden sind.
         </p>
 
         <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-[#B7BDC4]">

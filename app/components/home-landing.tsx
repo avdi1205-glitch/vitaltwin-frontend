@@ -55,28 +55,56 @@ export default function HomeLanding({
 
       <VitalTwinHero onOpenRegister={() => openAuth('register')} />
 
+      <section className="border-y border-white/10 bg-white/[0.02]">
+        <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
+          <p className="font-[family-name:var(--font-mono-technical)] text-xs font-semibold uppercase tracking-[0.3em] text-[#8E969F]">Was VitalTwin anders macht</p>
+          <h2 className="mt-3 font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-[#F5F2EA] md:text-4xl">Ein Twin, der mit dir wächst</h2>
+          <p className="mt-4 max-w-2xl text-[#B7BDC4]">
+            VitalTwin ist kein einmaliger Test, sondern ein persönlicher Zwilling, der dich über Zeit immer besser versteht.
+          </p>
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <article className="rounded-2xl border border-[#F3C979]/25 bg-white/[0.03] p-6">
+              <p className="font-[family-name:var(--font-mono-technical)] text-xs font-semibold uppercase tracking-[0.2em] text-[#F3C979]">Lernt deinen Alltag</p>
+              <p className="mt-3 text-sm text-[#B7BDC4]">Dein Twin merkt sich bestätigte Routinen, Ziele und dein Feedback &mdash; und wird mit der Zeit persönlicher.</p>
+            </article>
+            <article className="rounded-2xl border border-[#58D7D4]/25 bg-white/[0.03] p-6">
+              <p className="font-[family-name:var(--font-mono-technical)] text-xs font-semibold uppercase tracking-[0.2em] text-[#58D7D4]">Versteht deinen Verlauf</p>
+              <p className="mt-3 text-sm text-[#B7BDC4]">Persönliche Baselines, Trends und Entwicklung über Zeit &mdash; statt nur ein einmaliger Momentwert.</p>
+            </article>
+            <article className="rounded-2xl border border-[#F3C979]/25 bg-white/[0.03] p-6">
+              <p className="font-[family-name:var(--font-mono-technical)] text-xs font-semibold uppercase tracking-[0.2em] text-[#F3C979]">Verbindet deine Daten</p>
+              <p className="mt-3 text-sm text-[#B7BDC4]">Manuelle Wellness-Angaben, automatisch ergänzte Datenquellen und &mdash; wo verfügbar &mdash; Stoffwechselwerte an einem Ort.</p>
+            </article>
+            <article className="rounded-2xl border border-[#58D7D4]/25 bg-white/[0.03] p-6">
+              <p className="font-[family-name:var(--font-mono-technical)] text-xs font-semibold uppercase tracking-[0.2em] text-[#58D7D4]">Erklärt seine Erkenntnisse</p>
+              <p className="mt-3 text-sm text-[#B7BDC4]">Immer mit Quellenangabe und &quot;Warum?&quot; &mdash; statt unbegründeter Black-Box-Aussagen.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
         <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-[#F5F2EA] md:text-4xl">So funktioniert VitalTwin</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <p className="font-semibold text-[#8E969F]">01</p>
-            <h3 className="mt-2 text-xl font-semibold text-[#F5F2EA]">Profil erstellen</h3>
-            <p className="mt-3 text-[#B7BDC4]">Registriere dich in wenigen Minuten und lege dein persönliches Wellness-Profil an.</p>
+            <h3 className="mt-2 text-xl font-semibold text-[#F5F2EA]">Deine Daten, deine Entscheidung</h3>
+            <p className="mt-3 text-[#B7BDC4]">Du entscheidest, welche Wellness-Daten dein Twin kennt &mdash; manuell eingetragen oder automatisch über kompatible Datenquellen ergänzt.</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <p className="font-semibold text-[#8E969F]">02</p>
-            <h3 className="mt-2 text-xl font-semibold text-[#F5F2EA]">Gewohnheiten dokumentieren</h3>
-            <p className="mt-3 text-[#B7BDC4]">Trage freiwillig Werte und Gewohnheiten zu Schlaf, Bewegung, Ernährung und mehr ein.</p>
+            <h3 className="mt-2 text-xl font-semibold text-[#F5F2EA]">Deine persönliche Baseline</h3>
+            <p className="mt-3 text-[#B7BDC4]">VitalTwin vergleicht dich mit deiner eigenen Entwicklung statt nur mit allgemeinen Durchschnittswerten.</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <p className="font-semibold text-[#8E969F]">03</p>
-            <h3 className="mt-2 text-xl font-semibold text-[#F5F2EA]">Entwicklung verstehen</h3>
-            <p className="mt-3 text-[#B7BDC4]">Dein Zwilling ordnet deine Werte ein und zeigt, wie sich dein Wellness-Profil entwickelt.</p>
+            <h3 className="mt-2 text-xl font-semibold text-[#F5F2EA]">Lernt mit der Zeit</h3>
+            <p className="mt-3 text-[#B7BDC4]">Dein Twin merkt sich bestätigte Routinen, Ziele und dein Feedback und wird mit der Zeit persönlicher.</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <p className="font-semibold text-[#8E969F]">04</p>
-            <h3 className="mt-2 text-xl font-semibold text-[#F5F2EA]">Empfehlungen erhalten</h3>
-            <p className="mt-3 text-[#B7BDC4]">Du bekommst persönliche, verständliche Impulse &mdash; ohne Fachjargon.</p>
+            <h3 className="mt-2 text-xl font-semibold text-[#F5F2EA]">Erkennt Muster, erklärt sie</h3>
+            <p className="mt-3 text-[#B7BDC4]">VitalTwin erkennt wiederkehrende Muster in deinen eigenen Daten und zeigt transparent, worauf jede Einschätzung beruht.</p>
           </div>
         </div>
       </section>
@@ -155,7 +183,7 @@ export default function HomeLanding({
             </article>
             <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <h3 className="text-lg font-semibold text-[#F5F2EA]">Langfristiger Verlauf</h3>
-              <p className="mt-3 text-sm text-[#B7BDC4]">Verfolge deine Entwicklung über Wochen und Monate statt nur eine Momentaufnahme zu sehen.</p>
+              <p className="mt-3 text-sm text-[#B7BDC4]">Du siehst nicht nur deinen heutigen Stand, sondern wie sich dein Twin und sein Verständnis von dir über Zeit entwickeln.</p>
             </article>
             <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <h3 className="text-lg font-semibold text-[#F5F2EA]">Individuelle Ziele</h3>
@@ -169,7 +197,7 @@ export default function HomeLanding({
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-[#F5F2EA] md:text-4xl">Preise im Überblick</h2>
           <Link href="/preise" className="text-sm font-semibold text-[#58D7D4] underline hover:text-[#F3C979]">
-            Alle Preise ansehen
+            Alle Tarife vergleichen →
           </Link>
         </div>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -182,14 +210,19 @@ export default function HomeLanding({
             <p className="text-xs font-semibold uppercase tracking-widest text-[#F3C979]">Empfohlen</p>
             <h3 className="mt-2 text-xl font-semibold">Beta-Zugang</h3>
             <p className="mt-2 text-3xl font-bold">0 €</p>
-            <p className="mt-3 text-sm text-[#B7BDC4]">Unbegrenzte Simulationen und Verlauf, kostenlos während der Beta-Phase.</p>
+            <p className="mt-3 text-sm text-[#B7BDC4]">Automatische Gesundheitsdaten, Blutzucker-Tracking und erweiterter Verlauf bis zu 90 Tage &mdash; kostenlos während der Beta-Phase.</p>
           </div>
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
             <h3 className="text-xl font-semibold text-[#F5F2EA]">Premium</h3>
             <p className="mt-2 text-3xl font-bold text-[#F5F2EA]">9,90 €<span className="text-base font-medium text-[#8E969F]">/Monat</span></p>
-            <p className="mt-3 text-sm text-[#B7BDC4]">Vollständiger Zwilling, unbegrenzte Simulationen, Verlauf &amp; Detailquellen.</p>
+            <p className="mt-3 text-sm text-[#B7BDC4]">Automatische Gesundheitsdaten, Blutzucker-Tracking, Wochenberichte &amp; erweiterter Verlauf.</p>
           </div>
         </div>
+        <p className="mt-6 text-sm text-[#B7BDC4]">
+          Für höhere Ansprüche gibt es außerdem <span className="font-semibold text-[#F5F2EA]">Pro</span> (u. a. Wellness-Szenarien) und{' '}
+          <span className="font-semibold text-[#F5F2EA]">Family</span> (bis zu 6 Profile).{' '}
+          <Link href="/preise" className="font-semibold text-[#58D7D4] underline hover:text-[#F3C979]">Alle Tarife vergleichen</Link>.
+        </p>
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">

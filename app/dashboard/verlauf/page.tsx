@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { apiUrl } from '@/lib/api';
 import DashboardTrends from '../../components/dashboard-trends';
 import DashboardPersonalBaseline from '../../components/dashboard-personal-baseline';
@@ -70,6 +71,11 @@ export default function VerlaufPage() {
       <p className="mt-2 max-w-2xl text-sm text-[#B7BDC4]">
         Deine zeitliche Entwicklung — persönlicher Verlauf, Trends und Rückblicke, ausschließlich auf Basis deiner
         eigenen Daten.
+      </p>
+      <p className="mt-2 text-sm">
+        <Link href="/dashboard/mein-twin" className="font-semibold text-[#58D7D4] underline hover:text-[#F3C979]">
+          Wie sich dein Twin entwickelt → Mein Twin
+        </Link>
       </p>
 
       <div className="mt-6 space-y-6">

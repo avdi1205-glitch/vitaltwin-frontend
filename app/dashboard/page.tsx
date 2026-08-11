@@ -8,6 +8,7 @@ import { DEFAULT_TWIN_FORM } from '@/lib/twin-defaults';
 import DashboardDailyPlan from '../components/dashboard-daily-plan';
 import DashboardTwinMemory from '../components/dashboard-twin-memory';
 import DashboardLearningTimeline from '../components/dashboard-learning-timeline';
+import DashboardTwinSummary from '../components/dashboard-twin-summary';
 import { DomainCard, TodayActionsCard } from '../components/dashboard-cards';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
 import AdSlot from '../components/AdSlot';
@@ -333,6 +334,12 @@ export default function Dashboard() {
             >
               Profil
             </button>
+            <Link
+              href="/dashboard/mein-twin#feedback"
+              className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
+            >
+              Beta-Feedback geben
+            </Link>
             <button
               onClick={() => router.push('/passwort-zuruecksetzen')}
               className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
@@ -355,6 +362,12 @@ export default function Dashboard() {
             {paymentMessage}
           </div>
         )}
+
+        <DashboardTwinSummary
+          hasCheckinToday={Boolean(todayCheckin)}
+          hasBiomarkerTwin={Boolean(displayedTwin)}
+          isPremium={Boolean(profile?.premium)}
+        />
 
         {nextStep && (
           <div className="mt-6 rounded-2xl border border-[#58D7D4]/30 bg-white/[0.03] px-5 py-5">
@@ -384,12 +397,12 @@ export default function Dashboard() {
         </div>
 
         <h2 className="mt-10 font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
-          VitalTwin-Gesamtstatus
+          Biomarker-Zwilling
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-[#B7BDC4]">
-          Dein Status basiert ausschließlich auf den Biomarkern, die du im Bereich „Mein Twin&quot; einträgst. Es handelt
-          sich um keine medizinische Risikobewertung und keine wissenschaftlich exakte Messung, sondern um eine grobe
-          Wellness-Orientierung.
+          Ein Bereich deines Twins: der Status basiert ausschließlich auf den Biomarkern, die du im Bereich „Mein
+          Twin&quot; einträgst. Es handelt sich um keine medizinische Risikobewertung und keine wissenschaftlich exakte
+          Messung, sondern um eine grobe Wellness-Orientierung.
         </p>
         <section className="mt-4 grid gap-4 md:grid-cols-3">
           <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">

@@ -582,6 +582,12 @@ export default function MeinTwinPage() {
 
         <DashboardTwinEvolution />
 
+        <p className="-mt-2 text-sm text-[#B7BDC4]">
+          <a href="/dashboard/verlauf" className="font-semibold text-[#58D7D4] underline hover:text-[#F3C979]">
+            Deine Trends &amp; Baselines ansehen → Verlauf
+          </a>
+        </p>
+
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
           <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Referenzdaten & Quellen</h3>
           <p className="mt-2 text-sm text-[#8E969F]">Transparente Referenzbereiche aus veröffentlichten Leitlinien und Fachquellen.</p>
@@ -615,7 +621,7 @@ export default function MeinTwinPage() {
           )}
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+        <div id="feedback" className="scroll-mt-24 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
           <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Feedback zur Beta</h3>
           <p className="mt-2 text-sm text-[#8E969F]">
             Was war hilfreich und was sollten wir verbessern? Dein Feedback fließt direkt in die nächsten Releases.

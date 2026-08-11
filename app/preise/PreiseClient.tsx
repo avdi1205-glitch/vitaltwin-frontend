@@ -193,8 +193,8 @@ export default function PreiseClient() {
         <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-center md:p-8">
           <p className="font-semibold text-[#F5F2EA]">Aktuell in der Beta-Phase</p>
           <p className="mx-auto mt-2 max-w-2xl text-sm text-[#B7BDC4]">
-            Aktiviere kostenlos den Beta-Zugang: unbegrenzte Simulationen und Verlauf, keine automatische Zahlung,
-            keine Kreditkarte nötig.
+            Aktiviere kostenlos den Beta-Zugang: automatische Gesundheitsdaten, Blutzucker-Tracking und erweiterter
+            Verlauf bis zu 90 Tage, keine automatische Zahlung, keine Kreditkarte nötig.
           </p>
           {!confirmBeta ? (
             <button
