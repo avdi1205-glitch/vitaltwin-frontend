@@ -40,6 +40,7 @@ type ChatStatus = {
 const SOURCE_TYPE_LABELS: Record<string, string> = {
   user_reported: 'Nutzerangabe',
   trend: 'Berechneter Trend',
+  google_health: 'Automatische Google-Health-Daten',
   confirmed_memory: 'Bestätigte Memory',
   pattern: 'Mögliches Muster',
   general_wellness_info: 'Allgemeine Wellness-Information',
