@@ -46,6 +46,7 @@ const SOURCE_TYPE_LABELS: Record<string, string> = {
   confirmed_memory: 'Bestätigte Memory',
   pattern: 'Mögliches Muster',
   biomarker: 'Biomarker-Zwilling-Berechnung',
+  twin_history: 'Entwicklung deines Twins',
   general_wellness_info: 'Allgemeine Wellness-Information',
   uncertain: 'Unsicher',
   needs_more_data: 'Benötigt mehr Daten',

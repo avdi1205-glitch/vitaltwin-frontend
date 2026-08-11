@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { apiUrl } from '@/lib/api';
 import { DEFAULT_TWIN_FORM } from '@/lib/twin-defaults';
 import DashboardAdvancedTwinOverview from '../../components/dashboard-advanced-twin-overview';
+import DashboardTwinEvolution from '../../components/dashboard-twin-evolution';
 import DashboardLifestyleSimulation from '../../components/dashboard-lifestyle-simulation';
 import { useDashboardShell } from '../dashboard-shell';
 
@@ -578,6 +579,8 @@ export default function MeinTwinPage() {
         )}
 
         <DashboardAdvancedTwinOverview />
+
+        <DashboardTwinEvolution />
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
           <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Referenzdaten & Quellen</h3>
