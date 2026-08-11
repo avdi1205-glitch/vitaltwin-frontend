@@ -143,7 +143,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       { label: 'Getrennte private Nutzerdaten', status: 'available' },
       { label: 'Gemeinsame Wellness-Challenges', status: 'coming_soon' },
       { label: 'Familienziele', status: 'available' },
-      { label: 'Familienübersicht nur mit klar geregelten Berechtigungen', status: 'coming_soon' },
+      { label: 'Familienübersicht nur mit klar geregelten Berechtigungen', status: 'available' },
     ],
     permissions: {
       aiQuestionsPerDay: 60,
