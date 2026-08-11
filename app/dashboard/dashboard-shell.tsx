@@ -9,6 +9,8 @@ export type DashboardProfile = {
   full_name?: string | null;
   premium: boolean;
   plan?: string;
+  real_plan?: string;
+  beta?: { plan: string; expires_at: string | null; remaining_days: number } | null;
   starter_calc_remaining?: number | null;
 };
 

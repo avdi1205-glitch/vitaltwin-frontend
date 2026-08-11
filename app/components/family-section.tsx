@@ -23,6 +23,7 @@ export type FamilyState = {
   member_count_active: number;
   max_members: number;
   members: FamilyMember[];
+  family_entitlement_active: boolean;
 };
 
 /**
@@ -246,6 +247,14 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
             Mitglieder: {state.member_count_active} / {state.max_members}
           </div>
 
+          {!state.family_entitlement_active && (
+            <div className="rounded-xl border border-[#F3C979]/30 bg-white/[0.02] px-4 py-3 text-sm text-[#F5F2EA]">
+              Der Family-Zugang ist aktuell nicht aktiv (z. B. abgelaufener Beta-Zugang oder geänderter Tarif). Eure
+              Daten und Mitgliedschaften bleiben vollständig erhalten — sobald wieder ein gültiger Family-Zugang
+              besteht, ist alles wie gewohnt nutzbar.
+            </div>
+          )}
+
           <div className="space-y-2">
             {state.members.map((member) => (
               <div
@@ -258,7 +267,7 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
                     {member.email} · {ROLE_LABEL[member.role]} · {STATUS_LABEL[member.status]}
                   </p>
                 </div>
-                {state.role === 'owner' && member.role !== 'owner' && (
+                {state.role === 'owner' && member.role !== 'owner' && state.family_entitlement_active && (
                   <button
                     onClick={() => void runAction(`/api/family/members/${member.user_id}`, 'DELETE')}
                     disabled={busy}
@@ -271,7 +280,7 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
             ))}
           </div>
 
-          {state.role === 'owner' && state.status === 'active' && (
+          {state.role === 'owner' && state.status === 'active' && state.family_entitlement_active && (
             <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 ref={inviteInputRef}

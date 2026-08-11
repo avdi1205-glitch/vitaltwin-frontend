@@ -134,10 +134,14 @@ function nextStepFor(onboardingCompleted: boolean | null, checkinCount: number |
 
 const PLAN_DISPLAY_LABELS: Record<string, string> = { premium: 'Premium', pro: 'Pro', family: 'Family' };
 
-function planDisplayLabel(profile: { premium: boolean; plan?: string } | null | undefined): string {
+function planDisplayLabel(profile: { premium: boolean; plan?: string; beta?: { plan: string } | null } | null | undefined): string {
   if (!profile) return 'Unbekannt';
   if (!profile.premium) return 'Starter';
-  return PLAN_DISPLAY_LABELS[profile.plan || 'premium'] || 'Beta-Zugang';
+  const label = PLAN_DISPLAY_LABELS[profile.plan || 'premium'] || 'Beta-Zugang';
+  // Beta Tester Program: a subtle, honest label — never claims this is a
+  // paid subscription (distinct from the pre-existing free "Beta-Zugang"
+  // self-service activation, which has no admin-granted grant behind it).
+  return profile.beta ? `${label} · Beta-Tester` : label;
 }
 
 /**
@@ -314,6 +318,11 @@ export default function Dashboard() {
               {getGreeting()}{profile?.full_name ? `, ${profile.full_name}` : ''}
             </h1>
             <p className="mt-3 text-[#B7BDC4]">Hier ist dein heutiger VitalTwin-Überblick.</p>
+            {profile?.beta?.expires_at && (
+              <p className="mt-1 text-xs text-[#8E969F]">
+                Dein Beta-Zugang läuft bis {new Date(profile.beta.expires_at).toLocaleDateString('de-DE')}.
+              </p>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">

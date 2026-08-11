@@ -17,8 +17,17 @@ type UserListItem = {
   last_login_at: string | null;
 };
 
+type BetaGrant = {
+  plan: string;
+  started_at: string | null;
+  expires_at: string | null;
+  granted_by: string | null;
+  active: boolean;
+  remaining_days: number;
+};
+
 type UserDetail = {
-  user: UserListItem & { id?: number; suspended_reason?: string | null; beta_access?: boolean };
+  user: UserListItem & { id?: number; suspended_reason?: string | null; beta_access?: boolean; beta_grant?: BetaGrant | null };
   consents: Record<string, { granted?: boolean }>;
   admin_role: string | null;
   recent_logins: { success: boolean; ip_address: string | null; created_at: string }[];
@@ -26,6 +35,8 @@ type UserDetail = {
 
 const PLAN_LABELS: Record<string, string> = { free: 'Free', premium: 'Premium', pro: 'Pro', family: 'Family' };
 const PLAN_OPTIONS = ['free', 'premium', 'pro', 'family'];
+const BETA_PLAN_OPTIONS = ['premium', 'pro', 'family'];
+const BETA_DURATION_OPTIONS = [30, 60, 90];
 const STATUS_LABELS: Record<string, string> = { active: 'Aktiv', deactivated: 'Deaktiviert', deletion_requested: 'Löschung angefragt' };
 
 function formatDateTime(iso: string | null | undefined): string {
@@ -40,6 +51,30 @@ function formatDateTime(iso: string | null | undefined): string {
 type DeletionRequest = { email: string; display_name: string | null; deletion_requested_at: string };
 type QACleanupItem = { email: string; full_name: string | null; created_at?: string | null };
 type QACleanupResultItem = { email: string; success: boolean; error?: string };
+type BetaTesterRow = {
+  email: string;
+  full_name: string | null;
+  real_plan: string;
+  beta_plan: string;
+  beta_expires_at: string | null;
+  status: 'active' | 'expiring_soon' | 'expired' | 'unknown';
+  remaining_days: number | null;
+};
+type BetaTesterSummary = {
+  total: number;
+  active: number;
+  expiring_soon: number;
+  expired: number;
+  pro_beta: number;
+  family_beta: number;
+  premium_beta: number;
+};
+const BETA_STATUS_LABELS: Record<string, string> = {
+  active: 'Aktiv',
+  expiring_soon: 'Läuft bald ab',
+  expired: 'Abgelaufen',
+  unknown: 'Unbekannt',
+};
 
 const ROLE_OPTIONS = ['super_admin', 'admin', 'support', 'moderator', 'editor', 'analyst', 'developer'];
 
@@ -57,10 +92,15 @@ export default function AdminUsersPage() {
   const [busy, setBusy] = useState(false);
   const [deletionRequests, setDeletionRequests] = useState<DeletionRequest[]>([]);
   const [deletionMessage, setDeletionMessage] = useState('');
+  const [betaTesters, setBetaTesters] = useState<BetaTesterRow[]>([]);
+  const [betaSummary, setBetaSummary] = useState<BetaTesterSummary | null>(null);
   const [qaPreview, setQaPreview] = useState<QACleanupItem[] | null>(null);
   const [qaBusy, setQaBusy] = useState(false);
   const [qaMessage, setQaMessage] = useState('');
   const [qaResults, setQaResults] = useState<QACleanupResultItem[] | null>(null);
+  const [betaPlanChoice, setBetaPlanChoice] = useState<string>('pro');
+  const [betaDays, setBetaDays] = useState<number>(90);
+  const [betaConfirmPending, setBetaConfirmPending] = useState<'grant' | 'extend' | 'revoke' | null>(null);
 
   const canManageUsers = hasPermission('manage_users');
   const canManageRoles = hasPermission('manage_roles');
@@ -98,6 +138,25 @@ export default function AdminUsersPage() {
       // Non-fatal — the main user list already loaded fine.
     }
   }, [authFetch]);
+
+  const loadBetaTesters = useCallback(async () => {
+    try {
+      const response = await authFetch('/api/admin/beta-testers');
+      if (!response.ok) return;
+      const data = await response.json();
+      setBetaTesters(Array.isArray(data.testers) ? data.testers : []);
+      setBetaSummary(data.summary ?? null);
+    } catch {
+      // Non-fatal — small overview only, main user list already loaded fine.
+    }
+  }, [authFetch]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void loadBetaTesters();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [loadBetaTesters]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -202,6 +261,7 @@ export default function AdminUsersPage() {
     setSelectedEmail(email);
     setDetail(null);
     setActionMessage('');
+    setBetaConfirmPending(null);
     try {
       const response = await authFetch(`/api/admin/users/${encodeURIComponent(email)}`);
       if (!response.ok) return;
@@ -227,7 +287,7 @@ export default function AdminUsersPage() {
         return;
       }
       setActionMessage(json?.message || 'Erledigt.');
-      await Promise.all([loadUsers(), openDetail(selectedEmail)]);
+      await Promise.all([loadUsers(), openDetail(selectedEmail), loadBetaTesters()]);
     } catch {
       setActionMessage('Backend gerade nicht erreichbar.');
     } finally {
@@ -380,6 +440,47 @@ export default function AdminUsersPage() {
           )}
 
           {qaMessage && <p style={{ color: tokens.accent, fontSize: '0.85rem' }}>{qaMessage}</p>}
+        </Card>
+      )}
+
+      {betaSummary && betaSummary.total > 0 && (
+        <Card style={{ marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <p style={{ color: tokens.text, fontWeight: 700 }}>Beta-Tester Übersicht</p>
+            <Button variant="secondary" onClick={loadBetaTesters}>
+              Aktualisieren
+            </Button>
+          </div>
+          <p style={{ color: tokens.muted, fontSize: '0.8rem', marginBottom: '0.75rem' }}>
+            {betaSummary.active} aktiv · {betaSummary.expiring_soon} laufen bald ab (≤7 Tage) · {betaSummary.expired} abgelaufen
+            {' · '}Pro: {betaSummary.pro_beta} · Family: {betaSummary.family_beta} · Premium: {betaSummary.premium_beta}
+          </p>
+          {betaTesters.map((tester) => (
+            <div
+              key={tester.email}
+              onClick={() => openDetail(tester.email)}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.4rem 0',
+                borderBottom: `1px solid ${tokens.border}`,
+                cursor: 'pointer',
+              }}
+            >
+              <div>
+                <p style={{ color: tokens.text, fontSize: '0.85rem' }}>{tester.full_name || tester.email}</p>
+                <p style={{ color: tokens.mutedMore, fontSize: '0.75rem' }}>
+                  {tester.email} · {PLAN_LABELS[tester.beta_plan] || tester.beta_plan} Beta · läuft ab am{' '}
+                  {formatDateTime(tester.beta_expires_at)}
+                  {tester.remaining_days !== null && tester.status !== 'expired' ? ` (noch ${tester.remaining_days} Tage)` : ''}
+                </p>
+              </div>
+              <Badge tone={tester.status === 'active' ? 'success' : tester.status === 'expiring_soon' ? 'danger' : 'neutral'}>
+                {BETA_STATUS_LABELS[tester.status] || tester.status}
+              </Badge>
+            </div>
+          ))}
         </Card>
       )}
 
@@ -543,6 +644,148 @@ export default function AdminUsersPage() {
                           {PLAN_LABELS[plan]}
                         </Button>
                       ))}
+                    </div>
+                  )}
+
+                  {canManagePremium && (
+                    <div
+                      style={{
+                        border: `1px solid ${tokens.border}`,
+                        borderRadius: '0.6rem',
+                        padding: '0.75rem',
+                        marginBottom: '0.6rem',
+                      }}
+                    >
+                      <p style={{ color: tokens.text, fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.3rem' }}>
+                        Beta Tester Programm
+                      </p>
+                      <p style={{ color: tokens.muted, fontSize: '0.78rem', marginBottom: '0.6rem' }}>
+                        Zeitlich befristeter Pro/Family/Premium-Zugang für ausgewählte Tester — überschreibt niemals den
+                        echten Tarif oben und rührt keine Stripe-Zahlung an.
+                      </p>
+
+                      {detail.user.beta_grant ? (
+                        <p style={{ color: tokens.muted, fontSize: '0.8rem', marginBottom: '0.6rem' }}>
+                          {detail.user.beta_grant.active ? '✅ Aktiv: ' : '⚠️ Abgelaufen: '}
+                          <strong style={{ color: tokens.text }}>{PLAN_LABELS[detail.user.beta_grant.plan] || detail.user.beta_grant.plan} · Beta-Tester</strong>
+                          {' — läuft ab am '}
+                          {formatDateTime(detail.user.beta_grant.expires_at)}
+                          {detail.user.beta_grant.active ? ` (noch ${detail.user.beta_grant.remaining_days} Tage)` : ''}
+                          {detail.user.beta_grant.granted_by ? ` · gewährt von ${detail.user.beta_grant.granted_by}` : ''}
+                        </p>
+                      ) : (
+                        <p style={{ color: tokens.mutedMore, fontSize: '0.8rem', marginBottom: '0.6rem' }}>
+                          Kein Beta-Zugang gewährt.
+                        </p>
+                      )}
+
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <span style={{ color: tokens.muted, fontSize: '0.78rem' }}>Tarif:</span>
+                        {BETA_PLAN_OPTIONS.map((plan) => (
+                          <Button
+                            key={plan}
+                            variant={betaPlanChoice === plan ? 'primary' : 'secondary'}
+                            disabled={busy}
+                            onClick={() => {
+                              setBetaPlanChoice(plan);
+                              setBetaConfirmPending(null);
+                            }}
+                          >
+                            {PLAN_LABELS[plan]} Beta
+                          </Button>
+                        ))}
+                        <span style={{ color: tokens.muted, fontSize: '0.78rem', marginLeft: '0.5rem' }}>Dauer:</span>
+                        {BETA_DURATION_OPTIONS.map((days) => (
+                          <Button
+                            key={days}
+                            variant={betaDays === days ? 'primary' : 'secondary'}
+                            disabled={busy}
+                            onClick={() => {
+                              setBetaDays(days);
+                              setBetaConfirmPending(null);
+                            }}
+                          >
+                            {days} Tage
+                          </Button>
+                        ))}
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {betaConfirmPending === 'grant' ? (
+                          <>
+                            <Button
+                              variant="danger"
+                              disabled={busy}
+                              onClick={async () => {
+                                await runAction(`/api/admin/users/${encodeURIComponent(selectedEmail)}/beta/grant`, 'POST', {
+                                  plan: betaPlanChoice,
+                                  days: betaDays,
+                                });
+                                setBetaConfirmPending(null);
+                              }}
+                            >
+                              Bestätigen: {PLAN_LABELS[betaPlanChoice]} Beta für {betaDays} Tage gewähren
+                            </Button>
+                            <Button variant="secondary" disabled={busy} onClick={() => setBetaConfirmPending(null)}>
+                              Abbrechen
+                            </Button>
+                          </>
+                        ) : (
+                          <Button variant="secondary" disabled={busy} onClick={() => setBetaConfirmPending('grant')}>
+                            {detail.user.beta_grant ? 'Beta-Zugang neu setzen' : 'Beta-Zugang gewähren'}
+                          </Button>
+                        )}
+
+                        {detail.user.beta_grant && (
+                          <>
+                            {betaConfirmPending === 'extend' ? (
+                              <>
+                                <Button
+                                  variant="danger"
+                                  disabled={busy}
+                                  onClick={async () => {
+                                    await runAction(`/api/admin/users/${encodeURIComponent(selectedEmail)}/beta/extend`, 'POST', {
+                                      days: betaDays,
+                                    });
+                                    setBetaConfirmPending(null);
+                                  }}
+                                >
+                                  Bestätigen: um {betaDays} Tage verlängern
+                                </Button>
+                                <Button variant="secondary" disabled={busy} onClick={() => setBetaConfirmPending(null)}>
+                                  Abbrechen
+                                </Button>
+                              </>
+                            ) : (
+                              <Button variant="secondary" disabled={busy} onClick={() => setBetaConfirmPending('extend')}>
+                                Verlängern
+                              </Button>
+                            )}
+
+                            {betaConfirmPending === 'revoke' ? (
+                              <>
+                                <Button
+                                  variant="danger"
+                                  disabled={busy}
+                                  onClick={async () => {
+                                    await runAction(`/api/admin/users/${encodeURIComponent(selectedEmail)}/beta/revoke`, 'POST');
+                                    setBetaConfirmPending(null);
+                                  }}
+                                >
+                                  Bestätigen: Beta-Zugang widerrufen
+                                </Button>
+                                <Button variant="secondary" disabled={busy} onClick={() => setBetaConfirmPending(null)}>
+                                  Abbrechen
+                                </Button>
+                              </>
+                            ) : (
+                              <Button variant="danger" disabled={busy} onClick={() => setBetaConfirmPending('revoke')}>
+                                Widerrufen
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   )}
 
