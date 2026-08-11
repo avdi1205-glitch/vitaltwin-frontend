@@ -113,7 +113,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       { label: 'Bis zu 60 KI-Fragen pro Tag', status: 'available' },
       { label: 'Vollständiger erweiterter digitaler Zwilling', status: 'available' },
       { label: 'Mehrere persönliche Ziele', status: 'available' },
-      { label: 'Lifestyle-Simulationen (Wellness-Szenarien, keine medizinischen Vorhersagen)', status: 'beta' },
+      { label: 'Lifestyle-Simulationen (Wellness-Szenarien, keine medizinischen Vorhersagen)', status: 'available' },
       { label: 'Langfristige Trends', status: 'available' },
       { label: 'Erweiterte Berichte', status: 'available' },
       { label: 'Prioritätszugang zu neuen Funktionen', status: 'coming_soon' },
