@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { apiUrl } from '@/lib/api';
 
@@ -27,11 +28,18 @@ type BaselineResponse = {
  * generic average — for the fields VitalTwin actually tracks today (sleep
  * duration, steps, movement minutes). All numbers come straight from
  * `app/services/personal_baseline.py`; nothing is computed or invented here.
+ *
+ * "Ausführlichere Wellness-Auswertungen" (Premium/Pro/Family) — the
+ * backend enforces this server-side (`has_feature(email,
+ * "detailed_wellness")`); a 403 here shows the same upgrade card pattern
+ * used elsewhere (e.g. `dashboard/blutzucker/page.tsx`), never a silent
+ * failure or fake data.
  */
 export default function DashboardPersonalBaseline() {
   const [data, setData] = useState<BaselineResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [denied, setDenied] = useState(false);
 
   const authHeader = useCallback((): Record<string, string> => {
     const token = localStorage.getItem('token');
@@ -45,6 +53,8 @@ export default function DashboardPersonalBaseline() {
         const json = await response.json().catch(() => null);
         if (response.ok) {
           setData(json as BaselineResponse);
+        } else if (response.status === 403) {
+          setDenied(true);
         } else {
           setErrorMessage('Persönlicher Verlauf konnte nicht geladen werden.');
         }
@@ -60,6 +70,26 @@ export default function DashboardPersonalBaseline() {
     return (
       <article id="persoenlicher-verlauf" className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
         <p className="text-sm text-[#8E969F]">Lade deinen persönlichen Verlauf...</p>
+      </article>
+    );
+  }
+
+  if (denied) {
+    return (
+      <article id="persoenlicher-verlauf" className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
+        <p className="font-[family-name:var(--font-serif-display)] text-lg font-semibold text-[#F5F2EA]">
+          Premium-Feature
+        </p>
+        <p className="mx-auto mt-2 max-w-md text-sm text-[#B7BDC4]">
+          Ausführlichere Wellness-Auswertungen (dein persönlicher Verlauf gegen deine eigene Baseline) sind Teil von
+          Premium.
+        </p>
+        <Link
+          href="/preise"
+          className="mt-5 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
+        >
+          Premium ansehen
+        </Link>
       </article>
     );
   }

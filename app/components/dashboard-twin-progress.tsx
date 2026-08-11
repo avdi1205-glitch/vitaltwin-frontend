@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { apiUrl } from '@/lib/api';
 
@@ -50,9 +51,16 @@ function Bullets({ items }: { items: string[] }) {
  * (Twin Intelligence Core, Etappe 6). Absichtlich als eine ruhige,
  * einklappbare Karte gebaut ("keine Überladung") — Wochenrückblick ist immer
  * sichtbar, Monatsübersicht und Reifegrad sind optionale Unterabschnitte.
+ *
+ * "Wochenberichte" (Premium/Pro/Family) — the backend enforces this
+ * server-side (`has_feature(email, "weekly_reports")`) on ONLY the
+ * `/planning/weekly` call; Monatsübersicht/Reifegrad stay ungated and keep
+ * working for Free. A 403 on the weekly call shows the same upgrade card
+ * pattern used elsewhere, never a silent empty section.
  */
 export default function DashboardTwinProgress() {
   const [weekly, setWeekly] = useState<WeeklyReflection | null>(null);
+  const [weeklyDenied, setWeeklyDenied] = useState(false);
   const [monthly, setMonthly] = useState<MonthlyProgress | null>(null);
   const [maturity, setMaturity] = useState<Maturity | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +81,11 @@ export default function DashboardTwinProgress() {
       const weeklyData = await weeklyRes.json().catch(() => null);
       const monthlyData = await monthlyRes.json().catch(() => null);
       const maturityData = await maturityRes.json().catch(() => null);
-      if (weeklyRes.ok) setWeekly(weeklyData);
+      if (weeklyRes.ok) {
+        setWeekly(weeklyData);
+      } else if (weeklyRes.status === 403) {
+        setWeeklyDenied(true);
+      }
       if (monthlyRes.ok) setMonthly(monthlyData);
       if (maturityRes.ok) setMaturity(maturityData);
     } catch {
@@ -101,6 +113,21 @@ export default function DashboardTwinProgress() {
   return (
     <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Dein Wochenrückblick</h3>
+
+      {weeklyDenied && (
+        <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.02] p-4 text-center">
+          <p className="text-sm font-semibold text-[#F5F2EA]">Premium-Feature</p>
+          <p className="mx-auto mt-2 max-w-md text-xs text-[#B7BDC4]">
+            Wochenberichte sind Teil von Premium.
+          </p>
+          <Link
+            href="/preise"
+            className="mt-3 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-1.5 text-xs font-semibold text-[#0B1118] transition hover:brightness-110"
+          >
+            Premium ansehen
+          </Link>
+        </div>
+      )}
 
       {weekly && !weekly.data_sufficient && <p className="mt-3 text-sm text-[#B7BDC4]">{weekly.summary}</p>}
 
