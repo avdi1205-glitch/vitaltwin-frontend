@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiUrl } from '@/lib/api';
@@ -20,6 +21,7 @@ export default function GoogleHealthConnect() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
+  const [denied, setDenied] = useState(false);
   const router = useRouter();
 
   const loadStatus = useCallback(async () => {
@@ -34,6 +36,8 @@ export default function GoogleHealthConnect() {
       });
       if (response.ok) {
         setStatus(await response.json());
+      } else if (response.status === 403) {
+        setDenied(true);
       }
     } catch {
       // Backend gerade nicht erreichbar — Verbinden-Button bleibt trotzdem nutzbar.
@@ -149,6 +153,25 @@ export default function GoogleHealthConnect() {
   };
 
   if (loading) return null;
+
+  if (denied) {
+    return (
+      <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
+        <p className="font-[family-name:var(--font-serif-display)] text-lg font-semibold text-[#F5F2EA]">
+          Premium-Feature
+        </p>
+        <p className="mx-auto mt-2 max-w-md text-sm text-[#B7BDC4]">
+          Automatische Gesundheitsdaten über Google Health sind Teil von Premium.
+        </p>
+        <Link
+          href="/preise"
+          className="mt-5 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
+        >
+          Premium ansehen
+        </Link>
+      </div>
+    );
+  }
 
   const reauthRequired = status?.status === 'reauthorization_required';
   const connected = Boolean(status?.connected) && !reauthRequired;
