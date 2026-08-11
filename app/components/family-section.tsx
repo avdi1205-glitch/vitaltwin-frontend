@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { apiUrl } from '@/lib/api';
+import FamilyGoalsSection from './family-goals-section';
 
 type FamilyMember = {
   user_id: number;
@@ -218,6 +219,8 @@ export default function FamilySection() {
           >
             Family verlassen
           </button>
+
+          {state.status === 'active' && <FamilyGoalsSection role={state.role} />}
         </div>
       )}
     </section>
