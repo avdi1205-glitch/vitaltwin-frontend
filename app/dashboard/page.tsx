@@ -7,6 +7,7 @@ import { apiUrl } from '@/lib/api';
 import { DEFAULT_TWIN_FORM } from '@/lib/twin-defaults';
 import DashboardDailyPlan from '../components/dashboard-daily-plan';
 import DashboardTwinMemory from '../components/dashboard-twin-memory';
+import DashboardLearningTimeline from '../components/dashboard-learning-timeline';
 import { DomainCard, TodayActionsCard } from '../components/dashboard-cards';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
 import AdSlot from '../components/AdSlot';
@@ -455,6 +456,10 @@ export default function Dashboard() {
 
       <div className="mt-6">
         <DashboardTwinMemory />
+      </div>
+
+      <div className="mt-6">
+        <DashboardLearningTimeline />
       </div>
 
       <article className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">

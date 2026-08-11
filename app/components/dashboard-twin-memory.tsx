@@ -157,7 +157,7 @@ export default function DashboardTwinMemory() {
   return (
     <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
-        Was dein Twin über dich gelernt hat
+        Was dein Twin aktuell über dich weiß
       </h3>
       {errorMessage && <p className="mt-2 text-xs text-red-300">{errorMessage}</p>}
 
