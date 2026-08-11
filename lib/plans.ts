@@ -81,7 +81,7 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     ctaLabel: 'Premium wählen',
     features: [
       { label: 'Alles aus Free', status: 'available' },
-      { label: 'Blutzucker-Tracking (CGM-Import) & Ernährungstagebuch', status: 'beta' },
+      { label: 'Blutzucker-Tracking (CGM-Import) & Ernährungstagebuch', status: 'available' },
       { label: 'Bis zu 30 KI-Fragen pro Tag', status: 'available' },
       { label: 'Ausführlichere Wellness-Auswertungen', status: 'beta' },
       { label: 'Schlaf-, Stress- und Erholungsübersicht', status: 'beta' },
