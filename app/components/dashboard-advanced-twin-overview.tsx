@@ -40,7 +40,7 @@ const FIELD_LABELS: Record<string, string> = {
 };
 
 /**
- * Erweiterter digitaler Zwilling V1 (Pro/Family, Beta) — konsolidierte
+ * Erweiterter digitaler Zwilling V1 (Pro/Family) — konsolidierte
  * Ansicht aus bereits bestehenden Berechnungen (Baseline/Trends/30-Tage-
  * Bericht/Ziele/Gewohnheiten), keine neue Statistik. Backend:
  * GET /api/profile/advanced-twin-overview.
@@ -89,7 +89,6 @@ export default function DashboardAdvancedTwinOverview() {
         <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
           Erweiterter digitaler Zwilling
         </h3>
-        <span className="rounded-full border border-[#58D7D4]/40 px-3 py-1 text-xs font-semibold text-[#58D7D4]">Beta</span>
       </div>
       <p className="mt-2 text-sm text-[#8E969F]">
         Eine gebündelte Übersicht, was VitalTwin bereits über dich weiß — Baseline, Trends, 30-Tage-Entwicklung,

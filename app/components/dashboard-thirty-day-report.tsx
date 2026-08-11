@@ -33,7 +33,7 @@ const FIELD_LABELS: Record<string, string> = {
 };
 
 /**
- * 30-Tage-Bericht ("Erweiterte Berichte", Pro/Family, Status: Beta) —
+ * 30-Tage-Bericht ("Erweiterte Berichte", Pro/Family) —
  * assembliert bestehende Monthly-Progress- und Baseline-Berechnungen, keine
  * neue Statistik-Engine. Backend: GET /api/profile/reports/30-day.
  */
@@ -79,7 +79,6 @@ export default function DashboardThirtyDayReport() {
     <article className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">30-Tage-Bericht</h2>
-        <span className="rounded-full border border-[#58D7D4]/40 px-3 py-1 text-xs font-semibold text-[#58D7D4]">Beta</span>
       </div>
       <p className="mt-2 text-sm text-[#8E969F]">
         Eine Zusammenfassung deiner letzten 30 Tage auf Basis deiner eigenen Daten — keine medizinische Bewertung.
