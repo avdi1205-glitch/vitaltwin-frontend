@@ -133,11 +133,13 @@ export default function GoogleHealthConnect() {
       });
       const data = await response.json().catch(() => null);
       if (response.ok) {
-        setMessage(
-          data?.status === 'partial'
-            ? '⚠️ Synchronisierung teilweise abgeschlossen — manche Datentypen konnten nicht geladen werden.'
-            : 'Synchronisierung abgeschlossen.'
-        );
+        if (data?.status === 'failed') {
+          setMessage('❌ Synchronisierung fehlgeschlagen — Google Health hat keine Daten geliefert. Bitte später erneut versuchen.');
+        } else if (data?.status === 'partial') {
+          setMessage('⚠️ Synchronisierung teilweise abgeschlossen — manche Datentypen konnten nicht geladen werden.');
+        } else {
+          setMessage('Synchronisierung abgeschlossen.');
+        }
         void loadStatus();
       } else if (response.status === 409) {
         setMessage('Verbindung ist abgelaufen. Bitte erneut verbinden.');
