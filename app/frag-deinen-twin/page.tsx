@@ -45,6 +45,7 @@ const SOURCE_TYPE_LABELS: Record<string, string> = {
   nutrition: 'Ernährungsdaten',
   confirmed_memory: 'Bestätigte Memory',
   pattern: 'Mögliches Muster',
+  biomarker: 'Biomarker-Zwilling-Berechnung',
   general_wellness_info: 'Allgemeine Wellness-Information',
   uncertain: 'Unsicher',
   needs_more_data: 'Benötigt mehr Daten',
