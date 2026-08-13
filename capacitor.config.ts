@@ -5,8 +5,10 @@ const config: CapacitorConfig = {
   appName: 'VitalTwin',
   webDir: '.next',
   server: {
-    // Use the live website as source so Android can run immediately.
-    url: 'https://vitaltwin.de',
+    // Canonical production origin — vitaltwin.de 308-redirects here, and a
+    // cross-origin redirect makes Capacitor hand navigation to Chrome instead
+    // of loading it in-app.
+    url: 'https://www.vitaltwin.de',
     cleartext: false,
   },
 };
