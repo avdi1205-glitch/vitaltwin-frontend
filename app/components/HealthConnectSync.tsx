@@ -137,7 +137,19 @@ export default function HealthConnectSync() {
   const connected = granted.length > 0;
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+    <div className="mt-16">
+      <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">
+        Weitere Datenquelle
+      </p>
+      <h2 className="mt-2 font-[family-name:var(--font-serif-display)] text-4xl font-semibold text-[#F5F2EA] md:text-6xl">
+        Health Connect verbinden
+      </h2>
+      <p className="mt-4 max-w-2xl text-[#B7BDC4]">
+        Verbinde VitalTwin mit Health Connect, damit dein Twin freigegebene Wellness-Daten wie Schritte, Schlaf,
+        Herzfrequenz, HRV, Gewicht und Aktivität automatisch berücksichtigen kann.
+      </p>
+
+      <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
       {connected ? (
         <>
           <p className="text-base font-semibold text-[#58D7D4]">✅ Health Connect verbunden</p>
@@ -207,6 +219,7 @@ export default function HealthConnectSync() {
       )}
 
       {message && <p className="mt-3 text-sm text-[#B7BDC4]">{message}</p>}
+      </div>
     </div>
   );
 }
