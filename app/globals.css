@@ -72,12 +72,37 @@ body {
   .vitaltwin-mark--animated .vitaltwin-mark__human,
   .vitaltwin-mark--animated .vitaltwin-mark__ai,
   .vitaltwin-mark--animated .vitaltwin-mark__heart,
-  .vitaltwin-mark--animated text {
+  .vitaltwin-mark--animated text,
+  .vt-splash-icon,
+  .vt-splash-word {
     animation: none !important;
     stroke-dashoffset: 0 !important;
     opacity: 1 !important;
     transform: none !important;
   }
+}
+
+/* VitalTwin splash screen entrance: logo settles in first, wordmark follows
+   very shortly after — deliberately separate from the longer "Im Takt" hero
+   animation above, since a splash must reach its final branded look almost
+   immediately rather than spend its visible window on choreography. */
+@keyframes vt-splash-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.vt-splash-icon {
+  animation: vt-splash-fade-in 0.35s ease-out both;
+}
+
+.vt-splash-word {
+  animation: vt-splash-fade-in 0.35s ease-out 0.15s both;
 }
 
 @keyframes vitaltwin-draw-in {

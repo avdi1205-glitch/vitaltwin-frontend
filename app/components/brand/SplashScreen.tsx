@@ -57,7 +57,16 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
           }`}
           aria-hidden="true"
         >
-          <VitalTwinMark animated variant="horizontal" theme="dark" className="h-16 w-auto md:h-20" />
+          <div className="flex flex-col items-center gap-5 px-6 sm:gap-6">
+            <VitalTwinMark
+              variant="icon"
+              theme="dark"
+              className="vt-splash-icon h-20 w-auto sm:h-24 md:h-28"
+            />
+            <p className="vt-splash-word text-center font-[family-name:var(--font-serif-display)] text-4xl font-semibold tracking-tight text-[#F5F2EA] sm:text-5xl md:text-6xl">
+              VitalTwin
+            </p>
+          </div>
         </div>
       )}
     </>
