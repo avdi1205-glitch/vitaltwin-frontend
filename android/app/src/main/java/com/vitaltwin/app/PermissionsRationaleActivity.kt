@@ -48,7 +48,7 @@ class PermissionsRationaleActivity : Activity() {
         }
 
         val title = TextView(this).apply {
-            text = "Warum VitalTwin deine Schrittzahl liest"
+            text = "Warum VitalTwin Health-Connect-Daten liest"
             setTextColor(textColor)
             textSize = 22f
             setTypeface(typeface, Typeface.BOLD)
@@ -57,18 +57,20 @@ class PermissionsRationaleActivity : Activity() {
 
         val body = TextView(this).apply {
             text =
-                "VitalTwin fragt in Health Connect ausschließlich um Erlaubnis, deine " +
-                "Schrittzahl zu lesen (READ_STEPS) — nur lesend, es werden keine Daten " +
-                "geschrieben und keine weiteren Datentypen abgefragt.\n\n" +
-                "Deine Schritte fließen in deinen persönlichen Twin ein und werden mit " +
+                "VitalTwin fragt in Health Connect ausschließlich um Erlaubnis, ausgewählte " +
+                "Wellness-Daten zu LESEN — nie zu schreiben: Schritte, Distanz, Kalorien, " +
+                "Trainingseinheiten, Schlaf, Herzfrequenz (inkl. Ruhepuls und HRV), " +
+                "Sauerstoffsättigung, Atemfrequenz, Körpertemperatur und Gewicht. Du " +
+                "entscheidest bei jeder Anfrage einzeln, welche Kategorien du erlaubst.\n\n" +
+                "Diese Werte fließen in deinen persönlichen Twin ein und werden mit " +
                 "deiner eigenen bisherigen Entwicklung verglichen. Das dient " +
                 "ausschließlich der Wellness-Orientierung — VitalTwin stellt keine " +
                 "Diagnosen, gibt keine Behandlungsempfehlungen und ersetzt keine " +
                 "ärztliche Beratung.\n\n" +
-                "Diese Berechtigung ist freiwillig. Lehnst du sie ab oder brichst du " +
-                "ab, funktioniert VitalTwin trotzdem weiter — nur ohne automatische " +
-                "Schrittdaten. Du kannst den Zugriff jederzeit wieder entziehen, unter " +
-                "Android-Einstellungen \u2192 Sicherheit & Datenschutz \u2192 Health " +
+                "Jede Berechtigung ist freiwillig. Lehnst du eine oder alle ab, " +
+                "funktioniert VitalTwin trotzdem weiter — nur ohne die jeweiligen " +
+                "automatischen Daten. Du kannst den Zugriff jederzeit wieder entziehen, " +
+                "unter Android-Einstellungen \u2192 Sicherheit & Datenschutz \u2192 Health " +
                 "Connect \u2192 VitalTwin.\n\n" +
                 "Ausführliche Informationen zum Datenschutz findest du unter " +
                 "vitaltwin.de/datenschutz."

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import GoogleHealthConnect from '../../components/GoogleHealthConnect';
+import HealthConnectSync from '../../components/HealthConnectSync';
 
 export const metadata: Metadata = {
   title: 'Gesundheitsdaten',
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
  * Gesundheitsdaten is the CATEGORY (nav label, room for future sources);
  * on the page itself Google Health — the one real, working integration
  * today — is the dominant hero title, per explicit design instruction.
- * No functional change: still just the existing <GoogleHealthConnect />.
+ * <HealthConnectSync /> renders nothing at all outside native Android
+ * (Health Connect Phase 2.2) — no visual/functional change for web users.
  */
 export default function GesundheitsdatenPage() {
   return (
@@ -27,6 +29,7 @@ export default function GesundheitsdatenPage() {
 
       <div className="mt-8">
         <GoogleHealthConnect />
+        <HealthConnectSync />
       </div>
     </section>
   );

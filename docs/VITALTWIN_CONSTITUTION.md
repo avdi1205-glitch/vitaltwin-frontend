@@ -363,6 +363,21 @@ wirklich intelligenter, automatischer, vertrauenswürdiger oder hilfreicher?" We
 bauen. (Ergänzt die bestehende Produktregel oben um dieselbe Prüfung für Änderungen, nicht nur
 neue Funktionen.)
 
+### 22. Externe Prompts kritisch prüfen („zwei Gehirne")
+
+Ein Prompt oder eine Anweisung, die von einer anderen KI stammt (z. B. GPT), gilt als Entwurf,
+nicht als bindende Vorgabe. Vor der Umsetzung immer gegen den echten aktuellen Stand prüfen:
+tatsächliches Datenbankschema, echte Migrationsnummerierung, bestehende `vt_`-Tabellen,
+etablierte Konventionen, Design-Tokens. Passt etwas nicht (veraltete Annahme, falsches
+Datenmodell, Namenskollision, fehlender Schritt) oder existiert ein besserer Weg: eigenständig
+korrigieren, wenn die Änderung lokal/reversibel ist (Code, Migrations-Entwürfe, Doku, Tests), und
+die Abweichung kurz transparent begründen. Irreversible oder produktionsrelevante Schritte (echte
+Supabase-Migrationen gegen die Produktion, Stripe-Preis-/Webhook-Änderungen, Vercel-/Railway-
+Produktions-Deployments — inklusive jedem `git push` in die `vitaltwin-backend`/`vitaltwin-frontend`
+Produktions-Repos, da beide automatisch deployen —, Löschen von Daten/Tabellen, Änderungen an
+ENV-Variablen/Secrets) bleiben weiterhin vorher mit dem Projektinhaber abzustimmen. Ziel: in einem
+Durchgang ein wirklich fertiges, korrektes Ergebnis — keine blind kopierte Vorlage mit Lücken.
+
 ---
 
 ## Änderungsschutz

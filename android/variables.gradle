@@ -6,6 +6,18 @@ ext {
     compileSdkVersion = 35
     targetSdkVersion = 35
     kotlinVersion = '1.9.24'
+    // Reverted back to the already-pinned alpha07 after a REAL Gradle
+    // build failure proved bumping to stable 1.1.0 requires compileSdk 36 +
+    // AGP 8.9.1+ (project is on compileSdk 35 / AGP 8.7.2 — a much bigger,
+    // riskier, project-wide change than this task's scope). Verified every
+    // record type actually used here (ExerciseSessionRecord,
+    // HeartRateVariabilityRmssdRecord, RestingHeartRateRecord,
+    // OxygenSaturationRecord, RespiratoryRateRecord, BodyTemperatureRecord,
+    // DistanceRecord, WeightRecord, SleepSessionRecord, calories records)
+    // already existed well before alpha07 per the official release notes —
+    // only SkinTemperatureRecord needed a newer version, and that type is
+    // deliberately NOT implemented anyway (see HealthConnectPlugin.kt doc
+    // comment). No version bump needed after all.
     healthConnectClientVersion = '1.1.0-alpha07'
     kotlinxCoroutinesVersion = '1.8.1'
     androidxActivityVersion = '1.9.2'
