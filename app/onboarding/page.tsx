@@ -132,6 +132,11 @@ export default function Onboarding() {
                   In wenigen kurzen Schritten richten wir deinen digitalen Wellness-Zwilling ein. Alles ist optional —
                   du kannst jede Frage überspringen und später jederzeit in deinem Profil ändern.
                 </p>
+                <p className="mx-auto mt-3 max-w-md text-sm text-[#B7BDC4]">
+                  Dein Twin lernt aus deinen Daten und vergleicht dich mit deiner eigenen persönlichen Basislinie —
+                  nicht mit fremden Durchschnittswerten. Je mehr relevante Daten vorliegen, desto persönlicher werden
+                  seine Beobachtungen.
+                </p>
                 <button
                   onClick={goNext}
                   className="mt-8 rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-8 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
@@ -245,6 +250,9 @@ export default function Onboarding() {
                 <p className="mx-auto mt-3 max-w-md text-sm text-[#B7BDC4]">
                   Dein Twin startet jetzt mit dem, was du ihm gegeben hast — und wird mit jedem Check-in, verbundenen
                   Datenpunkt und Feedback persönlicher.
+                </p>
+                <p className="mx-auto mt-2 max-w-md text-sm text-[#B7BDC4]">
+                  Ab jetzt vergleicht er dich mit deiner eigenen Entwicklung — nicht mit anderen.
                 </p>
                 <Link
                   href={primaryAction.href}
