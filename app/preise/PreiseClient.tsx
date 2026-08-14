@@ -23,9 +23,6 @@ export default function PreiseClient() {
   const [billingInterval, setBillingInterval] = useState<BillingInterval>('monthly');
   const [loadingPlan, setLoadingPlan] = useState<PlanId | null>(null);
   const [checkoutMessage, setCheckoutMessage] = useState('');
-  const [confirmBeta, setConfirmBeta] = useState(false);
-  const [betaLoading, setBetaLoading] = useState(false);
-  const [betaMessage, setBetaMessage] = useState('');
   const [activeBetaGrant, setActiveBetaGrant] = useState<{ plan: string; expires_at: string } | null>(null);
 
   useEffect(() => {
@@ -111,33 +108,6 @@ export default function PreiseClient() {
     window.location.assign(token ? '/dashboard' : '/?auth=register');
   };
 
-  const activateFreeBeta = async () => {
-    setBetaMessage('');
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.assign('/?auth=register&premium=1');
-      return;
-    }
-
-    setBetaLoading(true);
-    try {
-      const res = await fetch(apiUrl('/api/users/activate-beta'), {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        setBetaMessage(extractErrorMessage(data));
-        return;
-      }
-      window.location.assign('/dashboard?beta=activated');
-    } catch {
-      setBetaMessage(t('betaUnreachable'));
-    } finally {
-      setBetaLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#0B1118] text-[#F5F2EA]">
       <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
@@ -216,51 +186,14 @@ export default function PreiseClient() {
           </div>
         </div>
 
-        <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-center md:p-8">
-          {activeBetaGrant ? (
-            <>
-              <p className="font-semibold text-[#F5F2EA]">{t('betaTesterActiveTitle')}</p>
-              <p className="mx-auto mt-2 max-w-2xl text-sm text-[#B7BDC4]">
-                {t('betaTesterActiveUntil')} {formatBetaDate(activeBetaGrant.expires_at)} — {t('betaTesterActiveNoPayment')}
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="font-semibold text-[#F5F2EA]">{t('betaBoxTitle')}</p>
-              <p className="mx-auto mt-2 max-w-2xl text-sm text-[#B7BDC4]">
-                {t('betaBoxText')}
-              </p>
-              {!confirmBeta ? (
-                <button
-                  onClick={() => setConfirmBeta(true)}
-                  className="mt-4 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
-                >
-                  {t('activateBeta')}
-                </button>
-              ) : (
-                <div className="mx-auto mt-4 max-w-md rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm text-[#F5F2EA]">
-                  <p>{t('betaConfirmText')}</p>
-                  <div className="mt-3 flex flex-wrap justify-center gap-2">
-                    <button
-                      onClick={activateFreeBeta}
-                      disabled={betaLoading}
-                      className="rounded-xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-2 font-semibold text-[#0B1118] disabled:cursor-not-allowed disabled:opacity-70"
-                    >
-                      {betaLoading ? t('activating') : t('activateNow')}
-                    </button>
-                    <button
-                      onClick={() => setConfirmBeta(false)}
-                      className="rounded-xl border border-white/15 px-4 py-2 font-semibold text-[#F5F2EA]"
-                    >
-                      {t('cancel')}
-                    </button>
-                  </div>
-                </div>
-              )}
-              {betaMessage && <p className="mt-3 text-sm text-red-300">{betaMessage}</p>}
-            </>
-          )}
-        </div>
+        {activeBetaGrant && (
+          <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-center md:p-8">
+            <p className="font-semibold text-[#F5F2EA]">{t('betaTesterActiveTitle')}</p>
+            <p className="mx-auto mt-2 max-w-2xl text-sm text-[#B7BDC4]">
+              {t('betaTesterActiveUntil')} {formatBetaDate(activeBetaGrant.expires_at)} — {t('betaTesterActiveNoPayment')}
+            </p>
+          </div>
+        )}
 
         {!activeBetaGrant && (
           <div className="mt-8 rounded-3xl border border-[#58D7D4]/30 bg-[#58D7D4]/[0.06] p-6 text-center md:p-8">
