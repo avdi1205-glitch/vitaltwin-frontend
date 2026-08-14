@@ -138,7 +138,7 @@ export default function BetaBewerbung() {
                 {status === 'approved' ? t('statusApprovedTitle') : status === 'rejected' ? t('statusRejectedTitle') : t('statusPendingTitle')}
               </p>
               <p className="mt-2 text-[#B7BDC4]">
-                {status === 'approved' ? t('statusApprovedNoPayment') : status === 'rejected' ? t('statusRejectedText') : (message || t('statusPendingText'))}
+                {status === 'approved' ? t('statusApprovedNoPayment') : status === 'rejected' ? t('statusRejectedText') : t('statusPendingText')}
               </p>
               <Link href="/" className="mt-6 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-6 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110">
                 {t('backToHome')}
