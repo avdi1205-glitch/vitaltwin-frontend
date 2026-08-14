@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type Recommendation = {
@@ -25,10 +26,10 @@ type Explanation = {
   disclaimer: string;
 };
 
-const FEEDBACK_OPTIONS: { value: 'helpful' | 'partially_helpful' | 'not_helpful'; label: string }[] = [
-  { value: 'helpful', label: 'Hilfreich' },
-  { value: 'partially_helpful', label: 'Teilweise hilfreich' },
-  { value: 'not_helpful', label: 'Nicht hilfreich' },
+const FEEDBACK_KEYS: { value: 'helpful' | 'partially_helpful' | 'not_helpful'; key: 'helpful' | 'partiallyHelpful' | 'notHelpful' }[] = [
+  { value: 'helpful', key: 'helpful' },
+  { value: 'partially_helpful', key: 'partiallyHelpful' },
+  { value: 'not_helpful', key: 'notHelpful' },
 ];
 
 /**
@@ -39,6 +40,7 @@ const FEEDBACK_OPTIONS: { value: 'helpful' | 'partially_helpful' | 'not_helpful'
  * mobile-first (stacked buttons).
  */
 export default function DashboardRecommendations() {
+  const t = useTranslations('recommendations');
   const [items, setItems] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -57,16 +59,16 @@ export default function DashboardRecommendations() {
       const response = await fetch(apiUrl('/api/recommendations'), { headers: authHeader() });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage('Empfehlungen konnten nicht geladen werden.');
+        setErrorMessage(t('loadError'));
         return;
       }
       setItems(Array.isArray(data?.items) ? data.items : []);
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
-  }, [authHeader]);
+  }, [authHeader, t]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -86,7 +88,7 @@ export default function DashboardRecommendations() {
       setModifiedAction('');
       await loadRecommendations();
     } catch {
-      setErrorMessage('Entscheidung konnte nicht gespeichert werden.');
+      setErrorMessage(t('decisionError'));
     }
   };
 
@@ -99,7 +101,7 @@ export default function DashboardRecommendations() {
       });
       await loadRecommendations();
     } catch {
-      setErrorMessage('Ergebnis konnte nicht gespeichert werden.');
+      setErrorMessage(t('outcomeError'));
     }
   };
 
@@ -119,7 +121,7 @@ export default function DashboardRecommendations() {
         setExplanations((current) => ({ ...current, [id]: data as Explanation }));
       }
     } catch {
-      setErrorMessage('Erklärung konnte nicht geladen werden.');
+      setErrorMessage(t('explainError'));
     }
   };
 
@@ -132,33 +134,33 @@ export default function DashboardRecommendations() {
       });
       setFeedbackGiven((current) => ({ ...current, [id]: true }));
     } catch {
-      setErrorMessage('Feedback konnte nicht gespeichert werden.');
+      setErrorMessage(t('feedbackError'));
     }
   };
 
   if (loading) {
     return (
       <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <p className="text-sm text-[#8E969F]">Lade Empfehlungen...</p>
+        <p className="text-sm text-[#8E969F]">{t('loading')}</p>
       </article>
     );
   }
 
   return (
     <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-      <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Dein Twin empfiehlt</h3>
+      <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('title')}</h3>
       {errorMessage && <p className="mt-2 text-xs text-red-300">{errorMessage}</p>}
 
       {items.length === 0 ? (
         <div className="mt-3">
           <p className="text-sm text-[#B7BDC4]">
-            Dein Twin braucht noch einige Check-ins, bevor persönliche Empfehlungen möglich sind.
+            {t('empty')}
           </p>
           <Link
             href="/dashboard/gewohnheiten"
             className="mt-3 inline-block rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
           >
-            Check-in starten
+            {t('emptyLink')}
           </Link>
         </div>
       ) : (
@@ -171,7 +173,7 @@ export default function DashboardRecommendations() {
                   <p className="mt-1 text-sm text-[#B7BDC4]">{item.proposed_action}</p>
                 </div>
                 <span className="rounded-full border border-white/15 px-2 py-0.5 text-[10px] uppercase tracking-wide text-[#8E969F]">
-                  {item.priority === 'high' ? 'Hoch' : item.priority === 'medium' ? 'Mittel' : 'Niedrig'}
+                  {item.priority === 'high' ? t('priorityHigh') : item.priority === 'medium' ? t('priorityMedium') : t('priorityLow')}
                 </span>
               </div>
 
@@ -181,25 +183,25 @@ export default function DashboardRecommendations() {
                     onClick={() => void decide(item.id, 'accepted')}
                     className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-1.5 text-xs font-semibold text-[#0B1118] transition hover:brightness-110"
                   >
-                    ✓ Plan übernehmen
+                    {t('accept')}
                   </button>
                   <button
                     onClick={() => setModifyingId(modifyingId === item.id ? null : item.id)}
                     className="rounded-full border border-white/20 px-4 py-1.5 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60"
                   >
-                    Aktion verändern
+                    {t('modify')}
                   </button>
                   <button
                     onClick={() => void decide(item.id, 'skipped')}
                     className="rounded-full border border-white/15 px-4 py-1.5 text-xs text-[#B7BDC4] transition hover:border-white/30"
                   >
-                    Überspringen
+                    {t('skip')}
                   </button>
                   <button
                     onClick={() => void decide(item.id, 'rejected')}
                     className="rounded-full border border-red-400/25 px-4 py-1.5 text-xs text-red-300 transition hover:bg-red-400/10"
                   >
-                    Ablehnen
+                    {t('reject')}
                   </button>
                 </div>
               )}
@@ -210,7 +212,7 @@ export default function DashboardRecommendations() {
                     type="text"
                     value={modifiedAction}
                     onChange={(e) => setModifiedAction(e.target.value)}
-                    placeholder="Wie möchtest du es stattdessen angehen?"
+                    placeholder={t('modifyPlaceholder')}
                     className="flex-1 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#F5F2EA] placeholder:text-[#6B7480] focus:border-[#58D7D4] focus:outline-none"
                   />
                   <button
@@ -218,7 +220,7 @@ export default function DashboardRecommendations() {
                     disabled={!modifiedAction.trim()}
                     className="rounded-xl border border-white/20 px-4 py-2 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Speichern
+                    {t('saveModification')}
                   </button>
                 </div>
               )}
@@ -229,45 +231,45 @@ export default function DashboardRecommendations() {
                     onClick={() => void markCompleted(item.id)}
                     className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-1.5 text-xs font-semibold text-[#0B1118] transition hover:brightness-110"
                   >
-                    Als erledigt markieren
+                    {t('markCompleted')}
                   </button>
                 </div>
               )}
 
               {item.status === 'completed' && !feedbackGiven[item.id] && (
                 <div className="mt-3">
-                  <p className="text-xs text-[#8E969F]">War das hilfreich?</p>
+                  <p className="text-xs text-[#8E969F]">{t('feedbackPrompt')}</p>
                   <div className="mt-1 flex flex-wrap gap-2">
-                    {FEEDBACK_OPTIONS.map((option) => (
+                    {FEEDBACK_KEYS.map((option) => (
                       <button
                         key={option.value}
                         onClick={() => void giveFeedback(item.id, option.value)}
                         className="rounded-full border border-white/15 px-3 py-1 text-xs text-[#B7BDC4] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
                       >
-                        {option.label}
+                        {t(option.key)}
                       </button>
                     ))}
                   </div>
                 </div>
               )}
-              {feedbackGiven[item.id] && <p className="mt-3 text-xs text-[#8E969F]">Danke für dein Feedback.</p>}
+              {feedbackGiven[item.id] && <p className="mt-3 text-xs text-[#8E969F]">{t('feedbackThanks')}</p>}
 
               <button
                 onClick={() => void toggleWhy(item.id)}
                 className="mt-3 text-xs font-semibold text-[#8E969F] underline hover:text-[#58D7D4]"
               >
-                {explanations[item.id] ? 'Erklärung ausblenden' : 'Warum?'}
+                {explanations[item.id] ? t('hideExplanation') : t('why')}
               </button>
 
               {explanations[item.id] && (
                 <div className="mt-2 rounded-lg border border-white/10 bg-white/[0.02] p-3 text-xs text-[#B7BDC4]">
-                  <p>Regel: {explanations[item.id].rule_name ?? 'unbekannt'} ({explanations[item.id].type})</p>
+                  <p>{t('ruleLabel')} {explanations[item.id].rule_name ?? t('unknown')} ({explanations[item.id].type})</p>
                   <p className="mt-1">
-                    Datenbasis: {explanations[item.id].data_used.join(', ') || '–'} · Zeitraum:{' '}
-                    {explanations[item.id].period_days ?? '–'} Tage · {explanations[item.id].data_points ?? 0} Datenpunkte ·
-                    Qualität: {explanations[item.id].data_quality ?? '–'}
+                    {t('dataUsedLabel')} {explanations[item.id].data_used.join(', ') || '–'} · {t('periodLabel')}{' '}
+                    {explanations[item.id].period_days ?? '–'} {t('daysUnit')} · {explanations[item.id].data_points ?? 0} {t('dataPoints')} ·{' '}
+                    {t('qualityLabel')} {explanations[item.id].data_quality ?? '–'}
                   </p>
-                  {explanations[item.id].expected_benefit && <p className="mt-1">Erwarteter Nutzen: {explanations[item.id].expected_benefit}</p>}
+                  {explanations[item.id].expected_benefit && <p className="mt-1">{t('benefitLabel')} {explanations[item.id].expected_benefit}</p>}
                   <p className="mt-2 text-[#6B7480]">{explanations[item.id].disclaimer}</p>
                 </div>
               )}

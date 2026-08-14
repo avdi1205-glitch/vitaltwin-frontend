@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { apiUrl } from '@/lib/api';
 import PublicFooter from '../../components/PublicFooter';
 import { excerptFromBody, formatContentDate, renderContentBody } from '../../components/blog-content-renderer';
@@ -43,7 +44,8 @@ function renderBody(body: string) {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPost(slug);
-  if (!post) return { title: 'Artikel nicht gefunden' };
+  const t = await getTranslations('blogPost');
+  if (!post) return { title: t('notFoundTitle') };
   return {
     title: `${post.title} | Blog`,
     description: excerpt(post.body),
@@ -55,6 +57,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) notFound();
+  const t = await getTranslations('blogPost');
 
   const showUpdatedDate =
     post.updated_at &&
@@ -65,12 +68,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     <main className="min-h-screen bg-[#0B1118] text-[#F5F2EA]">
       <div className="mx-auto max-w-3xl px-6 py-16 md:py-20">
         <Link href="/blog" className="text-sm font-medium text-[#8E969F] transition hover:text-[#58D7D4]">
-          ← Alle Artikel
+          {t('allArticles')}
         </Link>
         <p className="mt-6 text-xs uppercase tracking-[0.18em] text-[#8E969F]">
-          VitalTwin Redaktion
-          {post.published_at ? ` · Veröffentlicht am ${formatDate(post.published_at)}` : ''}
-          {showUpdatedDate ? ` · Aktualisiert am ${formatDate(post.updated_at)}` : ''}
+          {t('editorial')}
+          {post.published_at ? ` · ${t('publishedOn')} ${formatDate(post.published_at)}` : ''}
+          {showUpdatedDate ? ` · ${t('updatedOn')} ${formatDate(post.updated_at)}` : ''}
         </p>
         <h1 className="mt-3 font-[family-name:var(--font-serif-display)] text-3xl font-semibold md:text-4xl">
           {post.title}
@@ -80,8 +83,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <article className="mt-8">{renderBody(post.body || '')}</article>
 
         <div className="mt-10 rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-sm text-[#8E969F]">
-          Dieser Artikel dient der allgemeinen Wellness-Orientierung und ersetzt keine medizinische Beratung, Diagnose
-          oder Therapie. Bei gesundheitlichen Beschwerden wende dich an qualifiziertes medizinisches Fachpersonal.
+          {t('disclaimer')}
         </div>
 
         <PublicFooter className="mt-16" />

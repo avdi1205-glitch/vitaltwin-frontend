@@ -3,27 +3,41 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
 import PrivacyControls from '../components/privacy-controls';
 import FamilySection from '../components/family-section';
+import LanguageSelector from '../components/LanguageSelector';
 
-const WELLNESS_GOALS: { id: string; label: string }[] = [
-  { id: 'besser_schlafen', label: 'Besser schlafen' },
-  { id: 'mehr_bewegen', label: 'Mehr bewegen' },
-  { id: 'stress_reduzieren', label: 'Stress reduzieren' },
-  { id: 'gesuender_essen', label: 'Gesünder essen' },
-  { id: 'gewicht_bewusst_verwalten', label: 'Gewicht bewusst verwalten' },
-  { id: 'mehr_energie', label: 'Mehr Energie' },
-  { id: 'bessere_erholung', label: 'Bessere Erholung' },
-  { id: 'gesunde_gewohnheiten_aufbauen', label: 'Gesunde Gewohnheiten aufbauen' },
+type WellnessGoalKey = 'goalSleep' | 'goalMove' | 'goalStress' | 'goalFood' | 'goalWeight' | 'goalEnergy' | 'goalRecovery' | 'goalHabits';
+const WELLNESS_GOALS: { id: string; labelKey: WellnessGoalKey }[] = [
+  { id: 'besser_schlafen', labelKey: 'goalSleep' },
+  { id: 'mehr_bewegen', labelKey: 'goalMove' },
+  { id: 'stress_reduzieren', labelKey: 'goalStress' },
+  { id: 'gesuender_essen', labelKey: 'goalFood' },
+  { id: 'gewicht_bewusst_verwalten', labelKey: 'goalWeight' },
+  { id: 'mehr_energie', labelKey: 'goalEnergy' },
+  { id: 'bessere_erholung', labelKey: 'goalRecovery' },
+  { id: 'gesunde_gewohnheiten_aufbauen', labelKey: 'goalHabits' },
 ];
 
 const HABIT_CATEGORIES = ['schlaf', 'bewegung', 'ernaehrung', 'stress', 'energie', 'erholung', 'sonstiges'];
-const HABIT_FREQUENCIES: { id: string; label: string }[] = [
-  { id: 'taeglich', label: 'Täglich' },
-  { id: 'mehrmals_woche', label: 'Mehrmals pro Woche' },
-  { id: 'woechentlich', label: 'Wöchentlich' },
+type HabitCategoryKey = 'catSchlaf' | 'catBewegung' | 'catErnaehrung' | 'catStress' | 'catEnergie' | 'catErholung' | 'catSonstiges';
+const HABIT_CATEGORY_KEYS: Record<string, HabitCategoryKey> = {
+  schlaf: 'catSchlaf',
+  bewegung: 'catBewegung',
+  ernaehrung: 'catErnaehrung',
+  stress: 'catStress',
+  energie: 'catEnergie',
+  erholung: 'catErholung',
+  sonstiges: 'catSonstiges',
+};
+type HabitFrequencyKey = 'freqDaily' | 'freqSeveralWeekly' | 'freqWeekly';
+const HABIT_FREQUENCIES: { id: string; labelKey: HabitFrequencyKey }[] = [
+  { id: 'taeglich', labelKey: 'freqDaily' },
+  { id: 'mehrmals_woche', labelKey: 'freqSeveralWeekly' },
+  { id: 'woechentlich', labelKey: 'freqWeekly' },
 ];
 
 type Profile = {
@@ -55,6 +69,9 @@ type Habit = {
 };
 
 export default function Profil() {
+  const t = useTranslations('account');
+  const tGoals = useTranslations('onboarding');
+  const locale = useLocale();
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -195,7 +212,7 @@ export default function Profil() {
         return;
       }
       setProfile(data);
-      setMessage('Profil gespeichert.');
+      setMessage(t('saved'));
     } catch {
       setErrorMessage('Backend nicht erreichbar. Bitte später erneut versuchen.');
     } finally {
@@ -223,7 +240,7 @@ export default function Profil() {
         setDailyMessage(extractErrorMessage(data, 'Konnte nicht gespeichert werden.'));
         return;
       }
-      setDailyMessage('Heutiger Alltag gespeichert.');
+      setDailyMessage(t('dailySaved'));
     } catch {
       setDailyMessage('Backend gerade nicht erreichbar.');
     }
@@ -312,7 +329,7 @@ export default function Profil() {
     if (!token) return;
     setDeletionMessage('');
     try {
-      const res = await fetch(apiUrl('/api/profile/request-deletion'), {
+      const res = await fetch(apiUrl(`/api/profile/request-deletion?locale=${locale}`), {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -326,7 +343,7 @@ export default function Profil() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0B1118] px-6 py-16 text-center text-[#B7BDC4]">
-        Profil wird geladen...
+        {t('loading')}
       </div>
     );
   }
@@ -334,13 +351,18 @@ export default function Profil() {
   return (
     <div className="min-h-screen bg-[#0B1118] px-6 py-12 text-[#F5F2EA]">
       <div className="mx-auto max-w-3xl">
-        <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">VitalTwin</p>
-        <h1 className="mt-2 font-[family-name:var(--font-serif-display)] text-4xl font-semibold text-[#F5F2EA]">Dein Profil</h1>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">VitalTwin</p>
+            <h1 className="mt-2 font-[family-name:var(--font-serif-display)] text-4xl font-semibold text-[#F5F2EA]">{t('title')}</h1>
+          </div>
+          <LanguageSelector />
+        </div>
         <p className="mt-2 text-sm text-[#B7BDC4]">
-          Zuletzt geändert: {profile?.updated_at ? new Date(profile.updated_at).toLocaleString('de-DE') : 'noch nie'}
+          {t('lastChanged')} {profile?.updated_at ? new Date(profile.updated_at).toLocaleString('de-DE') : t('never')}
         </p>
         <Link href="/dashboard" className="mt-2 inline-block text-sm font-semibold text-[#B7BDC4] underline hover:text-[#F5F2EA]">
-          Zurück zum Dashboard
+          {t('back')}
         </Link>
 
         {message && (
@@ -354,10 +376,10 @@ export default function Profil() {
 
         {/* Grundprofil */}
         <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Grundprofil</h2>
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('basic')}</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="block">
-              <span className="mb-2 block text-sm text-[#B7BDC4]">Anzeigename</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">{t('displayName')}</span>
               <input
                 type="text"
                 value={displayName}
@@ -367,20 +389,20 @@ export default function Profil() {
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-[#B7BDC4]">Geburtsjahr (optional)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">{t('birthYear')}</span>
               <input
                 type="number"
                 value={birthYear}
                 onChange={(e) => setBirthYear(e.target.value)}
-                placeholder="z. B. 1985"
+                placeholder={t('birthYearPlaceholder')}
                 className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               />
             </label>
             <label className="block">
               <span className="mb-2 block text-sm text-[#B7BDC4]">
-                Geschlecht (optional)
+                {t('gender')}
                 <span className="block text-xs font-normal text-[#8E969F]">
-                  Nur zur Priorisierung passender Wellness-Hinweise — keine Pflichtangabe.
+                  {t('genderHint')}
                 </span>
               </span>
               <select
@@ -388,25 +410,25 @@ export default function Profil() {
                 onChange={(e) => setGender(e.target.value)}
                 className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               >
-                <option value="">Keine Angabe</option>
-                <option value="weiblich">Weiblich</option>
-                <option value="maennlich">Männlich</option>
-                <option value="divers">Divers</option>
+                <option value="">{t('noGenderInfo')}</option>
+                <option value="weiblich">{t('female')}</option>
+                <option value="maennlich">{t('male')}</option>
+                <option value="divers">{t('diverse')}</option>
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-[#B7BDC4]">Einheitensystem</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">{t('unitSystem')}</span>
               <select
                 value={unitSystem}
                 onChange={(e) => setUnitSystem(e.target.value)}
                 className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               >
-                <option value="metric">Metrisch (cm, kg)</option>
-                <option value="imperial">Imperial (ft, lb)</option>
+                <option value="metric">{t('metric')}</option>
+                <option value="imperial">{t('imperial')}</option>
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-[#B7BDC4]">Größe (cm, optional)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">{t('height')}</span>
               <input
                 type="number"
                 value={heightCm}
@@ -415,7 +437,7 @@ export default function Profil() {
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-[#B7BDC4]">Gewicht (kg, optional)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">{t('weight')}</span>
               <input
                 type="number"
                 value={weightKg}
@@ -424,7 +446,7 @@ export default function Profil() {
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-[#B7BDC4]">Sprache</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">{t('language')}</span>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
@@ -435,7 +457,7 @@ export default function Profil() {
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-[#B7BDC4]">Zeitzone</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">{t('timezone')}</span>
               <input
                 type="text"
                 value={tz}
@@ -448,13 +470,13 @@ export default function Profil() {
 
         {/* Wellness-Ziele */}
         <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Wellness-Ziele</h2>
-          <p className="mt-2 text-sm text-[#B7BDC4]">Mehrfachauswahl möglich.</p>
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('wellnessGoalsTitle')}</h2>
+          <p className="mt-2 text-sm text-[#B7BDC4]">{t('multiSelectHint')}</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             {WELLNESS_GOALS.map((goal) => (
               <label key={goal.id} className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-[#F5F2EA]">
                 <input type="checkbox" checked={goals.includes(goal.id)} onChange={() => toggleGoal(goal.id)} className="accent-[#58D7D4]" />
-                {goal.label}
+                {tGoals(goal.labelKey)}
               </label>
             ))}
           </div>
@@ -465,15 +487,15 @@ export default function Profil() {
           disabled={saving}
           className="mt-6 w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {saving ? 'Speichere...' : 'Profil speichern'}
+          {saving ? t('savingButton') : t('save')}
         </button>
 
         {/* Alltag */}
         <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Alltag (heute)</h2>
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('dailyTitle')}</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="block">
-              <span className="mb-2 block text-sm text-[#B7BDC4]">Schlafdauer (Stunden, optional)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">{t('sleepHours')}</span>
               <input
                 type="number"
                 step="0.5"
@@ -483,7 +505,7 @@ export default function Profil() {
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-[#B7BDC4]">Bewegungstage pro Woche (optional)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">{t('movementDays')}</span>
               <input
                 type="number"
                 min={0}
@@ -494,7 +516,7 @@ export default function Profil() {
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-[#B7BDC4]">Schritte heute (optional)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">{t('stepsToday')}</span>
               <input
                 type="number"
                 value={steps}
@@ -503,7 +525,7 @@ export default function Profil() {
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-[#B7BDC4]">Stress-Selbsteinschätzung (1-5)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">{t('stressSelf')}</span>
               <select
                 value={stressLevel}
                 onChange={(e) => setStressLevel(e.target.value)}
@@ -515,7 +537,7 @@ export default function Profil() {
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-[#B7BDC4]">Energie-Selbsteinschätzung (1-5)</span>
+              <span className="mb-2 block text-sm text-[#B7BDC4]">{t('energySelf')}</span>
               <select
                 value={energyLevel}
                 onChange={(e) => setEnergyLevel(e.target.value)}
@@ -531,20 +553,20 @@ export default function Profil() {
             onClick={saveDaily}
             className="mt-4 rounded-xl border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
           >
-            Heutigen Alltag speichern
+            {t('saveDaily')}
           </button>
           {dailyMessage && <p className="mt-2 text-sm text-[#B7BDC4]">{dailyMessage}</p>}
         </section>
 
         {/* Gewohnheiten */}
         <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Gewohnheiten</h2>
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('habitsTitle')}</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <input
               type="text"
               value={habitName}
               onChange={(e) => setHabitName(e.target.value)}
-              placeholder="Name, z. B. 20 Min. spazieren"
+              placeholder={t('habitNamePlaceholder')}
               className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             />
             <select
@@ -553,7 +575,7 @@ export default function Profil() {
               className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             >
               {HABIT_CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat} value={cat}>{HABIT_CATEGORY_KEYS[cat] ? t(HABIT_CATEGORY_KEYS[cat]) : cat}</option>
               ))}
             </select>
             <select
@@ -562,14 +584,14 @@ export default function Profil() {
               className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             >
               {HABIT_FREQUENCIES.map((freq) => (
-                <option key={freq.id} value={freq.id}>{freq.label}</option>
+                <option key={freq.id} value={freq.id}>{t(freq.labelKey)}</option>
               ))}
             </select>
             <input
               type="text"
               value={habitTarget}
               onChange={(e) => setHabitTarget(e.target.value)}
-              placeholder="Ziel (optional)"
+              placeholder={t('habitTargetPlaceholder')}
               className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             />
           </div>
@@ -577,27 +599,27 @@ export default function Profil() {
             onClick={addHabit}
             className="mt-3 rounded-xl bg-[#46C8C8] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:bg-[#58D7D4]"
           >
-            Gewohnheit hinzufügen
+            {t('addHabit')}
           </button>
           {habitMessage && <p className="mt-2 text-sm text-red-300">{habitMessage}</p>}
 
           <div className="mt-5 space-y-2">
-            {habits.length === 0 && <p className="text-sm text-[#B7BDC4]">Noch keine Gewohnheiten angelegt.</p>}
+            {habits.length === 0 && <p className="text-sm text-[#B7BDC4]">{t('noHabits')}</p>}
             {habits.map((habit) => (
               <div key={habit.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm">
                 <div>
                   <p className="font-semibold text-[#F5F2EA]">{habit.name}</p>
                   <p className="text-xs text-[#8E969F]">
-                    {habit.category} · {habit.frequency} {habit.target ? `· Ziel: ${habit.target}` : ''} ·{' '}
-                    {habit.active ? 'aktiv' : 'inaktiv'}
+                    {HABIT_CATEGORY_KEYS[habit.category] ? t(HABIT_CATEGORY_KEYS[habit.category]) : habit.category} · {habit.frequency} {habit.target ? `· ${t('habitTargetLabel')} ${habit.target}` : ''} ·{' '}
+                    {habit.active ? t('habitActive') : t('habitInactive')}
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => toggleHabitActive(habit)} className="rounded-lg border border-white/15 px-3 py-1 text-xs font-semibold text-[#F5F2EA]">
-                    {habit.active ? 'Deaktivieren' : 'Aktivieren'}
+                    {habit.active ? t('deactivate') : t('activate')}
                   </button>
                   <button onClick={() => removeHabit(habit.id)} className="rounded-lg border border-red-400/30 px-3 py-1 text-xs font-semibold text-red-300">
-                    Löschen
+                    {t('delete')}
                   </button>
                 </div>
               </div>
@@ -607,36 +629,34 @@ export default function Profil() {
 
         {/* Datenschutzkontrollen */}
         <section id="datenschutz" className="mt-6 scroll-mt-24 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Datenschutzkontrollen</h2>
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('privacyTitle')}</h2>
           <p className="mt-3 text-sm text-[#B7BDC4]">
-            Bei dir gespeichert: Grundprofil, Wellness-Ziele, tägliche Alltagswerte und Gewohnheiten — jeweils
-            ausschließlich verknüpft mit deinem Konto. Keine medizinischen Diagnosen, keine Genetik- oder Laborwerte.
+            {t('privacyIntro')}
           </p>
           <p className="mt-2 text-sm text-[#B7BDC4]">
-            Zuletzt geändert: {profile?.updated_at ? new Date(profile.updated_at).toLocaleString('de-DE') : 'noch nie'}
+            {t('lastChanged')} {profile?.updated_at ? new Date(profile.updated_at).toLocaleString('de-DE') : t('never')}
           </p>
           <p className="mt-2 text-sm text-[#B7BDC4]">
-            Bearbeiten kannst du deine Daten jederzeit direkt auf dieser Seite.
+            {t('editAnytime')}
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <button
               onClick={exportData}
               className="rounded-xl border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
             >
-              Meine Daten exportieren
+              {t('exportData')}
             </button>
             <button
               onClick={requestDeletion}
               className="rounded-xl border border-red-400/30 px-5 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-400/10"
             >
-              Löschung von Konto/Daten anfordern
+              {t('requestDeletion')}
             </button>
           </div>
           {exportMessage && <p className="mt-2 text-sm text-[#B7BDC4]">{exportMessage}</p>}
           {deletionMessage && <p className="mt-2 text-sm text-[#B7BDC4]">{deletionMessage}</p>}
           <p className="mt-3 text-xs text-[#8E969F]">
-            Aus Sicherheitsgründen wird eine Löschung manuell geprüft und nicht automatisch sofort ausgeführt. Du
-            erreichst uns jederzeit auch direkt unter info@vitaltwin.de.
+            {t('deletionNote')}
           </p>
 
           <div className="mt-6 border-t border-white/10 pt-6">

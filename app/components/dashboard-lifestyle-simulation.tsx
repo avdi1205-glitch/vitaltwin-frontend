@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type SimulationField = 'sleep_hours' | 'movement_minutes' | 'stress';
@@ -14,10 +15,11 @@ type SimulationResult = {
   disclaimer: string;
 };
 
-const FIELD_OPTIONS: { id: SimulationField; label: string; unit: string; step: number }[] = [
-  { id: 'sleep_hours', label: 'Schlafdauer', unit: 'h', step: 0.5 },
-  { id: 'movement_minutes', label: 'Bewegung', unit: 'Min.', step: 5 },
-  { id: 'stress', label: 'Stress (1-10)', unit: '', step: 1 },
+type FieldLabelKey = 'fieldSleep' | 'fieldMovement' | 'fieldStress';
+const FIELD_OPTIONS: { id: SimulationField; labelKey: FieldLabelKey; unit: string; step: number }[] = [
+  { id: 'sleep_hours', labelKey: 'fieldSleep', unit: 'h', step: 0.5 },
+  { id: 'movement_minutes', labelKey: 'fieldMovement', unit: 'Min.', step: 5 },
+  { id: 'stress', labelKey: 'fieldStress', unit: '', step: 1 },
 ];
 
 /**
@@ -26,6 +28,7 @@ const FIELD_OPTIONS: { id: SimulationField; label: string; unit: string; step: n
  * Backend: POST /api/profile/simulate (see services/lifestyle_simulation.py).
  */
 export default function DashboardLifestyleSimulation() {
+  const t = useTranslations('simulation');
   const [field, setField] = useState<SimulationField>(FIELD_OPTIONS[0].id);
   const [delta, setDelta] = useState(0);
   const [result, setResult] = useState<SimulationResult | null>(null);
@@ -48,13 +51,13 @@ export default function DashboardLifestyleSimulation() {
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage(data?.detail ?? 'Simulation konnte nicht berechnet werden.');
+        setErrorMessage(data?.detail ?? t('error'));
         setResult(null);
         return;
       }
       setResult(data);
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
@@ -64,9 +67,9 @@ export default function DashboardLifestyleSimulation() {
 
   return (
     <article className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-      <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Wellness-Szenarien</h3>
+      <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('title')}</h3>
       <p className="mt-2 text-sm text-[#8E969F]">
-        Simuliere rein rechnerisch, wie sich dein eigener 7-Tage-Durchschnitt verändern würde — keine Vorhersage, keine Diagnose.
+        {t('description')}
       </p>
 
       <div className="mt-4 flex flex-col gap-2 sm:flex-row">
@@ -83,7 +86,7 @@ export default function DashboardLifestyleSimulation() {
             // ignores the dark theme and renders a light background, so an
             // inherited light text color would be nearly invisible there.
             <option key={option.id} value={option.id} className="bg-white text-[#0B1118]">
-              {option.label}
+              {t(option.labelKey)}
             </option>
           ))}
         </select>
@@ -93,7 +96,7 @@ export default function DashboardLifestyleSimulation() {
           value={delta === 0 ? '' : delta}
           onChange={(e) => setDelta(e.target.value === '' ? 0 : Number(e.target.value))}
           onFocus={(e) => e.target.select()}
-          placeholder={`Veränderung (${activeOption.unit})`}
+          placeholder={t('changePlaceholder', { unit: activeOption.unit })}
           className="flex-1 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
         />
         <button
@@ -101,7 +104,7 @@ export default function DashboardLifestyleSimulation() {
           disabled={loading}
           className="rounded-xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {loading ? 'Berechne...' : 'Simulieren'}
+          {loading ? t('running') : t('run')}
         </button>
       </div>
 
@@ -110,21 +113,21 @@ export default function DashboardLifestyleSimulation() {
       {result && (
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
           {result.current_average === null ? (
-            <p className="text-sm text-[#B7BDC4]">Noch nicht genügend Daten für {activeOption.label}.</p>
+            <p className="text-sm text-[#B7BDC4]">{t('noData', { field: t(activeOption.labelKey) })}</p>
           ) : (
             <>
               <div className="grid grid-cols-2 gap-3 text-center text-sm">
                 <div>
-                  <p className="text-[#8E969F]">Aktueller Durchschnitt</p>
+                  <p className="text-[#8E969F]">{t('current')}</p>
                   <p className="mt-1 text-lg font-semibold text-[#F5F2EA]">{result.current_average} {activeOption.unit}</p>
                 </div>
                 <div>
-                  <p className="text-[#8E969F]">Simuliert</p>
+                  <p className="text-[#8E969F]">{t('simulated')}</p>
                   <p className="mt-1 text-lg font-semibold text-[#58D7D4]">{result.simulated_average} {activeOption.unit}</p>
                 </div>
               </div>
               <p className="mt-3 text-xs text-[#8E969F]">
-                Grundlage: {result.data_points} Einträge · Datenqualität: {result.data_quality}
+                {t('basis')} {result.data_points} {t('entries')} · {t('quality')} {result.data_quality}
               </p>
             </>
           )}

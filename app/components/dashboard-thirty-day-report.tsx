@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type TrendEntry = { average: number | null; data_points: number; data_quality: string };
@@ -24,12 +25,13 @@ type ReportResponse = {
   disclaimer: string;
 };
 
-const FIELD_LABELS: Record<string, string> = {
-  sleep_hours: 'Schlafdauer',
-  energy: 'Energie',
-  movement_minutes: 'Bewegung',
-  stress: 'Stress',
-  mood: 'Stimmung',
+type FieldKey = 'fieldSleep' | 'fieldEnergy' | 'fieldMovement' | 'fieldStress' | 'fieldMood';
+const FIELD_KEYS: Record<string, FieldKey> = {
+  sleep_hours: 'fieldSleep',
+  energy: 'fieldEnergy',
+  movement_minutes: 'fieldMovement',
+  stress: 'fieldStress',
+  mood: 'fieldMood',
 };
 
 /**
@@ -38,6 +40,7 @@ const FIELD_LABELS: Record<string, string> = {
  * neue Statistik-Engine. Backend: GET /api/profile/reports/30-day.
  */
 export default function DashboardThirtyDayReport() {
+  const t = useTranslations('report30');
   const [report, setReport] = useState<ReportResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -55,20 +58,20 @@ export default function DashboardThirtyDayReport() {
       const data = await response.json().catch(() => null);
       if (response.status === 403) {
         setForbidden(true);
-        setErrorMessage(data?.detail ?? 'Der 30-Tage-Bericht ist ein Pro-Feature.');
+        setErrorMessage(data?.detail ?? t('premiumError'));
         return;
       }
       if (!response.ok) {
-        setErrorMessage(data?.detail ?? '30-Tage-Bericht konnte nicht geladen werden.');
+        setErrorMessage(data?.detail ?? t('loadError'));
         return;
       }
       setReport(data);
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => void loadReport(), 0);
@@ -78,13 +81,13 @@ export default function DashboardThirtyDayReport() {
   return (
     <article className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">30-Tage-Bericht</h2>
+        <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('title')}</h2>
       </div>
       <p className="mt-2 text-sm text-[#8E969F]">
-        Eine Zusammenfassung deiner letzten 30 Tage auf Basis deiner eigenen Daten — keine medizinische Bewertung.
+        {t('description')}
       </p>
 
-      {loading && <p className="mt-4 text-[#8E969F]">Bericht wird geladen...</p>}
+      {loading && <p className="mt-4 text-[#8E969F]">{t('loading')}</p>}
 
       {!loading && forbidden && (
         <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3">
@@ -93,7 +96,7 @@ export default function DashboardThirtyDayReport() {
             href="/preise"
             className="mt-3 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
           >
-            Pro ansehen
+            {t('proLink')}
           </a>
         </div>
       )}
@@ -102,7 +105,7 @@ export default function DashboardThirtyDayReport() {
 
       {!loading && !forbidden && !errorMessage && report && !report.available && (
         <p className="mt-4 rounded-xl border border-dashed border-white/20 bg-white/[0.02] px-4 py-3 text-[#8E969F]">
-          {report.reason ?? 'Noch nicht genügend Daten für einen vollständigen Bericht.'}
+          {report.reason ?? t('empty')}
         </p>
       )}
 
@@ -111,7 +114,7 @@ export default function DashboardThirtyDayReport() {
           <div className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3">
             <p className="text-sm text-[#F5F2EA]">{report.summary}</p>
             <p className="mt-2 text-xs text-[#8E969F]">
-              Datenabdeckung: {report.data_points} von {report.period_days} Tagen
+              {t('coverage', { points: report.data_points, days: report.period_days })}
               {report.coverage_ratio !== null ? ` (${Math.round(report.coverage_ratio * 100)}%)` : ''}
             </p>
           </div>
@@ -119,11 +122,11 @@ export default function DashboardThirtyDayReport() {
           <div className="grid gap-3 sm:grid-cols-2">
             {Object.entries(report.trends).map(([field, trend]) => (
               <div key={field} className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3">
-                <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">{FIELD_LABELS[field] ?? field}</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">{FIELD_KEYS[field] ? t(FIELD_KEYS[field]) : field}</p>
                 <p className="mt-1 text-lg font-semibold text-[#F5F2EA]">
-                  {trend.average === null ? 'Keine Daten' : trend.average}
+                  {trend.average === null ? t('noData') : trend.average}
                 </p>
-                <p className="mt-1 text-xs text-[#8E969F]">{trend.data_points} Einträge · {trend.data_quality}</p>
+                <p className="mt-1 text-xs text-[#8E969F]">{trend.data_points} {t('entries')} · {trend.data_quality}</p>
               </div>
             ))}
           </div>
@@ -132,7 +135,7 @@ export default function DashboardThirtyDayReport() {
             <div className="grid gap-3 sm:grid-cols-2">
               {report.strongest_positive_trend && (
                 <div className="rounded-xl border border-[#58D7D4]/30 bg-white/[0.02] px-4 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-[#58D7D4]">Stärkste positive Entwicklung</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-[#58D7D4]">{t('strongestPositive')}</p>
                   <p className="mt-1 text-sm text-[#F5F2EA]">
                     {report.strongest_positive_trend.label}: {report.strongest_positive_trend.first_half_average} →{' '}
                     {report.strongest_positive_trend.second_half_average}
@@ -141,7 +144,7 @@ export default function DashboardThirtyDayReport() {
               )}
               {report.strongest_negative_trend && (
                 <div className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-[#B7BDC4]">Stärkste rückläufige Entwicklung</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-[#B7BDC4]">{t('strongestNegative')}</p>
                   <p className="mt-1 text-sm text-[#F5F2EA]">
                     {report.strongest_negative_trend.label}: {report.strongest_negative_trend.first_half_average} →{' '}
                     {report.strongest_negative_trend.second_half_average}
@@ -153,7 +156,7 @@ export default function DashboardThirtyDayReport() {
 
           {report.baseline_comparison.length > 0 && (
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">Vergleich mit deiner Baseline</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">{t('baselineComparison')}</p>
               <div className="mt-2 space-y-2">
                 {report.baseline_comparison.map((item) => (
                   <p key={item.field} className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-[#F5F2EA]">
@@ -166,7 +169,7 @@ export default function DashboardThirtyDayReport() {
 
           {report.habit_progress.length > 0 && (
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">Gewohnheiten</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">{t('habits')}</p>
               <ul className="mt-2 space-y-1 text-sm text-[#F5F2EA]">
                 {report.habit_progress.map((item) => (
                   <li key={item}>{item}</li>
@@ -177,7 +180,7 @@ export default function DashboardThirtyDayReport() {
 
           {report.goal_progress.length > 0 && (
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">Ziele</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">{t('goals')}</p>
               <ul className="mt-2 space-y-1 text-sm text-[#F5F2EA]">
                 {report.goal_progress.map((item) => (
                   <li key={item}>{item}</li>
@@ -188,7 +191,7 @@ export default function DashboardThirtyDayReport() {
 
           {report.consistency_patterns.length > 0 && (
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">Wiederkehrende Muster</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">{t('patterns')}</p>
               <ul className="mt-2 space-y-1 text-sm text-[#F5F2EA]">
                 {report.consistency_patterns.map((item) => (
                   <li key={item}>{item}</li>

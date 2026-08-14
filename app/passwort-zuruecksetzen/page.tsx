@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 export default function PasswortAendern() {
+  const t = useTranslations('passwordChange');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,7 +33,7 @@ export default function PasswortAendern() {
     }
 
     if (newPassword.length < 8) {
-      setErrorMessage('Neues Passwort muss mindestens 8 Zeichen haben.');
+      setErrorMessage(t('passwordTooShort'));
       return;
     }
 
@@ -48,15 +50,15 @@ export default function PasswortAendern() {
 
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage(data?.detail ?? 'Passwort konnte nicht aktualisiert werden.');
+        setErrorMessage(data?.detail ?? t('updateFailed'));
         return;
       }
 
       setCurrentPassword('');
       setNewPassword('');
-      setSuccessMessage(data?.message ?? 'Passwort erfolgreich aktualisiert.');
+      setSuccessMessage(data?.message ?? t('updateSuccessDefault'));
     } catch {
-      setErrorMessage('Backend nicht erreichbar. Bitte prüfe die API-URL und den Server-Status.');
+      setErrorMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
@@ -65,9 +67,9 @@ export default function PasswortAendern() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0B1118] px-6">
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.03] p-10">
-        <h1 className="text-center text-3xl font-bold text-[#F5F2EA]">Passwort ändern</h1>
+        <h1 className="text-center text-3xl font-bold text-[#F5F2EA]">{t('title')}</h1>
         <p className="mt-3 text-center text-[#8E969F]">
-          Gib dein aktuelles Passwort und ein neues Passwort ein, um dein Konto-Passwort zu aktualisieren.
+          {t('instructions')}
         </p>
 
         <form onSubmit={handleChangePassword} className="mt-8 space-y-6">
@@ -75,7 +77,7 @@ export default function PasswortAendern() {
             type="password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            placeholder="Aktuelles Passwort"
+            placeholder={t('currentPasswordPlaceholder')}
             className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
             required
           />
@@ -83,7 +85,7 @@ export default function PasswortAendern() {
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Neues Passwort (mind. 8 Zeichen)"
+            placeholder={t('newPasswordPlaceholder')}
             className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
             required
             minLength={8}
@@ -106,12 +108,12 @@ export default function PasswortAendern() {
             disabled={loading}
             className="w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-4 text-lg font-semibold text-[#0B1118] transition hover:brightness-110 disabled:opacity-70"
           >
-            {loading ? 'Aktualisiere...' : 'Passwort aktualisieren'}
+            {loading ? t('updating') : t('updatePassword')}
           </button>
         </form>
 
         <p className="mt-6 text-center text-[#8E969F]">
-          Zurück zum <Link href="/dashboard" className="text-[#58D7D4] hover:underline">Dashboard</Link>
+          {t('backTo')} <Link href="/dashboard" className="text-[#58D7D4] hover:underline">{t('dashboard')}</Link>
         </p>
       </div>
     </div>

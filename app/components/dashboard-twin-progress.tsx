@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type WeeklyReflection = {
@@ -59,6 +60,7 @@ function Bullets({ items }: { items: string[] }) {
  * pattern used elsewhere, never a silent empty section.
  */
 export default function DashboardTwinProgress() {
+  const t = useTranslations('weekly');
   const [weekly, setWeekly] = useState<WeeklyReflection | null>(null);
   const [weeklyDenied, setWeeklyDenied] = useState(false);
   const [monthly, setMonthly] = useState<MonthlyProgress | null>(null);
@@ -105,26 +107,26 @@ export default function DashboardTwinProgress() {
   if (loading) {
     return (
       <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <p className="text-sm text-[#8E969F]">Lade deinen Rückblick...</p>
+        <p className="text-sm text-[#8E969F]">{t('loading')}</p>
       </article>
     );
   }
 
   return (
     <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-      <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Dein Wochenrückblick</h3>
+      <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('title')}</h3>
 
       {weeklyDenied && (
         <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.02] p-4 text-center">
-          <p className="text-sm font-semibold text-[#F5F2EA]">Premium-Feature</p>
+          <p className="text-sm font-semibold text-[#F5F2EA]">{t('premiumTitle')}</p>
           <p className="mx-auto mt-2 max-w-md text-xs text-[#B7BDC4]">
-            Wochenberichte sind Teil von Premium.
+            {t('premiumText')}
           </p>
           <Link
             href="/preise"
             className="mt-3 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-1.5 text-xs font-semibold text-[#0B1118] transition hover:brightness-110"
           >
-            Premium ansehen
+            {t('premiumLink')}
           </Link>
         </div>
       )}
@@ -135,43 +137,43 @@ export default function DashboardTwinProgress() {
         <div className="mt-3 space-y-3 text-sm text-[#B7BDC4]">
           {weekly.positive_developments.length > 0 && (
             <div>
-              <p className="font-semibold text-[#F5F2EA]">Positive Entwicklungen</p>
+              <p className="font-semibold text-[#F5F2EA]">{t('positive')}</p>
               <Bullets items={weekly.positive_developments} />
             </div>
           )}
           {weekly.stable_routines.length > 0 && (
             <div>
-              <p className="font-semibold text-[#F5F2EA]">Stabile Routinen</p>
+              <p className="font-semibold text-[#F5F2EA]">{t('stable')}</p>
               <Bullets items={weekly.stable_routines} />
             </div>
           )}
           {weekly.potential_areas.length > 0 && (
             <div>
-              <p className="font-semibold text-[#F5F2EA]">Bereiche mit Potenzial</p>
+              <p className="font-semibold text-[#F5F2EA]">{t('potential')}</p>
               <Bullets items={weekly.potential_areas} />
             </div>
           )}
           {weekly.goal_progress.length > 0 && (
             <div>
-              <p className="font-semibold text-[#F5F2EA]">Fortschritt bei Zielen</p>
+              <p className="font-semibold text-[#F5F2EA]">{t('goalProgress')}</p>
               <Bullets items={weekly.goal_progress} />
             </div>
           )}
           {weekly.most_helpful_recommendations.length > 0 && (
             <div>
-              <p className="font-semibold text-[#F5F2EA]">Hilfreichste Empfehlungen</p>
+              <p className="font-semibold text-[#F5F2EA]">{t('helpfulRecs')}</p>
               <Bullets items={weekly.most_helpful_recommendations} />
             </div>
           )}
           {weekly.suggestions_next_week.length > 0 && (
             <div>
-              <p className="font-semibold text-[#F5F2EA]">Für nächste Woche</p>
+              <p className="font-semibold text-[#F5F2EA]">{t('nextWeek')}</p>
               <Bullets items={weekly.suggestions_next_week} />
             </div>
           )}
           {weekly.patterns.length > 0 && (
             <div>
-              <p className="font-semibold text-[#F5F2EA]">Mögliche Muster</p>
+              <p className="font-semibold text-[#F5F2EA]">{t('patterns')}</p>
               <Bullets items={weekly.patterns} />
             </div>
           )}
@@ -183,7 +185,7 @@ export default function DashboardTwinProgress() {
           onClick={() => setShowMonthly(!showMonthly)}
           className="text-sm font-semibold text-[#8E969F] underline hover:text-[#58D7D4]"
         >
-          {showMonthly ? 'Monatsübersicht ausblenden' : 'Monatsübersicht anzeigen'}
+          {showMonthly ? t('hideMonthly') : t('showMonthly')}
         </button>
 
         {showMonthly && monthly && (
@@ -194,25 +196,25 @@ export default function DashboardTwinProgress() {
               <div className="space-y-3">
                 {monthly.goal_development.length > 0 && (
                   <div>
-                    <p className="font-semibold text-[#F5F2EA]">Zielentwicklung</p>
+                    <p className="font-semibold text-[#F5F2EA]">{t('monthlyGoals')}</p>
                     <Bullets items={monthly.goal_development} />
                   </div>
                 )}
                 {monthly.habit_summary.length > 0 && (
                   <div>
-                    <p className="font-semibold text-[#F5F2EA]">Gewohnheiten</p>
+                    <p className="font-semibold text-[#F5F2EA]">{t('monthlyHabits')}</p>
                     <Bullets items={monthly.habit_summary} />
                   </div>
                 )}
                 {monthly.changed_preferences.length > 0 && (
                   <div>
-                    <p className="font-semibold text-[#F5F2EA]">Erkannte Präferenzen</p>
+                    <p className="font-semibold text-[#F5F2EA]">{t('monthlyPreferences')}</p>
                     <Bullets items={monthly.changed_preferences} />
                   </div>
                 )}
                 {monthly.next_month_goal_suggestions.length > 0 && (
                   <div>
-                    <p className="font-semibold text-[#F5F2EA]">Vorschläge für nächsten Monat</p>
+                    <p className="font-semibold text-[#F5F2EA]">{t('monthlySuggestions')}</p>
                     <Bullets items={monthly.next_month_goal_suggestions} />
                   </div>
                 )}
@@ -224,7 +226,7 @@ export default function DashboardTwinProgress() {
 
       {maturity && (
         <div className="mt-6 border-t border-white/10 pt-4">
-          <p className="text-sm font-semibold text-[#F5F2EA]">Twin-Reifegrad: {maturity.level_label}</p>
+          <p className="text-sm font-semibold text-[#F5F2EA]">{t('maturityPrefix')} {maturity.level_label}</p>
           <div className="mt-2 flex gap-1">
             {MATURITY_STEPS.map((step) => (
               <span
@@ -238,7 +240,7 @@ export default function DashboardTwinProgress() {
             ))}
           </div>
           {maturity.missing_data.length > 0 && (
-            <p className="mt-2 text-xs text-[#6B7480]">Für die nächste Stufe: {maturity.missing_data.join(' ')}</p>
+            <p className="mt-2 text-xs text-[#6B7480]">{t('maturityNext')} {maturity.missing_data.join(' ')}</p>
           )}
         </div>
       )}

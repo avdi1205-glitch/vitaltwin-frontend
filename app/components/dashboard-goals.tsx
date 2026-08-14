@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type Goal = {
@@ -12,15 +13,17 @@ type Goal = {
   target_date: string | null;
 };
 
-const GOAL_TYPES: { id: string; label: string }[] = [
-  { id: 'besser_schlafen', label: 'Besser schlafen' },
-  { id: 'mehr_bewegen', label: 'Mehr bewegen' },
-  { id: 'stress_reduzieren', label: 'Stress reduzieren' },
-  { id: 'gesuender_essen', label: 'Gesünder essen' },
-  { id: 'mehr_energie', label: 'Mehr Energie' },
-  { id: 'bessere_erholung', label: 'Besser erholen' },
-  { id: 'gesunde_gewohnheiten_aufbauen', label: 'Gewohnheiten aufbauen' },
-  { id: 'eigenes_ziel', label: 'Eigenes Ziel' },
+type GoalTypeKey = 'typeSleep' | 'typeMove' | 'typeStress' | 'typeFood' | 'typeEnergy' | 'typeRecovery' | 'typeHabit' | 'typeCustom';
+
+const GOAL_TYPES: { id: string; labelKey: GoalTypeKey }[] = [
+  { id: 'besser_schlafen', labelKey: 'typeSleep' },
+  { id: 'mehr_bewegen', labelKey: 'typeMove' },
+  { id: 'stress_reduzieren', labelKey: 'typeStress' },
+  { id: 'gesuender_essen', labelKey: 'typeFood' },
+  { id: 'mehr_energie', labelKey: 'typeEnergy' },
+  { id: 'bessere_erholung', labelKey: 'typeRecovery' },
+  { id: 'gesunde_gewohnheiten_aufbauen', labelKey: 'typeHabit' },
+  { id: 'eigenes_ziel', labelKey: 'typeCustom' },
 ];
 
 /**
@@ -29,6 +32,7 @@ const GOAL_TYPES: { id: string; label: string }[] = [
  * detailed goal actions/plans are a later etappe (Daily Planning Loop).
  */
 export default function DashboardGoals() {
+  const t = useTranslations('goals');
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -36,6 +40,12 @@ export default function DashboardGoals() {
   const [title, setTitle] = useState('');
   const [goalType, setGoalType] = useState(GOAL_TYPES[0].id);
   const [saving, setSaving] = useState(false);
+  const statusLabels: Record<Goal['status'], string> = {
+    active: t('statusActive'),
+    paused: t('statusPaused'),
+    completed: t('statusCompleted'),
+    archived: t('statusCompleted'),
+  };
 
   const authHeader = useCallback((): Record<string, string> => {
     const token = localStorage.getItem('token');
@@ -50,11 +60,11 @@ export default function DashboardGoals() {
         setGoals(Array.isArray(data?.items) ? data.items : []);
       }
     } catch {
-      setErrorMessage('Ziele konnten nicht geladen werden.');
+      setErrorMessage(t('loadError'));
     } finally {
       setLoading(false);
     }
-  }, [authHeader]);
+  }, [authHeader, t]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -76,14 +86,14 @@ export default function DashboardGoals() {
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage(data?.detail ?? 'Ziel konnte nicht gespeichert werden.');
+        setErrorMessage(data?.detail ?? t('createError'));
         return;
       }
       setTitle('');
       setShowAddForm(false);
       await loadGoals();
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     } finally {
       setSaving(false);
     }
@@ -102,12 +112,12 @@ export default function DashboardGoals() {
       // silently swallowed (fetch only throws on network failure, not 4xx).
       if (!response.ok) {
         const data = await response.json().catch(() => null);
-        setErrorMessage(data?.detail ?? 'Status konnte nicht geändert werden.');
+        setErrorMessage(data?.detail ?? t('statusError'));
         return;
       }
       await loadGoals();
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     }
   };
 
@@ -116,7 +126,7 @@ export default function DashboardGoals() {
       await fetch(apiUrl(`/api/profile/goals/${goalId}`), { method: 'DELETE', headers: authHeader() });
       await loadGoals();
     } catch {
-      setErrorMessage('Ziel konnte nicht archiviert werden.');
+      setErrorMessage(t('deleteError'));
     }
   };
 
@@ -125,12 +135,12 @@ export default function DashboardGoals() {
   return (
     <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Ziele</h3>
+        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('title')}</h3>
         <button
           onClick={() => setShowAddForm((current) => !current)}
           className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
         >
-          Ziel hinzufügen
+          {t('add')}
         </button>
       </div>
 
@@ -140,7 +150,7 @@ export default function DashboardGoals() {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="z. B. 3x pro Woche laufen"
+            placeholder={t('placeholder')}
             className="flex-1 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
           />
           <select
@@ -149,7 +159,7 @@ export default function DashboardGoals() {
             className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
           >
             {GOAL_TYPES.map((type) => (
-              <option key={type.id} value={type.id}>{type.label}</option>
+              <option key={type.id} value={type.id}>{t(type.labelKey)}</option>
             ))}
           </select>
           <button
@@ -157,7 +167,7 @@ export default function DashboardGoals() {
             disabled={saving}
             className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {saving ? 'Speichere...' : 'Speichern'}
+            {saving ? t('saving') : t('save')}
           </button>
         </div>
       )}
@@ -166,9 +176,9 @@ export default function DashboardGoals() {
 
       <div className="mt-4 space-y-2">
         {loading ? (
-          <p className="text-sm text-[#8E969F]">Lade Ziele...</p>
+          <p className="text-sm text-[#8E969F]">{t('loading')}</p>
         ) : visibleGoals.length === 0 ? (
-          <p className="text-sm text-[#B7BDC4]">Noch keine Ziele angelegt.</p>
+          <p className="text-sm text-[#B7BDC4]">{t('empty')}</p>
         ) : (
           visibleGoals.map((goal) => (
             <div
@@ -178,8 +188,11 @@ export default function DashboardGoals() {
               <div>
                 <p className="text-sm font-semibold text-[#F5F2EA]">{goal.title}</p>
                 <p className="text-xs text-[#8E969F]">
-                  {GOAL_TYPES.find((type) => type.id === goal.goal_type)?.label ?? goal.goal_type} · Status:{' '}
-                  {goal.status === 'active' ? 'Aktiv' : goal.status === 'paused' ? 'Pausiert' : 'Abgeschlossen'}
+                  {(() => {
+                    const matched = GOAL_TYPES.find((type) => type.id === goal.goal_type);
+                    return matched ? t(matched.labelKey) : goal.goal_type;
+                  })()} · {t('statusLabel')}{' '}
+                  {statusLabels[goal.status]}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -188,7 +201,7 @@ export default function DashboardGoals() {
                     onClick={() => void setStatus(goal.id, goal.status === 'active' ? 'paused' : 'active')}
                     className="rounded-lg border border-white/15 px-3 py-1 text-xs font-semibold text-[#F5F2EA]"
                   >
-                    {goal.status === 'active' ? 'Pausieren' : 'Aktivieren'}
+                    {goal.status === 'active' ? t('pause') : t('activate')}
                   </button>
                 )}
                 {goal.status !== 'completed' && (
@@ -196,14 +209,14 @@ export default function DashboardGoals() {
                     onClick={() => void setStatus(goal.id, 'completed')}
                     className="rounded-lg border border-[#58D7D4]/40 px-3 py-1 text-xs font-semibold text-[#58D7D4]"
                   >
-                    Abschließen
+                    {t('complete')}
                   </button>
                 )}
                 <button
                   onClick={() => void removeGoal(goal.id)}
                   className="rounded-lg border border-red-400/30 px-3 py-1 text-xs font-semibold text-red-300"
                 >
-                  Archivieren
+                  {t('archive')}
                 </button>
               </div>
             </div>

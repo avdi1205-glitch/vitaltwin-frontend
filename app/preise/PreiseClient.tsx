@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import PublicFooter from '../components/PublicFooter';
 import {
@@ -13,8 +14,12 @@ import {
   isPlanPurchasable,
   yearlySavingsPercent,
 } from '@/lib/plans';
+import { planFeatureTranslations } from '@/lib/i18n/messages';
 
 export default function PreiseClient() {
+  const t = useTranslations('pricing');
+  const locale = useLocale();
+  const featureLabel = (label: string): string => (locale === 'en' ? planFeatureTranslations[label] ?? label : label);
   const [billingInterval, setBillingInterval] = useState<BillingInterval>('monthly');
   const [loadingPlan, setLoadingPlan] = useState<PlanId | null>(null);
   const [checkoutMessage, setCheckoutMessage] = useState('');
@@ -28,7 +33,7 @@ export default function PreiseClient() {
 
   const extractErrorMessage = (data: unknown): string => {
     if (!data || typeof data !== 'object') {
-      return 'Checkout konnte nicht gestartet werden.';
+      return t('checkoutError');
     }
     const payload = data as { detail?: unknown; message?: string };
     if (typeof payload.message === 'string' && payload.message.trim()) {
@@ -43,7 +48,7 @@ export default function PreiseClient() {
         return first.msg;
       }
     }
-    return 'Checkout konnte nicht gestartet werden.';
+    return t('checkoutError');
   };
 
   const startCheckout = async (plan: PlanId) => {
@@ -68,7 +73,7 @@ export default function PreiseClient() {
       }
       window.location.assign(data.url);
     } catch {
-      setCheckoutMessage('Checkout gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setCheckoutMessage(t('checkoutUnreachable'));
     } finally {
       setLoadingPlan(null);
     }
@@ -102,7 +107,7 @@ export default function PreiseClient() {
       }
       window.location.assign('/dashboard?beta=activated');
     } catch {
-      setBetaMessage('Beta-Aktivierung gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setBetaMessage(t('betaUnreachable'));
     } finally {
       setBetaLoading(false);
     }
@@ -113,10 +118,10 @@ export default function PreiseClient() {
       <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
         <div className="text-center">
           <h1 className="font-[family-name:var(--font-serif-display)] text-4xl font-semibold text-[#F5F2EA] md:text-5xl">
-            Wähle deinen Tarif
+            {t('title')}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-[#B7BDC4]">
-            Freemium-Modell: kostenlos starten, jederzeit upgraden oder wieder zurückstufen.
+            {t('subtitle')}
           </p>
 
           <div className="mt-8 inline-flex rounded-full border border-white/15 bg-white/[0.03] p-1">
@@ -126,7 +131,7 @@ export default function PreiseClient() {
                 billingInterval === 'monthly' ? 'bg-gradient-to-r from-[#F3C979] to-[#C9913D] text-[#0B1118]' : 'text-[#B7BDC4]'
               }`}
             >
-              Monatlich
+              {t('monthly')}
             </button>
             <button
               onClick={() => setBillingInterval('yearly')}
@@ -134,11 +139,11 @@ export default function PreiseClient() {
                 billingInterval === 'yearly' ? 'bg-gradient-to-r from-[#F3C979] to-[#C9913D] text-[#0B1118]' : 'text-[#B7BDC4]'
               }`}
             >
-              Jährlich
+              {t('yearly')}
             </button>
           </div>
           <p className="mt-2 text-xs text-[#8E969F]">
-            Beim Jahresabo sparst du im Vergleich zur monatlichen Zahlung.
+            {t('yearlyHint')}
           </p>
         </div>
 
@@ -153,16 +158,12 @@ export default function PreiseClient() {
           />
           <div className="relative">
             <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-[#F5F2EA] sm:text-4xl">
-              Werde dein vollständiger Zwilling
+              {t('heroTitle')}
             </h2>
             <div className="mx-auto mt-4 h-px w-16 bg-gradient-to-r from-[#F3C979] to-[#58D7D4]" />
 
             <div className="mx-auto mt-8 grid max-w-3xl gap-4 sm:grid-cols-3">
-              {[
-                'Ausführlichere Wellness-Auswertungen',
-                'Erweiterter Verlauf bis zu 90 Tage',
-                'Keine Werbung',
-              ].map((feature) => (
+              {[t('feature1'), t('feature2'), t('feature3')].map((feature) => (
                 <div
                   key={feature}
                   className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-5 text-left text-sm text-[#F5F2EA]"
@@ -178,47 +179,46 @@ export default function PreiseClient() {
                 href="#tarife"
                 className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-7 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
               >
-                Premium ansehen
+                {t('viewPremium')}
               </a>
               <a
                 href="#vergleich"
                 className="rounded-full border border-white/20 px-7 py-3 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
               >
-                Mehr erfahren
+                {t('learnMore')}
               </a>
             </div>
           </div>
         </div>
 
         <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-center md:p-8">
-          <p className="font-semibold text-[#F5F2EA]">Aktuell in der Beta-Phase</p>
+          <p className="font-semibold text-[#F5F2EA]">{t('betaBoxTitle')}</p>
           <p className="mx-auto mt-2 max-w-2xl text-sm text-[#B7BDC4]">
-            Aktiviere kostenlos den Beta-Zugang: automatische Gesundheitsdaten, Blutzucker-Tracking und erweiterter
-            Verlauf bis zu 90 Tage, keine automatische Zahlung, keine Kreditkarte nötig.
+            {t('betaBoxText')}
           </p>
           {!confirmBeta ? (
             <button
               onClick={() => setConfirmBeta(true)}
               className="mt-4 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
             >
-              Beta-Zugang aktivieren
+              {t('activateBeta')}
             </button>
           ) : (
             <div className="mx-auto mt-4 max-w-md rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm text-[#F5F2EA]">
-              <p>Du startest kostenlos als Tester. Keine automatische Zahlung, keine Kreditkarte.</p>
+              <p>{t('betaConfirmText')}</p>
               <div className="mt-3 flex flex-wrap justify-center gap-2">
                 <button
                   onClick={activateFreeBeta}
                   disabled={betaLoading}
                   className="rounded-xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-2 font-semibold text-[#0B1118] disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  {betaLoading ? 'Aktiviere...' : 'Jetzt kostenlos aktivieren'}
+                  {betaLoading ? t('activating') : t('activateNow')}
                 </button>
                 <button
                   onClick={() => setConfirmBeta(false)}
                   className="rounded-xl border border-white/15 px-4 py-2 font-semibold text-[#F5F2EA]"
                 >
-                  Abbrechen
+                  {t('cancel')}
                 </button>
               </div>
             </div>
@@ -244,7 +244,7 @@ export default function PreiseClient() {
               >
                 {plan.badge && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full border border-white/15 bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-1 text-xs font-bold text-[#0B1118]">
-                    {plan.badge.toUpperCase()}
+                    {featureLabel(plan.badge).toUpperCase()}
                   </div>
                 )}
                 <h2 className="text-2xl font-semibold">{plan.name}</h2>
@@ -252,13 +252,13 @@ export default function PreiseClient() {
                   {formatPrice(price)}
                   {price > 0 && (
                     <span className={`text-base font-medium ${isHighlighted ? 'text-[#B7BDC4]' : 'text-[#8E969F]'}`}>
-                      /{billingInterval === 'monthly' ? 'Monat' : 'Jahr'}
+                      /{billingInterval === 'monthly' ? t('monthly') : t('yearly')}
                     </span>
                   )}
                 </p>
                 {billingInterval === 'yearly' && savings !== null && (
                   <p className={`mt-1 text-xs font-semibold ${isHighlighted ? 'text-[#F3C979]' : 'text-[#B7BDC4]'}`}>
-                    Spare {savings}% ggü. monatlicher Zahlung
+                    {t('save', { percent: savings })}
                   </p>
                 )}
 
@@ -269,7 +269,7 @@ export default function PreiseClient() {
                         {feature.status === 'coming_soon' ? '○' : '✓'}
                       </span>
                       <span className={feature.status === 'coming_soon' ? 'text-[#8E969F]' : undefined}>
-                        {feature.label}
+                        {featureLabel(feature.label)}
                       </span>
                       {feature.status === 'beta' && (
                         <span className="ml-1 rounded-full bg-[#58D7D4]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#58D7D4]">
@@ -277,7 +277,7 @@ export default function PreiseClient() {
                         </span>
                       )}
                       {feature.status === 'coming_soon' && (
-                        <span className="ml-1 text-xs text-[#6B7480]">(bald verfügbar)</span>
+                        <span className="ml-1 text-xs text-[#6B7480]">{t('soonLabel')}</span>
                       )}
                     </li>
                   ))}
@@ -293,7 +293,7 @@ export default function PreiseClient() {
                           : 'border border-white/20 text-[#F5F2EA] hover:border-[#58D7D4]/60 hover:text-[#58D7D4]'
                       }`}
                     >
-                      {plan.ctaLabel}
+                      {featureLabel(plan.ctaLabel)}
                     </button>
                   ) : purchasable ? (
                     <button
@@ -305,7 +305,7 @@ export default function PreiseClient() {
                           : 'border border-white/20 text-[#F5F2EA] hover:border-[#58D7D4]/60 hover:text-[#58D7D4]'
                       }`}
                     >
-                      {loadingPlan === planId ? 'Leite weiter...' : plan.ctaLabel}
+                      {loadingPlan === planId ? t('redirecting') : featureLabel(plan.ctaLabel)}
                     </button>
                   ) : (
                     <div className="space-y-2">
@@ -314,7 +314,7 @@ export default function PreiseClient() {
                           isHighlighted ? 'border-[#F3C979]/40 text-[#B7BDC4]' : 'border-white/15 text-[#8E969F]'
                         }`}
                       >
-                        Demnächst verfügbar
+                        {t('comingSoon')}
                       </div>
                       <Link
                         href="/beta-bewerbung"
@@ -322,7 +322,7 @@ export default function PreiseClient() {
                           isHighlighted ? 'text-[#B7BDC4]' : 'text-[#8E969F]'
                         }`}
                       >
-                        Für die Warteliste eintragen
+                        {t('waitlist')}
                       </Link>
                     </div>
                   )}
@@ -337,18 +337,18 @@ export default function PreiseClient() {
         )}
 
         <p className="mt-6 text-center text-xs text-[#8E969F]">
-          Alle Preise verstehen sich zzgl. der jeweils geltenden Steuern; diese können je nach Land abweichen.
+          {t('taxNote')}
         </p>
 
         <section id="vergleich" className="mt-16 scroll-mt-8">
           <h2 className="text-center font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-[#F5F2EA]">
-            Tarife im Vergleich
+            {t('comparisonTitle')}
           </h2>
           <div className="mt-8 overflow-x-auto rounded-3xl border border-white/10 bg-white/[0.03]">
             <table className="w-full min-w-[640px] text-left text-sm text-[#F5F2EA]">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="p-4 font-semibold">Funktion</th>
+                  <th className="p-4 font-semibold">{t('featureColumn')}</th>
                   {PLAN_ORDER.map((planId) => (
                     <th key={planId} className="p-4 font-semibold">
                       {PLANS[planId].name}
@@ -358,7 +358,7 @@ export default function PreiseClient() {
               </thead>
               <tbody>
                 <tr className="border-b border-white/5">
-                  <td className="p-4">KI-Fragen pro Tag</td>
+                  <td className="p-4">{t('aiQuestions')}</td>
                   {PLAN_ORDER.map((planId) => (
                     <td key={planId} className="p-4">
                       {PLANS[planId].permissions.aiQuestionsPerDay}
@@ -366,42 +366,42 @@ export default function PreiseClient() {
                   ))}
                 </tr>
                 <tr className="border-b border-white/5">
-                  <td className="p-4">Verlauf</td>
+                  <td className="p-4">{t('history')}</td>
                   {PLAN_ORDER.map((planId) => {
                     const days = PLANS[planId].permissions.historyDays;
                     return (
                       <td key={planId} className="p-4">
-                        {days === 'unlimited' ? 'Unbegrenzt' : days === 'extended' ? 'Erweitert' : `${days} Tage`}
+                        {days === 'unlimited' ? t('unlimited') : days === 'extended' ? t('extendedHist') : `${days} ${t('daysSuffix')}`}
                       </td>
                     );
                   })}
                 </tr>
                 <tr className="border-b border-white/5">
-                  <td className="p-4">Profile</td>
+                  <td className="p-4">{t('profiles')}</td>
                   {PLAN_ORDER.map((planId) => (
                     <td key={planId} className="p-4">{PLANS[planId].permissions.maxProfiles}</td>
                   ))}
                 </tr>
                 <tr className="border-b border-white/5">
-                  <td className="p-4">Werbung</td>
+                  <td className="p-4">{t('ads')}</td>
                   {PLAN_ORDER.map((planId) => (
-                    <td key={planId} className="p-4">{PLANS[planId].permissions.hasAds ? 'Möglich' : 'Keine'}</td>
+                    <td key={planId} className="p-4">{PLANS[planId].permissions.hasAds ? t('adsPossible') : t('adsNone')}</td>
                   ))}
                 </tr>
                 <tr className="border-b border-white/5">
-                  <td className="p-4">Wochenberichte</td>
+                  <td className="p-4">{t('weeklyReports')}</td>
                   {PLAN_ORDER.map((planId) => (
                     <td key={planId} className="p-4">{PLANS[planId].permissions.hasWeeklyReports ? '✓' : '—'}</td>
                   ))}
                 </tr>
                 <tr className="border-b border-white/5">
-                  <td className="p-4">Lifestyle-Simulationen</td>
+                  <td className="p-4">{t('lifestyleSims')}</td>
                   {PLAN_ORDER.map((planId) => (
                     <td key={planId} className="p-4">{PLANS[planId].permissions.hasLifestyleSimulations ? '✓' : '—'}</td>
                   ))}
                 </tr>
                 <tr>
-                  <td className="p-4">Familienfunktionen</td>
+                  <td className="p-4">{t('familyFeatures')}</td>
                   {PLAN_ORDER.map((planId) => (
                     <td key={planId} className="p-4">{PLANS[planId].permissions.hasFamilyFeatures ? '✓' : '—'}</td>
                   ))}
@@ -410,43 +410,37 @@ export default function PreiseClient() {
             </table>
           </div>
           <p className="mt-3 text-xs text-[#8E969F]">
-            Simulationen sind Wellness-Szenarien und keine medizinischen Vorhersagen. Mit &bdquo;BETA&ldquo; markierte
-            Funktionen laufen bereits mit echten Daten, befinden sich aber noch in kontrollierter Testphase. Mit
-            &bdquo;(bald verfügbar)&ldquo; markierte Funktionen sind noch nicht zuverlässig nutzbar.
+            {t('comparisonNote')}
           </p>
         </section>
 
         <section className="mx-auto mt-16 max-w-3xl">
           <h2 className="text-center font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-[#F5F2EA]">
-            Häufige Fragen zu Preisen
+            {t('faqTitle')}
           </h2>
           <div className="mt-8 space-y-5">
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-semibold text-[#F5F2EA]">Kann ich jederzeit kündigen?</p>
+              <p className="font-semibold text-[#F5F2EA]">{t('faqCancelQ')}</p>
               <p className="mt-2 text-sm text-[#B7BDC4]">
-                Ja. Bezahlte Tarife sind jederzeit kündbar, die Kündigung wirkt zum Ende des laufenden
-                Abrechnungszeitraums.
+                {t('faqCancelA')}
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-semibold text-[#F5F2EA]">Wie funktioniert die Abrechnung?</p>
+              <p className="font-semibold text-[#F5F2EA]">{t('faqBillingQ')}</p>
               <p className="mt-2 text-sm text-[#B7BDC4]">
-                Die Zahlung erfolgt sicher über Stripe, monatlich oder jährlich im Voraus, je nach gewähltem
-                Abrechnungszeitraum. Es gibt keine versteckten Zusatzkosten.
+                {t('faqBillingA')}
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-semibold text-[#F5F2EA]">Kann ich meinen Tarif später wechseln?</p>
+              <p className="font-semibold text-[#F5F2EA]">{t('faqChangeQ')}</p>
               <p className="mt-2 text-sm text-[#B7BDC4]">
-                Ja, ein Wechsel zwischen den Tarifen ist jederzeit möglich. Kontaktiere uns dafür einfach unter
-                info@vitaltwin.de.
+                {t('faqChangeA')}
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-semibold text-[#F5F2EA]">Fallen zusätzliche Steuern an?</p>
+              <p className="font-semibold text-[#F5F2EA]">{t('faqTaxQ')}</p>
               <p className="mt-2 text-sm text-[#B7BDC4]">
-                Die angezeigten Preise können je nach Land abweichende gesetzliche Steuern beinhalten oder
-                zusätzlich ausweisen. Details siehst du vor Zahlungsabschluss bei Stripe.
+                {t('faqTaxA')}
               </p>
             </div>
           </div>

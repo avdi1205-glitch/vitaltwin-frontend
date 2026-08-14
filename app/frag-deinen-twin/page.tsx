@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import DashboardBrandMark from '../components/brand/DashboardBrandMark';
 
@@ -13,13 +14,7 @@ import DashboardBrandMark from '../components/brand/DashboardBrandMark';
 // static optimization avoids that class of stale-cache bug going forward.
 export const dynamic = 'force-dynamic';
 
-const EXAMPLE_QUESTIONS = [
-  'Was hat mein Twin über mich gelernt?',
-  'Wie hat sich mein Twin bisher entwickelt?',
-  'Welche Muster erkennst du in meinen Daten?',
-  'Wie war meine letzte Woche im Vergleich zu meinem persönlichen Verlauf?',
-  'Welche meiner Daten nutzt du für diese Antwort?',
-];
+const EXAMPLE_QUESTION_KEYS = ['example1', 'example2', 'example3', 'example4', 'example5'] as const;
 
 const MAX_INPUT_LENGTH = 500;
 
@@ -37,19 +32,33 @@ type ChatStatus = {
   remaining_today: number;
 };
 
-const SOURCE_TYPE_LABELS: Record<string, string> = {
-  user_reported: 'Nutzerangabe',
-  trend: 'Berechneter Trend',
-  google_health: 'Automatische Google-Health-Daten',
-  cgm: 'CGM-Messwerte',
-  nutrition: 'Ernährungsdaten',
-  confirmed_memory: 'Bestätigte Memory',
-  pattern: 'Mögliches Muster',
-  biomarker: 'Biomarker-Zwilling-Berechnung',
-  twin_history: 'Entwicklung deines Twins',
-  general_wellness_info: 'Allgemeine Wellness-Information',
-  uncertain: 'Unsicher',
-  needs_more_data: 'Benötigt mehr Daten',
+type SourceLabelKey =
+  | 'sourceUserReported'
+  | 'sourceTrend'
+  | 'sourceGoogleHealth'
+  | 'sourceCgm'
+  | 'sourceNutrition'
+  | 'sourceConfirmedMemory'
+  | 'sourcePattern'
+  | 'sourceBiomarker'
+  | 'sourceTwinHistory'
+  | 'sourceGeneralWellness'
+  | 'sourceUncertain'
+  | 'sourceNeedsMoreData';
+
+const SOURCE_TYPE_KEYS: Record<string, SourceLabelKey> = {
+  user_reported: 'sourceUserReported',
+  trend: 'sourceTrend',
+  google_health: 'sourceGoogleHealth',
+  cgm: 'sourceCgm',
+  nutrition: 'sourceNutrition',
+  confirmed_memory: 'sourceConfirmedMemory',
+  pattern: 'sourcePattern',
+  biomarker: 'sourceBiomarker',
+  twin_history: 'sourceTwinHistory',
+  general_wellness_info: 'sourceGeneralWellness',
+  uncertain: 'sourceUncertain',
+  needs_more_data: 'sourceNeedsMoreData',
 };
 
 function extractErrorMessage(data: unknown, fallback: string): string {
@@ -65,6 +74,7 @@ function extractErrorMessage(data: unknown, fallback: string): string {
 
 export default function FragDeinenTwin() {
   const router = useRouter();
+  const t = useTranslations('askTwin');
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -138,7 +148,7 @@ export default function FragDeinenTwin() {
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        setErrorMessage(extractErrorMessage(data, 'Twin konnte nicht antworten. Bitte versuche es erneut.'));
+        setErrorMessage(extractErrorMessage(data, t('twinNoAnswer')));
         return;
       }
 
@@ -154,7 +164,7 @@ export default function FragDeinenTwin() {
       ]);
       setStatus((current) => (current ? { ...current, remaining_today: data.remaining_today, used_today: current.daily_limit - data.remaining_today } : current));
     } catch {
-      setErrorMessage('Der Twin-Chat ist gerade nicht erreichbar. Bitte versuche es in Kürze erneut.');
+      setErrorMessage(t('chatUnavailable'));
     } finally {
       setSending(false);
     }
@@ -168,32 +178,30 @@ export default function FragDeinenTwin() {
         <DashboardBrandMark />
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">VitalTwin Intelligence</p>
-            <h1 className="mt-1 font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA] md:text-3xl">Frag deinen Twin</h1>
+            <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">{t('caption')}</p>
+            <h1 className="mt-1 font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA] md:text-3xl">{t('title')}</h1>
           </div>
           <Link href="/dashboard" className="text-sm font-semibold text-[#58D7D4] underline hover:text-[#F3C979]">
-            Dashboard
+            {t('back')}
           </Link>
         </div>
         <p className="mt-2 text-sm text-[#B7BDC4]">
-          Erhalte persönliche Impulse auf Basis deiner freiwillig gespeicherten Wellness-Daten.
+          {t('description')}
         </p>
         <p className="mt-1 text-xs text-[#8E969F]">
-          Antworten basieren auf deinen freigegebenen VitalTwin-Daten, Erinnerungen, Mustern und deinem persönlichen
-          Verlauf – soweit genügend Daten vorhanden sind.
+          {t('info')}
         </p>
 
         <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-[#B7BDC4]">
-          KI-Antworten können Fehler enthalten und sind keine medizinische Beratung. Du entscheidest selbst, welche
-          Empfehlungen du umsetzt.
+          {t('disclaimer')}
         </div>
 
         {!loadingStatus && status && (
           <p className="mt-2 text-xs text-[#8E969F]">
-            {status.remaining_today} von {status.daily_limit} Anfragen heute übrig.{' '}
+            {t('quota', { remaining: status.remaining_today, limit: status.daily_limit })}{' '}
             {limitReached && (
               <Link href="/preise" className="text-[#58D7D4] underline hover:text-[#F3C979]">
-                Für mehr Anfragen upgraden
+                {t('upgrade')}
               </Link>
             )}
           </p>
@@ -202,16 +210,16 @@ export default function FragDeinenTwin() {
         <div className="mt-4 flex-1 space-y-4 overflow-y-auto rounded-3xl border border-white/10 bg-white/[0.03] p-5">
           {messages.length === 0 && (
             <div>
-              <p className="text-sm text-[#B7BDC4]">Stell deinem Twin eine Frage, zum Beispiel:</p>
+              <p className="text-sm text-[#B7BDC4]">{t('examplePrompt')}</p>
               <ul className="mt-3 space-y-2">
-                {EXAMPLE_QUESTIONS.map((question) => (
-                  <li key={question}>
+                {EXAMPLE_QUESTION_KEYS.map((key) => (
+                  <li key={key}>
                     <button
-                      onClick={() => sendMessage(question)}
+                      onClick={() => sendMessage(t(key))}
                       disabled={sending || limitReached}
                       className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-left text-sm text-[#F5F2EA] transition hover:border-[#58D7D4]/60 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {question}
+                      {t(key)}
                     </button>
                   </li>
                 ))}
@@ -235,7 +243,7 @@ export default function FragDeinenTwin() {
                     onClick={() => setOpenWhyIndex(openWhyIndex === index ? null : index)}
                     className="text-xs font-semibold text-[#8E969F] underline hover:text-[#58D7D4]"
                   >
-                    {openWhyIndex === index ? 'Erklärung ausblenden' : 'Warum?'}
+                    {openWhyIndex === index ? t('hideExplanation') : t('why')}
                   </button>
                   {openWhyIndex === index && (
                     <div className="mt-2 flex flex-wrap gap-1.5">
@@ -244,7 +252,7 @@ export default function FragDeinenTwin() {
                           key={sourceIndex}
                           className="rounded-full border border-white/15 px-2 py-0.5 text-[10px] text-[#8E969F]"
                         >
-                          {SOURCE_TYPE_LABELS[source.type] ?? source.type}: {source.label}
+                          {SOURCE_TYPE_KEYS[source.type] ? t(SOURCE_TYPE_KEYS[source.type]) : source.type}: {source.label}
                         </span>
                       ))}
                     </div>
@@ -253,7 +261,7 @@ export default function FragDeinenTwin() {
               )}
               {msg.role === 'assistant' && msg.needsMoreData && (
                 <p className="mt-1 max-w-[85%] text-xs text-[#8E969F]">
-                  Dem Twin fehlen noch ausreichend Daten, um das sicher einzuschätzen.
+                  {t('needsMoreDataNote')}
                 </p>
               )}
             </div>
@@ -262,7 +270,7 @@ export default function FragDeinenTwin() {
           {sending && (
             <div className="flex justify-start">
               <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-[#8E969F]">
-                Twin denkt nach...
+                {t('thinking')}
               </div>
             </div>
           )}
@@ -284,7 +292,7 @@ export default function FragDeinenTwin() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value.slice(0, MAX_INPUT_LENGTH))}
-            placeholder={limitReached ? 'Tageslimit erreicht' : 'Deine Frage an deinen Twin...'}
+            placeholder={limitReached ? t('inputLimitReached') : t('inputPlaceholder')}
             disabled={sending || limitReached}
             maxLength={MAX_INPUT_LENGTH}
             className="flex-1 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
@@ -294,7 +302,7 @@ export default function FragDeinenTwin() {
             disabled={sending || limitReached || !input.trim()}
             className="rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Senden
+            {t('send')}
           </button>
         </form>
       </div>

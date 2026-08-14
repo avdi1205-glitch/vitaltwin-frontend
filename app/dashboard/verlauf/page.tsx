@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import DashboardTrends from '../../components/dashboard-trends';
 import DashboardPersonalBaseline from '../../components/dashboard-personal-baseline';
@@ -28,6 +29,7 @@ type HistoryItem = {
  */
 export default function VerlaufPage() {
   const { profile, loadingProfile } = useDashboardShell();
+  const t = useTranslations('verlauf');
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [progressCounts, setProgressCounts] = useState({ week: 0, month: 0 });
@@ -66,34 +68,33 @@ export default function VerlaufPage() {
   return (
     <section className="mt-8 scroll-mt-24">
       <h1 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA] md:text-3xl">
-        Verlauf
+        {t('title')}
       </h1>
       <p className="mt-2 max-w-2xl text-sm text-[#B7BDC4]">
-        Deine zeitliche Entwicklung — persönlicher Verlauf, Trends und Rückblicke, ausschließlich auf Basis deiner
-        eigenen Daten.
+        {t('subtitle')}
       </p>
       <p className="mt-2 text-sm">
         <Link href="/dashboard/mein-twin" className="font-semibold text-[#58D7D4] underline hover:text-[#F3C979]">
-          Wie sich dein Twin entwickelt → Mein Twin
+          {t('twinDevLink')}
         </Link>
       </p>
 
       <div className="mt-6 space-y-6">
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Persönlicher Verlauf</h2>
-          <p className="mt-2 text-sm text-[#8E969F]">Deine letzten gespeicherten Berechnungen.</p>
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('personalHistory')}</h2>
+          <p className="mt-2 text-sm text-[#8E969F]">{t('lastCalcs')}</p>
 
           {!loadingProfile && profile && !profile.premium && (
             <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-[#F5F2EA]">
-              Verlaufsansicht ist im Beta-Zugang freigeschaltet.
+              {t('betaUnlocked')}
             </p>
           )}
 
-          {loadingHistory && profile?.premium && <p className="mt-4 text-[#8E969F]">Verlauf wird geladen...</p>}
+          {loadingHistory && profile?.premium && <p className="mt-4 text-[#8E969F]">{t('loading')}</p>}
 
           {!loadingHistory && profile?.premium && history.length === 0 && (
             <p className="mt-4 rounded-xl border border-dashed border-white/20 bg-white/[0.02] px-4 py-3 text-[#8E969F]">
-              Noch keine gespeicherten Berechnungen vorhanden.
+              {t('empty')}
             </p>
           )}
 
@@ -103,9 +104,9 @@ export default function VerlaufPage() {
                 <div key={item.id} className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3">
                   <div className="flex items-center justify-between gap-2 text-sm text-[#8E969F]">
                     <span>{new Date(item.created_at).toLocaleString('de-DE')}</span>
-                    <span>{item.differenz > 0 ? '+' : ''}{item.differenz} Jahre</span>
+                    <span>{item.differenz > 0 ? '+' : ''}{item.differenz} {t('yearsSuffix')}</span>
                   </div>
-                  <p className="mt-1 text-lg font-semibold text-[#F5F2EA]">Biologisches Alter: {item.biologisches_alter} Jahre</p>
+                  <p className="mt-1 text-lg font-semibold text-[#F5F2EA]">{t('bioAgeLabel')} {item.biologisches_alter} {t('yearsSuffix')}</p>
                   <p className="mt-1 text-xs text-[#8E969F]">HbA1c {item.hba1c} • CRP {item.crp} • Vitamin D {item.vitamin_d} • ApoB {item.apob}</p>
                 </div>
               ))}
@@ -119,19 +120,19 @@ export default function VerlaufPage() {
         <DashboardTwinProgress />
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Fortschritt</h2>
+          <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('progressTitle')}</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-3">
             <article className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-              <p className="text-sm text-[#8E969F]">Berechnungen diese Woche</p>
+              <p className="text-sm text-[#8E969F]">{t('calcsWeek')}</p>
               <p className="mt-2 text-2xl font-bold text-[#F5F2EA]">{progressCounts.week}</p>
             </article>
             <article className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-              <p className="text-sm text-[#8E969F]">Berechnungen diesen Monat</p>
+              <p className="text-sm text-[#8E969F]">{t('calcsMonth')}</p>
               <p className="mt-2 text-2xl font-bold text-[#F5F2EA]">{progressCounts.month}</p>
             </article>
             <article className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-              <p className="text-sm text-[#8E969F]">Zielerreichung</p>
-              <p className="mt-2 text-2xl font-bold text-[#F5F2EA]">Noch kein Ziel gesetzt</p>
+              <p className="text-sm text-[#8E969F]">{t('goalAchievement')}</p>
+              <p className="mt-2 text-2xl font-bold text-[#F5F2EA]">{t('noGoalSet')}</p>
             </article>
           </div>
         </div>

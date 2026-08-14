@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type TrendWindow = { average: number | null; data_points: number; data_quality: string };
@@ -10,18 +11,18 @@ type TrendsResponse = {
   disclaimer: string;
 };
 
-const FIELD_LABELS: Record<string, string> = {
-  mood: 'Stimmung',
-  energy: 'Energie',
-  stress: 'Stress',
-  sleep_quality: 'Schlafqualität',
-  sleep_hours: 'Schlafdauer (h)',
-  recovery: 'Erholung',
-  movement_minutes: 'Bewegung (Min.)',
+type FieldKey = 'mood' | 'energy' | 'stress' | 'sleepQuality' | 'sleepHours' | 'recovery' | 'movement';
+const FIELD_KEYS: Record<string, FieldKey> = {
+  mood: 'mood',
+  energy: 'energy',
+  stress: 'stress',
+  sleep_quality: 'sleepQuality',
+  sleep_hours: 'sleepHours',
+  recovery: 'recovery',
+  movement_minutes: 'movement',
 };
 
 type WindowKey = '7d' | '30d' | '90d';
-const WINDOW_LABELS: Record<WindowKey, string> = { '7d': '7 Tage', '30d': '30 Tage', '90d': '90 Tage' };
 const WINDOW_DAYS: Record<WindowKey, number> = { '7d': 7, '30d': 30, '90d': 90 };
 
 /**
@@ -34,6 +35,8 @@ const WINDOW_DAYS: Record<WindowKey, number> = { '7d': 7, '30d': 30, '90d': 90 }
  * Pro/Family) tatsächlich vom Server bestätigt wurde.
  */
 export default function DashboardTrends() {
+  const t = useTranslations('trends');
+  const WINDOW_LABELS: Record<WindowKey, string> = { '7d': t('window7'), '30d': t('window30'), '90d': t('window90') };
   const [data, setData] = useState<TrendsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -52,20 +55,20 @@ export default function DashboardTrends() {
         if (response.ok) {
           setData(json as TrendsResponse);
         } else {
-          setErrorMessage('Trends konnten nicht geladen werden.');
+          setErrorMessage(t('loadError'));
         }
       } catch {
-        setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+        setErrorMessage(t('backendError'));
       } finally {
         setLoading(false);
       }
     })();
-  }, [authHeader]);
+  }, [authHeader, t]);
 
   if (loading) {
     return (
       <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <p className="text-sm text-[#8E969F]">Lade Trends...</p>
+        <p className="text-sm text-[#8E969F]">{t('loading')}</p>
       </article>
     );
   }
@@ -73,7 +76,7 @@ export default function DashboardTrends() {
   if (errorMessage) {
     return (
       <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Trends (7 Tage)</h3>
+        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('title7')}</h3>
         <p className="mt-2 text-sm text-red-300">{errorMessage}</p>
       </article>
     );
@@ -85,7 +88,7 @@ export default function DashboardTrends() {
 
   const hasExtendedHistory = data.extended_history;
   const availableWindows: WindowKey[] = hasExtendedHistory ? ['7d', '30d', '90d'] : ['7d', '30d'];
-  const title = hasExtendedHistory ? 'Trends — Erweiterter Verlauf (bis zu 90 Tage)' : 'Trends (bis zu 30 Tage)';
+  const title = hasExtendedHistory ? t('titleExtended') : t('title30');
 
   const visibleFields = Object.entries(data.trends).filter(
     ([, window]) => (window[selectedWindow]?.data_points ?? 0) > 0
@@ -100,7 +103,7 @@ export default function DashboardTrends() {
     <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{title}</h3>
 
-      <div className="mt-3 flex flex-wrap gap-2" role="tablist" aria-label="Zeitraum">
+      <div className="mt-3 flex flex-wrap gap-2" role="tablist" aria-label={t('periodAria')}>
         {availableWindows.map((windowKey) => (
           <button
             key={windowKey}
@@ -122,14 +125,14 @@ export default function DashboardTrends() {
       {visibleFields.length === 0 ? (
         <p className="mt-4 text-sm text-[#B7BDC4]">
           {selectedWindow === '90d'
-            ? 'Für den 90-Tage-Zeitraum liegen noch keine Daten vor. Mit regelmäßigen Check-ins baut dein Twin deinen persönlichen Verlauf auf. Dein Tarif ermöglicht dir bereits jetzt Zugriff auf bis zu 90 Tage Verlauf.'
-            : 'Noch keine Trends verfügbar. Fülle ein paar Tage lang deinen Check-in aus, um hier Verläufe zu sehen.'}
+            ? t('empty90')
+            : t('emptyShort')}
         </p>
       ) : (
         <>
           {coverage < windowDays && (
             <p className="mt-3 text-xs text-[#8E969F]">
-              Für diesen Zeitraum {coverage === 1 ? 'liegt bisher nur 1 Tag' : `liegen bisher nur ${coverage} Tage`} mit Daten vor.
+              {coverage === 1 ? t('partialDataOne') : t('partialDataMany', { count: coverage })}
             </p>
           )}
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -138,11 +141,11 @@ export default function DashboardTrends() {
               if (!value) return null;
               return (
                 <div key={field} className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-center">
-                  <p className="text-xs text-[#8E969F]">{FIELD_LABELS[field] ?? field}</p>
+                  <p className="text-xs text-[#8E969F]">{FIELD_KEYS[field] ? t(FIELD_KEYS[field]) : field}</p>
                   <p className="mt-1 text-lg font-semibold text-[#F5F2EA]">{value.average}</p>
                   <p className="text-[10px] text-[#6B7480]">{WINDOW_LABELS[selectedWindow]}</p>
                   {value.data_quality === 'partial' && (
-                    <p className="mt-1 text-[10px] text-[#6B7480]">wenig Daten ({value.data_points}x)</p>
+                    <p className="mt-1 text-[10px] text-[#6B7480]">{t('fewData', { count: value.data_points })}</p>
                   )}
                 </div>
               );

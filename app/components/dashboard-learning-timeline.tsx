@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type TimelineCategory =
@@ -32,14 +33,16 @@ type TimelineResponse = {
   has_more: boolean;
 };
 
-const CATEGORY_LABELS: Record<TimelineCategory, string> = {
-  LEARNED: 'Gelernt',
-  CONFIRMED: 'Bestätigt',
-  UPDATED: 'Aktualisiert',
-  CORRECTED_BY_USER: 'Von dir korrigiert',
-  DISCARDED: 'Verworfen',
-  FEEDBACK_ADAPTATION: 'Feedback berücksichtigt',
-  CONTRADICTED: 'Infrage gestellt',
+type CategoryKey = 'categoryLearned' | 'categoryConfirmed' | 'categoryUpdated' | 'categoryCorrected' | 'categoryDiscarded' | 'categoryFeedback' | 'categoryContradicted';
+
+const CATEGORY_KEYS: Record<TimelineCategory, CategoryKey> = {
+  LEARNED: 'categoryLearned',
+  CONFIRMED: 'categoryConfirmed',
+  UPDATED: 'categoryUpdated',
+  CORRECTED_BY_USER: 'categoryCorrected',
+  DISCARDED: 'categoryDiscarded',
+  FEEDBACK_ADAPTATION: 'categoryFeedback',
+  CONTRADICTED: 'categoryContradicted',
 };
 
 const CATEGORY_COLORS: Record<TimelineCategory, string> = {
@@ -61,10 +64,10 @@ function formatOccurredAt(occurredAt: string | null): string | null {
   return parsed.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-function confidenceDelta(before: number | null, after: number | null): string | null {
+function confidenceDelta(before: number | null, after: number | null, confidenceLabelPrefix: string): string | null {
   if (after === null) return null;
-  if (before === null) return `Konfidenz: ${Math.round(after * 100)}%`;
-  return `Konfidenz: ${Math.round(before * 100)}% → ${Math.round(after * 100)}%`;
+  if (before === null) return `${confidenceLabelPrefix} ${Math.round(after * 100)}%`;
+  return `${confidenceLabelPrefix} ${Math.round(before * 100)}% → ${Math.round(after * 100)}%`;
 }
 
 /**
@@ -74,6 +77,7 @@ function confidenceDelta(before: number | null, after: number | null): string | 
  * technischer Audit-Log, keine rohen event_type/JSON-Werte.
  */
 export default function DashboardLearningTimeline() {
+  const t = useTranslations('timeline');
   const [items, setItems] = useState<TimelineEntry[]>([]);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -94,17 +98,17 @@ export default function DashboardLearningTimeline() {
       });
       const data: TimelineResponse | null = await response.json().catch(() => null);
       if (!response.ok || !data) {
-        setErrorMessage('Die Lern-Timeline konnte nicht geladen werden.');
+        setErrorMessage(t('loadError'));
         return;
       }
       setItems(data.items);
       setHasMore(data.has_more);
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
-  }, [authHeader]);
+  }, [authHeader, t]);
 
   const loadMore = useCallback(async () => {
     setLoadingMore(true);
@@ -115,17 +119,17 @@ export default function DashboardLearningTimeline() {
       );
       const data: TimelineResponse | null = await response.json().catch(() => null);
       if (!response.ok || !data) {
-        setErrorMessage('Weitere Einträge konnten nicht geladen werden.');
+        setErrorMessage(t('loadMoreError'));
         return;
       }
       setItems((prev) => [...prev, ...data.items]);
       setHasMore(data.has_more);
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     } finally {
       setLoadingMore(false);
     }
-  }, [authHeader, items.length]);
+  }, [authHeader, items.length, t]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => void load(), 0);
@@ -135,19 +139,18 @@ export default function DashboardLearningTimeline() {
   return (
     <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
-        Was dein Twin über dich gelernt hat
+        {t('title')}
       </h3>
       <p className="mt-2 text-sm text-[#8E969F]">
-        Nachvollziehbar, wie sich dein persönlicher Twin mit deinen Daten und deinem Feedback weiterentwickelt.
+        {t('description')}
       </p>
 
-      {loading && <p className="mt-4 text-sm text-[#8E969F]">Wird geladen...</p>}
+      {loading && <p className="mt-4 text-sm text-[#8E969F]">{t('loading')}</p>}
       {!loading && errorMessage && <p className="mt-3 text-xs text-red-300">{errorMessage}</p>}
 
       {!loading && !errorMessage && items.length === 0 && (
         <p className="mt-4 text-sm text-[#B7BDC4]">
-          Dein Twin baut sein Verständnis mit der Zeit auf. Sobald sich aus deinen Daten oder deinem Feedback etwas
-          zuverlässig lernen lässt, erscheint es hier.
+          {t('empty')}
         </p>
       )}
 
@@ -155,14 +158,14 @@ export default function DashboardLearningTimeline() {
         <div className="mt-4 space-y-3">
           {items.map((item) => {
             const dateLabel = formatOccurredAt(item.occurred_at);
-            const confidenceLabel = confidenceDelta(item.confidence_before, item.confidence_after);
+            const confidenceLabel = confidenceDelta(item.confidence_before, item.confidence_after, t('confidenceLabel'));
             return (
               <div key={item.id} className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <span
                     className={`rounded-full border px-3 py-1 text-xs font-semibold ${CATEGORY_COLORS[item.category]}`}
                   >
-                    {CATEGORY_LABELS[item.category] ?? item.category}
+                    {t(CATEGORY_KEYS[item.category]) ?? item.category}
                   </span>
                   {dateLabel && <span className="text-xs text-[#8E969F]">{dateLabel}</span>}
                 </div>
@@ -172,7 +175,7 @@ export default function DashboardLearningTimeline() {
                   <p className="mt-2 text-xs text-[#8E969F]">
                     {confidenceLabel}
                     {confidenceLabel && item.is_current === false ? ' · ' : ''}
-                    {item.is_current === false ? 'Heute nicht mehr aktuell' : ''}
+                    {item.is_current === false ? t('outdated') : ''}
                   </p>
                 )}
               </div>
@@ -188,7 +191,7 @@ export default function DashboardLearningTimeline() {
           disabled={loadingMore}
           className="mt-4 rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/50 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {loadingMore ? 'Lädt...' : 'Mehr anzeigen'}
+          {loadingMore ? t('loadMoreBusy') : t('loadMore')}
         </button>
       )}
     </article>

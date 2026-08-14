@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import PublicFooter from '../components/PublicFooter';
 
 export default function BetaBewerbung() {
+  const t = useTranslations('betaApplication');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [age, setAge] = useState('');
@@ -37,14 +39,14 @@ export default function BetaBewerbung() {
       const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        setMessage(data?.detail ?? 'Bewerbung konnte nicht gesendet werden. Bitte versuche es erneut.');
+        setMessage(data?.detail ?? t('submitError'));
         return;
       }
 
-      setMessage(data?.message ?? 'Danke für deine Bewerbung!');
+      setMessage(data?.message ?? t('successDefault'));
       setSuccess(true);
     } catch {
-      setMessage('Backend nicht erreichbar. Bitte versuche es in wenigen Sekunden erneut.');
+      setMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
@@ -53,34 +55,33 @@ export default function BetaBewerbung() {
   return (
     <div className="min-h-screen bg-[#0B1118] px-6 py-16">
       <div className="mx-auto max-w-xl">
-        <p className="font-[family-name:var(--font-mono-technical)] text-center text-xs uppercase tracking-[0.22em] text-[#8E969F]">VitalTwin Beta-Kohorte</p>
+        <p className="font-[family-name:var(--font-mono-technical)] text-center text-xs uppercase tracking-[0.22em] text-[#8E969F]">{t('badge')}</p>
         <h1 className="mt-2 text-center font-[family-name:var(--font-serif-display)] text-4xl font-semibold text-[#F5F2EA]">
-          Bewirb dich für die Beta
+          {t('title')}
         </h1>
         <p className="mt-4 text-center text-[#B7BDC4]">
-          Wir starten mit einer kleinen, ausgewählten DACH-Kohorte. Beta-Zugang ist kostenlos: unbegrenzte
-          Simulationen, Verlauf und direkter Einfluss auf das Produkt.
+          {t('intro')}
         </p>
 
         <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">
           {success ? (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
-              <p className="text-lg font-semibold text-[#F5F2EA]">Bewerbung eingegangen</p>
+              <p className="text-lg font-semibold text-[#F5F2EA]">{t('submittedTitle')}</p>
               <p className="mt-2 text-[#B7BDC4]">{message}</p>
               <Link href="/" className="mt-6 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-6 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110">
-                Zurück zur Startseite
+                {t('backToHome')}
               </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="full_name">Vollständiger Name</label>
+                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="full_name">{t('fullNameLabel')}</label>
                 <input
                   id="full_name"
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Vor- und Nachname"
+                  placeholder={t('fullNamePlaceholder')}
                   className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   required
                   minLength={2}
@@ -89,20 +90,20 @@ export default function BetaBewerbung() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="email">E-Mail</label>
+                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="email">{t('emailLabel')}</label>
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="du@beispiel.de"
+                  placeholder={t('emailPlaceholder')}
                   className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="age">Alter (optional)</label>
+                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="age">{t('ageLabel')}</label>
                 <input
                   id="age"
                   type="number"
@@ -110,20 +111,20 @@ export default function BetaBewerbung() {
                   max={100}
                   value={age}
                   onChange={(e) => setAge(e.target.value)}
-                  placeholder="z. B. 42"
+                  placeholder={t('agePlaceholder')}
                   className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                 />
               </div>
 
               <div>
                 <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="motivation">
-                  Warum möchtest du teilnehmen?
+                  {t('motivationLabel')}
                 </label>
                 <textarea
                   id="motivation"
                   value={motivation}
                   onChange={(e) => setMotivation(e.target.value)}
-                  placeholder="Was interessiert dich an VitalTwin? Welche Gesundheitsziele hast du?"
+                  placeholder={t('motivationPlaceholder')}
                   className="min-h-[120px] w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   required
                   minLength={10}
@@ -155,21 +156,21 @@ export default function BetaBewerbung() {
                 disabled={loading}
                 className="w-full rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-4 text-base font-semibold text-[#0B1118] transition hover:brightness-110 disabled:opacity-70"
               >
-                {loading ? 'Sende Bewerbung...' : 'Jetzt bewerben'}
+                {loading ? t('sending') : t('applyNow')}
               </button>
 
               <p className="text-center text-xs text-[#8E969F]">
-                Mit dem Absenden akzeptierst du unsere{' '}
-                <Link href="/agb" className="underline hover:text-[#58D7D4]">AGB</Link> und{' '}
-                <Link href="/datenschutz" className="underline hover:text-[#58D7D4]">Datenschutzerklärung</Link>.
+                {t('termsPrefix')}{' '}
+                <Link href="/agb" className="underline hover:text-[#58D7D4]">{t('terms')}</Link> {t('termsAnd')}{' '}
+                <Link href="/datenschutz" className="underline hover:text-[#58D7D4]">{t('privacyPolicy')}</Link>.
               </p>
             </form>
           )}
         </div>
 
         <p className="mt-8 text-center text-sm text-[#8E969F]">
-          Schon ein Konto?{' '}
-          <Link href="/?auth=login" className="text-[#58D7D4] underline hover:text-[#F3C979]">Anmelden</Link>
+          {t('alreadyAccount')}{' '}
+          <Link href="/?auth=login" className="text-[#58D7D4] underline hover:text-[#F3C979]">{t('login')}</Link>
         </p>
 
         <PublicFooter centered />

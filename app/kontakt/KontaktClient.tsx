@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import PublicFooter from '../components/PublicFooter';
 
 export default function KontaktClient() {
+  const t = useTranslations('contact');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
@@ -36,14 +38,14 @@ export default function KontaktClient() {
       const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        setStatusMessage(data?.detail ?? 'Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.');
+        setStatusMessage(data?.detail ?? t('submitError'));
         return;
       }
 
-      setStatusMessage(data?.message ?? 'Danke für deine Nachricht!');
+      setStatusMessage(data?.message ?? t('successDefault'));
       setSuccess(true);
     } catch {
-      setStatusMessage('Backend nicht erreichbar. Bitte versuche es in wenigen Sekunden erneut oder schreib uns direkt an info@vitaltwin.de.');
+      setStatusMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
@@ -52,13 +54,12 @@ export default function KontaktClient() {
   return (
     <div className="min-h-screen bg-[#0B1118] px-6 py-16">
       <div className="mx-auto max-w-xl">
-        <p className="font-[family-name:var(--font-mono-technical)] text-center text-xs uppercase tracking-[0.22em] text-[#8E969F]">Kontakt</p>
+        <p className="font-[family-name:var(--font-mono-technical)] text-center text-xs uppercase tracking-[0.22em] text-[#8E969F]">{t('badge')}</p>
         <h1 className="mt-2 text-center font-[family-name:var(--font-serif-display)] text-4xl font-semibold text-[#F5F2EA]">
-          Schreib uns
+          {t('title')}
         </h1>
         <p className="mt-4 text-center text-[#B7BDC4]">
-          Fragen, Feedback oder ein Anliegen zur Beta? Wir antworten dir so schnell wie möglich per E-Mail. Direkt
-          erreichbar sind wir auch unter{' '}
+          {t('intro')}{' '}
           <a href="mailto:info@vitaltwin.de" className="text-[#58D7D4] underline hover:text-[#F3C979]">
             info@vitaltwin.de
           </a>
@@ -68,22 +69,22 @@ export default function KontaktClient() {
         <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">
           {success ? (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
-              <p className="text-lg font-semibold text-[#F5F2EA]">Nachricht gesendet</p>
+              <p className="text-lg font-semibold text-[#F5F2EA]">{t('sentTitle')}</p>
               <p className="mt-2 text-[#B7BDC4]">{statusMessage}</p>
               <Link href="/" className="mt-6 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-6 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110">
-                Zurück zur Startseite
+                {t('backToHome')}
               </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="full_name">Name</label>
+                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="full_name">{t('nameLabel')}</label>
                 <input
                   id="full_name"
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Vor- und Nachname"
+                  placeholder={t('namePlaceholder')}
                   className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   required
                   minLength={2}
@@ -92,38 +93,38 @@ export default function KontaktClient() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="email">E-Mail</label>
+                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="email">{t('emailLabel')}</label>
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="du@beispiel.de"
+                  placeholder={t('emailPlaceholder')}
                   className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="subject">Betreff (optional)</label>
+                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="subject">{t('subjectLabel')}</label>
                 <input
                   id="subject"
                   type="text"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  placeholder="Worum geht's?"
+                  placeholder={t('subjectPlaceholder')}
                   className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   maxLength={200}
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="message">Nachricht</label>
+                <label className="mb-2 block text-sm text-[#B7BDC4]" htmlFor="message">{t('messageLabel')}</label>
                 <textarea
                   id="message"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Deine Nachricht an uns..."
+                  placeholder={t('messagePlaceholder')}
                   rows={6}
                   className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                   required
@@ -152,7 +153,7 @@ export default function KontaktClient() {
                 disabled={loading}
                 className="w-full rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-6 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {loading ? 'Wird gesendet...' : 'Nachricht senden'}
+                {loading ? t('sending') : t('sendMessage')}
               </button>
             </form>
           )}

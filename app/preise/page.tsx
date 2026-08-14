@@ -1,12 +1,15 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import PreiseClient from './PreiseClient';
 
-export const metadata: Metadata = {
-  title: 'Preise & Tarife',
-  description:
-    'Freemium-Modell: VitalTwin kostenlos starten, jederzeit upgraden. Vergleiche Free, Premium, Pro und Family — Preise, Funktionen und aktuellen Verfügbarkeitsstatus.',
-  alternates: { canonical: '/preise' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('siteMeta');
+  return {
+    title: t('pricingMetaTitle'),
+    description: t('pricingMetaDescription'),
+    alternates: { canonical: '/preise' },
+  };
+}
 
 export default function PreisePage() {
   return <PreiseClient />;

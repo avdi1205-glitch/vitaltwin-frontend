@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type Habit = {
@@ -26,6 +27,7 @@ type Habit = {
  * (`app/services/habit_service.py`), never invented client-side.
  */
 export default function DashboardHabits() {
+  const t = useTranslations('habits');
   const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -43,16 +45,16 @@ export default function DashboardHabits() {
       const response = await fetch(apiUrl('/api/profile/habits'), { headers: authHeader() });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage('Gewohnheiten konnten nicht geladen werden.');
+        setErrorMessage(t('loadError'));
         return;
       }
       setHabits(Array.isArray(data?.items) ? data.items : []);
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
-  }, [authHeader]);
+  }, [authHeader, t]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -79,14 +81,14 @@ export default function DashboardHabits() {
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage(data?.detail ?? 'Gewohnheit konnte nicht gespeichert werden.');
+        setErrorMessage(data?.detail ?? t('createError'));
         return;
       }
       setNewHabit('');
       setShowAddForm(false);
       await loadHabits();
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     } finally {
       setSaving(false);
     }
@@ -102,7 +104,7 @@ export default function DashboardHabits() {
       });
       await loadHabits();
     } catch {
-      setErrorMessage('Eintrag konnte nicht gespeichert werden.');
+      setErrorMessage(t('entryError'));
     }
   };
 
@@ -111,19 +113,19 @@ export default function DashboardHabits() {
       await fetch(apiUrl(`/api/profile/habits/${habitId}`), { method: 'DELETE', headers: authHeader() });
       await loadHabits();
     } catch {
-      setErrorMessage('Gewohnheit konnte nicht entfernt werden.');
+      setErrorMessage(t('deleteError'));
     }
   };
 
   return (
     <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Gewohnheiten</h3>
+        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('title')}</h3>
         <button
           onClick={() => setShowAddForm((current) => !current)}
           className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
         >
-          Gewohnheit hinzufügen
+          {t('add')}
         </button>
       </div>
 
@@ -136,7 +138,7 @@ export default function DashboardHabits() {
             onKeyDown={(e) => {
               if (e.key === 'Enter') void addHabit();
             }}
-            placeholder="z. B. 20 Minuten spazieren"
+            placeholder={t('placeholder')}
             className="flex-1 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
           />
           <button
@@ -144,7 +146,7 @@ export default function DashboardHabits() {
             disabled={saving}
             className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {saving ? 'Speichere...' : 'Speichern'}
+            {saving ? t('saving') : t('save')}
           </button>
         </div>
       )}
@@ -153,10 +155,10 @@ export default function DashboardHabits() {
 
       <div className="mt-5 space-y-3">
         {loading ? (
-          <p className="text-sm text-[#8E969F]">Lade Gewohnheiten...</p>
+          <p className="text-sm text-[#8E969F]">{t('loading')}</p>
         ) : activeHabits.length === 0 ? (
           <p className="text-sm text-[#B7BDC4]">
-            Noch keine Gewohnheiten angelegt. Füge deine erste Gewohnheit hinzu, um deine Serie zu starten.
+            {t('empty')}
           </p>
         ) : (
           activeHabits.map((habit) => (
@@ -167,7 +169,7 @@ export default function DashboardHabits() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => void toggleToday(habit)}
-                  aria-label={habit.completed_today ? 'Als offen markieren' : 'Als erledigt markieren'}
+                  aria-label={habit.completed_today ? t('markOpen') : t('markDone')}
                   className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm font-bold transition ${
                     habit.completed_today ? 'border-[#58D7D4] bg-[#46C8C8] text-[#0B1118]' : 'border-white/20 text-[#6B7480]'
                   }`}
@@ -177,8 +179,8 @@ export default function DashboardHabits() {
                 <div>
                   <p className="text-sm font-semibold text-[#F5F2EA]">{habit.name}</p>
                   <p className="text-xs text-[#8E969F]">
-                    {habit.completed_today ? 'Heute erledigt' : 'Heute offen'} · Serie: {habit.current_streak}{' '}
-                    {habit.current_streak === 1 ? 'Tag' : 'Tage'} · 7-Tage-Quote: {Math.round(habit.completion_rate_7d * 100)}%
+                    {habit.completed_today ? t('doneToday') : t('openToday')} · {t('streak')} {habit.current_streak}{' '}
+                    {habit.current_streak === 1 ? t('day') : t('days')} · {t('rate7d')} {Math.round(habit.completion_rate_7d * 100)}%
                   </p>
                 </div>
               </div>
@@ -186,14 +188,14 @@ export default function DashboardHabits() {
                 onClick={() => void removeHabit(habit.id)}
                 className="text-xs text-[#8E969F] underline hover:text-red-300"
               >
-                Entfernen
+                {t('remove')}
               </button>
             </div>
           ))
         )}
       </div>
       <p className="mt-4 text-xs text-[#8E969F]">
-        Serien und Erfüllungsquoten werden serverseitig aus deinen tatsächlichen Einträgen berechnet.
+        {t('footerNote')}
       </p>
     </article>
   );

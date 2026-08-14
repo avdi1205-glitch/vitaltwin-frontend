@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import { trackEvent } from '@/lib/analytics';
 
@@ -43,6 +44,8 @@ type HomeAuthModalProps = {
 };
 
 export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: HomeAuthModalProps) {
+  const t = useTranslations('auth');
+  const locale = useLocale();
   const [tab, setTab] = useState<AuthMode>(mode);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -86,7 +89,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
         client_id: googleClientId,
         callback: async ({ credential }) => {
           if (!credential) {
-            setErrorMessage('Google-Login konnte nicht gestartet werden.');
+            setErrorMessage(t('googleLoginStartFailed'));
             return;
           }
 
@@ -103,7 +106,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
 
             const data = await response.json().catch(() => null);
             if (!response.ok) {
-              setErrorMessage(data?.detail ?? 'Google-Login fehlgeschlagen.');
+              setErrorMessage(data?.detail ?? t('googleLoginFailed'));
               return;
             }
 
@@ -111,7 +114,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
             trackEvent('login_success', { method: 'google' });
             router.push('/dashboard');
           } catch {
-            setErrorMessage('Google-Login aktuell nicht verfügbar. Bitte später erneut versuchen.');
+            setErrorMessage(t('googleLoginUnavailable'));
           } finally {
             setLoading(false);
           }
@@ -131,7 +134,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
           size: 'large',
           text: 'continue_with',
           shape: 'rectangular',
-          locale: 'de',
+          locale,
         });
       }
     };
@@ -147,7 +150,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
     script.defer = true;
     script.onload = initGoogle;
     document.head.appendChild(script);
-  }, [googleClientId, router]);
+  }, [googleClientId, router, locale, t]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -164,7 +167,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
 
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setErrorMessage(data?.detail ?? data?.message ?? 'Login fehlgeschlagen.');
+        setErrorMessage(data?.detail ?? data?.message ?? t('loginFailed'));
         return;
       }
 
@@ -173,7 +176,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
       onClose();
       router.push('/dashboard');
     } catch {
-      setErrorMessage('Backend nicht erreichbar. Bitte prüfe die API-URL und den Server-Status.');
+      setErrorMessage(t('backendCheck'));
     } finally {
       setLoading(false);
     }
@@ -185,7 +188,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
     setInfoMessage('');
 
     if (!acceptedTerms) {
-      setErrorMessage('Bitte akzeptiere die AGB und Datenschutzerklärung, um ein Konto zu erstellen.');
+      setErrorMessage(t('acceptTermsRequired'));
       return;
     }
 
@@ -205,7 +208,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
 
       const regData = await regRes.json().catch(() => null);
       if (!regRes.ok) {
-        setErrorMessage(regData?.detail ?? 'Registrierung fehlgeschlagen.');
+        setErrorMessage(regData?.detail ?? t('registrationFailed'));
         return;
       }
 
@@ -225,10 +228,10 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
         return;
       }
 
-      setInfoMessage('Konto erstellt. Bitte melde dich jetzt an.');
+      setInfoMessage(t('accountCreatedPleaseLogin'));
       setTab('login');
     } catch {
-      setErrorMessage('Backend nicht erreichbar. Bitte prüfe die API-URL und den Server-Status.');
+      setErrorMessage(t('backendCheck'));
     } finally {
       setLoading(false);
     }
@@ -244,12 +247,12 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between sm:mb-6">
-          <h2 className="text-xl font-bold text-[#F5F2EA] sm:text-2xl">Schnell starten</h2>
+          <h2 className="text-xl font-bold text-[#F5F2EA] sm:text-2xl">{t('quickStart')}</h2>
           <button
             onClick={onClose}
             className="rounded-full border border-white/20 px-3 py-1 text-sm text-[#F5F2EA] transition hover:border-[#58D7D4]/60"
           >
-            Schließen
+            {t('close')}
           </button>
         </div>
 
@@ -258,16 +261,16 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
             <div ref={googleButtonRef} className="flex w-full justify-center [&>div]:w-full" />
             {!googleClientId && (
               <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xs text-[#8E969F]">
-                Google-Login lädt…
+                {t('googleLoading')}
               </div>
             )}
             {tab === 'register' && !acceptedTerms && (
               <button
                 type="button"
-                aria-label="Bitte zuerst AGB und Datenschutzerklärung akzeptieren"
+                aria-label={t('acceptTermsFirstAriaLabel')}
                 className="absolute inset-0 cursor-pointer rounded-xl"
                 onClick={() =>
-                  setErrorMessage('Bitte akzeptiere die AGB und Datenschutzerklärung, um ein Konto zu erstellen.')
+                  setErrorMessage(t('acceptTermsRequired'))
                 }
               />
             )}
@@ -279,11 +282,11 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
             type="button"
             disabled
             className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-[#8E969F] opacity-70"
-            title="Bald verfügbar"
+            title={t('comingSoonTitle')}
           >
-            Mit Apple
+            {t('apple')}
           </button>
-          <p className="col-span-2 text-center text-xs text-[#8E969F]">Apple-Login folgt in einem der nächsten Releases.</p>
+          <p className="col-span-2 text-center text-xs text-[#8E969F]">{t('appleComingSoon')}</p>
         </div>
 
         <div className="mb-6 grid grid-cols-2 rounded-2xl border border-white/10 bg-white/5 p-1">
@@ -295,7 +298,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
             }}
             className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${tab === 'register' ? 'bg-gradient-to-r from-[#F3C979] to-[#C9913D] text-[#0B1118]' : 'text-[#B7BDC4] hover:text-[#58D7D4]'}`}
           >
-            Registrieren
+            {t('register')}
           </button>
           <button
             onClick={() => {
@@ -305,12 +308,12 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
             }}
             className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${tab === 'login' ? 'bg-gradient-to-r from-[#F3C979] to-[#C9913D] text-[#0B1118]' : 'text-[#B7BDC4] hover:text-[#58D7D4]'}`}
           >
-            Anmelden
+            {t('login')}
           </button>
         </div>
 
         <div className="mb-5 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#F5F2EA]">
-          Starter enthält genau 1 Berechnung. Für weitere Simulationen kannst du danach kostenlos als Beta-Tester freischalten (ohne automatische Abbuchung).
+          {t('starterNotice')}
         </div>
 
         {tab === 'register' ? (
@@ -319,7 +322,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="Vollständiger Name"
+              placeholder={t('fullName')}
               className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
               required
             />
@@ -327,7 +330,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="E-Mail"
+              placeholder={t('email')}
               className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
               required
             />
@@ -335,7 +338,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Passwort"
+              placeholder={t('password')}
               className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
               required
             />
@@ -348,9 +351,9 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
                 required
               />
               <span>
-                Ich akzeptiere die{' '}
-                <Link href="/agb" target="_blank" className="text-[#58D7D4] hover:underline">AGB</Link> und die{' '}
-                <Link href="/datenschutz" target="_blank" className="text-[#58D7D4] hover:underline">Datenschutzerklärung</Link>.
+                {t('termsPrefix')}{' '}
+                <Link href="/agb" target="_blank" className="text-[#58D7D4] hover:underline">{t('termsLink')}</Link> {t('termsAnd')}{' '}
+                <Link href="/datenschutz" target="_blank" className="text-[#58D7D4] hover:underline">{t('privacyLink')}</Link>.
               </span>
             </label>
             <button
@@ -358,7 +361,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               disabled={loading || !acceptedTerms}
               className="w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-3 font-semibold text-[#0B1118] transition hover:brightness-110 disabled:opacity-70"
             >
-              {loading ? 'Erstelle Konto...' : 'Konto erstellen'}
+              {loading ? t('createLoading') : t('submitRegister')}
             </button>
           </form>
         ) : (
@@ -367,7 +370,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="E-Mail"
+              placeholder={t('email')}
               className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
               required
             />
@@ -375,7 +378,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Passwort"
+              placeholder={t('password')}
               className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
               required
             />
@@ -384,11 +387,11 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
               disabled={loading}
               className="w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-3 font-semibold text-[#0B1118] transition hover:brightness-110 disabled:opacity-70"
             >
-              {loading ? 'Anmeldung läuft...' : 'Jetzt anmelden'}
+              {loading ? t('loginLoading') : t('loginNow')}
             </button>
             <p className="text-right text-sm text-[#8E969F]">
               <Link href="/passwort-vergessen" className="text-[#58D7D4] hover:underline">
-                Passwort vergessen?
+                {t('forgot')}
               </Link>
             </p>
           </form>
@@ -407,7 +410,7 @@ export default function HomeAuthModal({ mode, onClose, initialNotice = '' }: Hom
         )}
 
         <p className="mt-5 text-center text-xs text-[#8E969F]">
-          Schneller Zugang ohne Seitenwechsel. Passwort ändern kannst du jederzeit eingeloggt im Dashboard oder über <Link href="/passwort-vergessen" className="text-[#58D7D4] hover:underline">Passwort vergessen</Link>.
+          {t('quickAccessNote')} {t('passwordHint')} <Link href="/passwort-vergessen" className="text-[#58D7D4] hover:underline">{t('forgot')}</Link>.
         </p>
       </div>
     </div>

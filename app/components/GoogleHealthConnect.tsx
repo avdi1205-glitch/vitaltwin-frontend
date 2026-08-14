@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type GoogleHealthStatus = {
@@ -17,6 +18,7 @@ type GoogleHealthStatus = {
 };
 
 export default function GoogleHealthConnect() {
+  const t = useTranslations('health');
   const [status, setStatus] = useState<GoogleHealthStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -60,18 +62,18 @@ export default function GoogleHealthConnect() {
 
     const timer = window.setTimeout(() => {
       if (result === 'success') {
-        setMessage('✅ Google Health erfolgreich verbunden.');
+        setMessage(`✅ ${t('successMsg')}`);
         void loadStatus();
       } else if (result === 'partial_consent') {
-        setMessage('⚠️ Verbunden, aber nicht alle angefragten Berechtigungen wurden erteilt.');
+        setMessage(`⚠️ ${t('partialConsentMsg')}`);
         void loadStatus();
       } else {
         const reason = params.get('reason');
-        setMessage(`❌ Verbindung fehlgeschlagen${reason ? ` (${reason})` : ''}. Bitte erneut versuchen.`);
+        setMessage(reason ? t('failureMsgReason', { reason }) : t('failureMsg'));
       }
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [loadStatus]);
+  }, [loadStatus, t]);
 
   const handleConnect = async () => {
     const token = localStorage.getItem('token');
@@ -87,13 +89,13 @@ export default function GoogleHealthConnect() {
       });
       const data = await response.json().catch(() => null);
       if (!response.ok || !data?.authorization_url) {
-        setMessage(data?.detail?.message ?? 'Google Health konnte nicht gestartet werden.');
+        setMessage(data?.detail?.message ?? t('connectStartError'));
         setBusy(false);
         return;
       }
       window.location.href = data.authorization_url;
     } catch {
-      setMessage('Backend gerade nicht erreichbar.');
+      setMessage(t('backendShort'));
       setBusy(false);
     }
   };
@@ -110,12 +112,12 @@ export default function GoogleHealthConnect() {
       });
       if (response.ok) {
         setStatus({ connected: false, status: 'not_connected' });
-        setMessage('Verbindung getrennt. Gespeicherte Tokens wurden gelöscht.');
+        setMessage(t('disconnectSuccess'));
       } else {
-        setMessage('Trennen fehlgeschlagen. Bitte versuche es erneut.');
+        setMessage(t('disconnectError'));
       }
     } catch {
-      setMessage('Backend gerade nicht erreichbar.');
+      setMessage(t('backendShort'));
     } finally {
       setBusy(false);
     }
@@ -134,21 +136,21 @@ export default function GoogleHealthConnect() {
       const data = await response.json().catch(() => null);
       if (response.ok) {
         if (data?.status === 'failed') {
-          setMessage('❌ Synchronisierung fehlgeschlagen — Google Health hat keine Daten geliefert. Bitte später erneut versuchen.');
+          setMessage(t('syncNoDataError'));
         } else if (data?.status === 'partial') {
-          setMessage('⚠️ Synchronisierung teilweise abgeschlossen — manche Datentypen konnten nicht geladen werden.');
+          setMessage(t('syncPartial'));
         } else {
-          setMessage('Synchronisierung abgeschlossen.');
+          setMessage(t('syncComplete'));
         }
         void loadStatus();
       } else if (response.status === 409) {
-        setMessage('Verbindung ist abgelaufen. Bitte erneut verbinden.');
+        setMessage(t('tokenExpired'));
         void loadStatus();
       } else {
-        setMessage(data?.detail?.message ?? 'Synchronisierung fehlgeschlagen.');
+        setMessage(data?.detail?.message ?? t('syncError'));
       }
     } catch {
-      setMessage('Backend gerade nicht erreichbar.');
+      setMessage(t('backendShort'));
     } finally {
       setBusy(false);
     }
@@ -160,16 +162,16 @@ export default function GoogleHealthConnect() {
     return (
       <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
         <p className="font-[family-name:var(--font-serif-display)] text-lg font-semibold text-[#F5F2EA]">
-          Premium-Feature
+          {t('deniedTitle')}
         </p>
         <p className="mx-auto mt-2 max-w-md text-sm text-[#B7BDC4]">
-          Automatische Gesundheitsdaten über Google Health sind Teil von Premium.
+          {t('deniedText')}
         </p>
         <Link
           href="/preise"
           className="mt-5 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
         >
-          Premium ansehen
+          {t('deniedLink')}
         </Link>
       </div>
     );
@@ -181,28 +183,28 @@ export default function GoogleHealthConnect() {
   return (
     <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <p className="text-sm text-[#B7BDC4]">
-        Verbinde Fitbit, Pixel Watch und unterstützte Gesundheitsdaten sicher über Google Health.
+        {t('description')}
       </p>
 
       {reauthRequired ? (
         <>
-          <p className="mt-3 text-sm text-[#F3C979]">⚠️ Verbindung abgelaufen — bitte erneut verbinden.</p>
+          <p className="mt-3 text-sm text-[#F3C979]">⚠️ {t('reauthWarning')}</p>
           <button
             type="button"
             onClick={handleConnect}
             disabled={busy}
             className="mt-4 rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {busy ? 'Wird geöffnet…' : 'Erneut verbinden'}
+            {busy ? t('reauthBusy') : t('reauthIdle')}
           </button>
         </>
       ) : connected ? (
         <>
-          <p className="mt-3 text-sm text-[#58D7D4]">✅ Verbunden</p>
+          <p className="mt-3 text-sm text-[#58D7D4]">{t('connectedStatus')}</p>
           {status?.last_sync_at && (
             <p className="mt-1 text-xs text-[#8E969F]">
-              Zuletzt synchronisiert: {new Date(status.last_sync_at).toLocaleString('de-DE')}
-              {status.last_sync_status === 'partial' && ' (teilweise)'}
+              {t('lastSync')} {new Date(status.last_sync_at).toLocaleString('de-DE')}
+              {status.last_sync_status === 'partial' && ` ${t('partialSuffix')}`}
             </p>
           )}
           <div className="mt-4 flex flex-wrap gap-2">
@@ -212,7 +214,7 @@ export default function GoogleHealthConnect() {
               disabled={busy}
               className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {busy ? 'Läuft…' : 'Jetzt synchronisieren'}
+              {busy ? t('syncBusy') : t('syncIdle')}
             </button>
             <button
               type="button"
@@ -220,7 +222,7 @@ export default function GoogleHealthConnect() {
               disabled={busy}
               className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Verbindung trennen
+              {t('disconnect')}
             </button>
           </div>
         </>
@@ -231,7 +233,7 @@ export default function GoogleHealthConnect() {
           disabled={busy}
           className="mt-4 rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {busy ? 'Wird geöffnet…' : 'Mit Google Health verbinden'}
+          {busy ? t('connectBusy') : t('connectIdle')}
         </button>
       )}
 

@@ -2,10 +2,13 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import VitalTwinMark from './brand/VitalTwinMark';
+import LanguageSelector from './LanguageSelector';
 
 export default function DashboardNav() {
+  const t = useTranslations('nav');
   const [menuOpen, setMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -29,15 +32,15 @@ export default function DashboardNav() {
   }, []);
 
   const links = [
-    { href: '/dashboard', label: 'Übersicht' },
-    { href: '/dashboard/blutzucker', label: 'Blutzucker & Ernährung', badge: 'Premium' },
-    { href: '/dashboard/gesundheitsdaten', label: 'Gesundheitsdaten' },
-    { href: '/dashboard/gewohnheiten', label: 'Gewohnheiten' },
-    { href: '/dashboard/mein-twin', label: 'Mein Twin' },
-    { href: '/dashboard/verlauf', label: 'Verlauf' },
-    { href: '/frag-deinen-twin', label: 'Frag deinen Twin' },
-    { href: '/passwort-zuruecksetzen', label: 'Konto' },
-    { href: '/preise', label: 'Tarif' },
+    { href: '/dashboard', label: t('overview') },
+    { href: '/dashboard/blutzucker', label: t('nutrition'), badge: 'Premium' },
+    { href: '/dashboard/gesundheitsdaten', label: t('healthData') },
+    { href: '/dashboard/gewohnheiten', label: t('habits') },
+    { href: '/dashboard/mein-twin', label: t('twin') },
+    { href: '/dashboard/verlauf', label: t('history') },
+    { href: '/frag-deinen-twin', label: t('askTwin') },
+    { href: '/passwort-zuruecksetzen', label: t('account') },
+    { href: '/preise', label: t('plan') },
     ...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : []),
   ];
 
@@ -46,12 +49,13 @@ export default function DashboardNav() {
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-2 font-[family-name:var(--font-serif-display)] text-sm font-semibold text-[#F5F2EA]">
           <VitalTwinMark variant="icon" theme="dark" className="h-5 w-auto" />
-          VitalTwin Cockpit
+          {t('cockpit')}
         </span>
+        <LanguageSelector />
         <button
           onClick={() => setMenuOpen((open) => !open)}
           aria-expanded={menuOpen}
-          aria-label={menuOpen ? 'Navigation schließen' : 'Navigation öffnen'}
+          aria-label={menuOpen ? t('closeMenu') : t('openMenu')}
           className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-[#F5F2EA] md:hidden"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">

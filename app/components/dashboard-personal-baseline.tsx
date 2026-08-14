@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type BaselineItem = {
@@ -36,6 +37,7 @@ type BaselineResponse = {
  * failure or fake data.
  */
 export default function DashboardPersonalBaseline() {
+  const t = useTranslations('baseline');
   const [data, setData] = useState<BaselineResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -56,20 +58,20 @@ export default function DashboardPersonalBaseline() {
         } else if (response.status === 403) {
           setDenied(true);
         } else {
-          setErrorMessage('Persönlicher Verlauf konnte nicht geladen werden.');
+          setErrorMessage(t('loadError'));
         }
       } catch {
-        setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+        setErrorMessage(t('backendError'));
       } finally {
         setLoading(false);
       }
     })();
-  }, [authHeader]);
+  }, [authHeader, t]);
 
   if (loading) {
     return (
       <article id="persoenlicher-verlauf" className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <p className="text-sm text-[#8E969F]">Lade deinen persönlichen Verlauf...</p>
+        <p className="text-sm text-[#8E969F]">{t('loading')}</p>
       </article>
     );
   }
@@ -78,17 +80,16 @@ export default function DashboardPersonalBaseline() {
     return (
       <article id="persoenlicher-verlauf" className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
         <p className="font-[family-name:var(--font-serif-display)] text-lg font-semibold text-[#F5F2EA]">
-          Premium-Feature
+          {t('premiumTitle')}
         </p>
         <p className="mx-auto mt-2 max-w-md text-sm text-[#B7BDC4]">
-          Ausführlichere Wellness-Auswertungen (dein persönlicher Verlauf gegen deine eigene Baseline) sind Teil von
-          Premium.
+          {t('premiumText')}
         </p>
         <Link
           href="/preise"
           className="mt-5 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
         >
-          Premium ansehen
+          {t('premiumLink')}
         </Link>
       </article>
     );
@@ -98,7 +99,7 @@ export default function DashboardPersonalBaseline() {
     return (
       <article id="persoenlicher-verlauf" className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
         <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
-          Dein persönlicher Verlauf
+          {t('title')}
         </h3>
         <p className="mt-2 text-sm text-red-300">{errorMessage}</p>
       </article>
@@ -112,10 +113,10 @@ export default function DashboardPersonalBaseline() {
   return (
     <article id="persoenlicher-verlauf" className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
-        Dein persönlicher Verlauf
+        {t('title')}
       </h3>
       <p className="mt-1 text-xs text-[#8E969F]">
-        Vergleich der letzten 7 Tage mit deiner eigenen 28-Tage-Baseline — nicht mit anderen Nutzern.
+        {t('description')}
       </p>
       <div className="mt-4 space-y-3">
         {data.items.map((item) => (
@@ -123,7 +124,7 @@ export default function DashboardPersonalBaseline() {
             <p className="text-sm text-[#F5F2EA]">{item.message}</p>
             {item.available && item.recent_data_quality === 'partial' && (
               <p className="mt-1 text-[10px] text-[#6B7480]">
-                Vorläufig, wenig Daten ({item.recent_data_points}x diese Woche)
+                {t('partialData', { count: item.recent_data_points ?? 0 })}
               </p>
             )}
           </div>

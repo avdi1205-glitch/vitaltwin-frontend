@@ -1,11 +1,12 @@
 import type { MetadataRoute } from 'next';
+import { getTranslations } from 'next-intl/server';
 
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const t = await getTranslations('siteMeta');
   return {
     name: 'VitalTwin',
     short_name: 'VitalTwin',
-    description:
-      'Dein digitaler Wellness-Zwilling für allgemeine Orientierung und mehr Wohlbefinden im Alltag.',
+    description: t('manifestDescription'),
     start_url: '/',
     display: 'standalone',
     background_color: '#0B1118',

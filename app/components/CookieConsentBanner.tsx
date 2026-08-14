@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 /**
  * Google AdSense consent + script loading, entirely inactive by default.
@@ -38,6 +39,7 @@ function setAdConsent(value: AdConsentValue) {
 }
 
 export default function CookieConsentBanner() {
+  const t = useTranslations('cookieConsent');
   const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
   const [visible, setVisible] = useState(false);
 
@@ -57,10 +59,9 @@ export default function CookieConsentBanner() {
     <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#0B1118]/97 px-6 py-5 backdrop-blur">
       <div className="mx-auto flex max-w-5xl flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
         <p className="text-sm text-[#B7BDC4]">
-          VitalTwin nutzt Google AdSense, um im kostenlosen Tarif Werbung anzuzeigen. Dafür lädt Google
-          Werbe-Cookies, sobald du zustimmst. Details in unserer{' '}
+          {t('text')}{' '}
           <a href="/datenschutz" className="text-[#58D7D4] underline hover:text-[#F3C979]">
-            Datenschutzerklärung
+            {t('privacyLink')}
           </a>
           .
         </p>
@@ -73,7 +74,7 @@ export default function CookieConsentBanner() {
             }}
             className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-white/40"
           >
-            Ablehnen
+            {t('decline')}
           </button>
           <button
             type="button"
@@ -83,7 +84,7 @@ export default function CookieConsentBanner() {
             }}
             className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
           >
-            Akzeptieren
+            {t('accept')}
           </button>
         </div>
       </div>

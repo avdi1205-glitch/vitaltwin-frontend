@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import FamilyGoalsSection, { type FamilyGoal } from './family-goals-section';
 import FamilyChallengesSection, { type FamilyChallenge } from './family-challenges-section';
@@ -33,6 +34,7 @@ export type FamilyState = {
  * /api/family/*.
  */
 export default function FamilySection({ currentUserEmail }: { currentUserEmail?: string | null }) {
+  const t = useTranslations('family');
   const [state, setState] = useState<FamilyState | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -64,16 +66,16 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
       const response = await fetch(apiUrl('/api/family/me'), { headers: authHeader() });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage(data?.detail ?? 'Family-Status konnte nicht geladen werden.');
+        setErrorMessage(data?.detail ?? t('statusLoadError'));
         return;
       }
       setState(data);
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
-  }, [authHeader]);
+  }, [authHeader, t]);
 
   const loadGoals = useCallback(async () => {
     setGoalsLoading(true);
@@ -82,16 +84,16 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
       const response = await fetch(apiUrl('/api/family/goals'), { headers: authHeader() });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setGoalsError(data?.detail ?? 'Familienziele konnten nicht geladen werden.');
+        setGoalsError(data?.detail ?? t('goalsLoadError'));
         return;
       }
       setGoals(data.goals ?? []);
     } catch {
-      setGoalsError('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setGoalsError(t('backendError'));
     } finally {
       setGoalsLoading(false);
     }
-  }, [authHeader]);
+  }, [authHeader, t]);
 
   const loadChallenges = useCallback(async () => {
     setChallengesLoading(true);
@@ -100,16 +102,16 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
       const response = await fetch(apiUrl('/api/family/challenges'), { headers: authHeader() });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setChallengesError(data?.detail ?? 'Familien-Challenges konnten nicht geladen werden.');
+        setChallengesError(data?.detail ?? t('challengesLoadError'));
         return;
       }
       setChallenges(data.challenges ?? []);
     } catch {
-      setChallengesError('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setChallengesError(t('backendError'));
     } finally {
       setChallengesLoading(false);
     }
-  }, [authHeader]);
+  }, [authHeader, t]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => void load(), 0);
@@ -141,19 +143,19 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage(data?.detail ?? 'Aktion fehlgeschlagen.');
+        setErrorMessage(data?.detail ?? t('actionFailed'));
         return;
       }
       if (typeof data?.email_sent === 'boolean') {
         setActionMessage(
           data.email_sent
-            ? 'Einladung gespeichert und E-Mail gesendet.'
-            : 'Einladung gespeichert. Es konnte keine E-Mail gesendet werden — informiere die Person bitte direkt.',
+            ? t('invitationSaved')
+            : t('invitationSavedNoEmail'),
         );
       }
       await load();
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     } finally {
       setBusy(false);
     }
@@ -172,26 +174,25 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
     document.getElementById('family-challenges-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const ROLE_LABEL: Record<string, string> = { owner: 'Owner', member: 'Mitglied' };
+  const ROLE_LABEL: Record<string, string> = { owner: t('roleOwner'), member: t('roleMember') };
   const STATUS_LABEL: Record<string, string> = {
-    active: 'Aktiv',
-    invited: 'Eingeladen',
-    removed: 'Entfernt',
-    left: 'Ausgetreten',
+    active: t('statusActive'),
+    invited: t('statusInvited'),
+    removed: t('statusRemoved'),
+    left: t('statusLeft'),
   };
 
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Familie</h2>
-        <span className="rounded-full border border-[#58D7D4]/40 px-3 py-1 text-xs font-semibold text-[#58D7D4]">Beta</span>
+        <h2 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('title')}</h2>
+        <span className="rounded-full border border-[#58D7D4]/40 px-3 py-1 text-xs font-semibold text-[#58D7D4]">{t('betaBadge')}</span>
       </div>
       <p className="mt-2 text-sm text-[#8E969F]">
-        Getrennte, unabhängige Konten für bis zu {state?.max_members ?? 6} Personen — jedes Mitglied behält seine eigenen,
-        privaten Wellness-Daten. Niemand sieht automatisch die Werte eines anderen Mitglieds.
+        {t('description', { max: state?.max_members ?? 6 })}
       </p>
 
-      {loading && <p className="mt-4 text-[#8E969F]">Lädt...</p>}
+      {loading && <p className="mt-4 text-[#8E969F]">{t('loading')}</p>}
 
       {!loading && errorMessage && <p className="mt-4 text-sm text-red-300">{errorMessage}</p>}
       {!loading && actionMessage && <p className="mt-4 text-sm text-[#58D7D4]">{actionMessage}</p>}
@@ -200,23 +201,23 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
         <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3">
           {state.eligible_to_create ? (
             <>
-              <p className="text-sm text-[#F5F2EA]">Du bist noch in keiner Family. Starte deine eigene Family-Gruppe.</p>
+              <p className="text-sm text-[#F5F2EA]">{t('notInFamily')}</p>
               <button
                 onClick={() => void runAction('/api/family', 'POST')}
                 disabled={busy}
                 className="mt-3 rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {busy ? 'Erstelle...' : 'Family erstellen'}
+                {busy ? t('creating') : t('createFamily')}
               </button>
             </>
           ) : (
             <>
-              <p className="text-sm text-[#F5F2EA]">Eine Family ist ein Family-Tarif-Feature.</p>
+              <p className="text-sm text-[#F5F2EA]">{t('familyPlanFeature')}</p>
               <a
                 href="/preise"
                 className="mt-3 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
               >
-                Family ansehen
+                {t('viewFamily')}
               </a>
             </>
           )}
@@ -243,15 +244,13 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
           />
 
           <div className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-[#F5F2EA]">
-            Deine Rolle: {ROLE_LABEL[state.role ?? ''] ?? state.role} · Status: {STATUS_LABEL[state.status ?? ''] ?? state.status} ·
-            Mitglieder: {state.member_count_active} / {state.max_members}
+            {t('yourRole')} {ROLE_LABEL[state.role ?? ''] ?? state.role} · {t('statusLabel')} {STATUS_LABEL[state.status ?? ''] ?? state.status} ·{' '}
+            {t('membersLabel')} {state.member_count_active} / {state.max_members}
           </div>
 
           {!state.family_entitlement_active && (
             <div className="rounded-xl border border-[#F3C979]/30 bg-white/[0.02] px-4 py-3 text-sm text-[#F5F2EA]">
-              Der Family-Zugang ist aktuell nicht aktiv (z. B. abgelaufener Beta-Zugang oder geänderter Tarif). Eure
-              Daten und Mitgliedschaften bleiben vollständig erhalten — sobald wieder ein gültiger Family-Zugang
-              besteht, ist alles wie gewohnt nutzbar.
+              {t('entitlementInactiveNotice')}
             </div>
           )}
 
@@ -273,7 +272,7 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
                     disabled={busy}
                     className="rounded-lg border border-red-400/30 px-3 py-1 text-xs font-semibold text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Entfernen
+                    {t('remove')}
                   </button>
                 )}
               </div>
@@ -287,7 +286,7 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
                 type="email"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
-                placeholder="E-Mail des Familienmitglieds"
+                placeholder={t('invitePlaceholder')}
                 className="flex-1 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               />
               <button
@@ -300,7 +299,7 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
                 disabled={busy || !inviteEmail.trim()}
                 className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Einladen
+                {t('invite')}
               </button>
             </div>
           )}
@@ -311,7 +310,7 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
               disabled={busy}
               className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              Einladung annehmen
+              {t('acceptInvite')}
             </button>
           )}
 
@@ -321,7 +320,7 @@ export default function FamilySection({ currentUserEmail }: { currentUserEmail?:
             disabled={busy}
             className="rounded-lg border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Family verlassen
+            {t('leaveFamily')}
           </button>
 
           {state.status === 'active' && (

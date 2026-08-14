@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 export default function PasswortBestaetigen() {
+  const t = useTranslations('passwordConfirm');
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [linkChecked, setLinkChecked] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -31,12 +33,12 @@ export default function PasswortBestaetigen() {
     setErrorMessage('');
 
     if (!accessToken) {
-      setErrorMessage('Reset-Link ist ungültig oder abgelaufen.');
+      setErrorMessage(t('resetLinkInvalid'));
       return;
     }
 
     if (newPassword.length < 8) {
-      setErrorMessage('Neues Passwort muss mindestens 8 Zeichen haben.');
+      setErrorMessage(t('passwordTooShort'));
       return;
     }
 
@@ -50,13 +52,13 @@ export default function PasswortBestaetigen() {
 
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setErrorMessage(data?.detail ?? 'Passwort konnte nicht aktualisiert werden.');
+        setErrorMessage(data?.detail ?? t('updateFailed'));
         return;
       }
 
       router.push('/?auth=login&reset=1');
     } catch {
-      setErrorMessage('Backend nicht erreichbar. Bitte prüfe die API-URL und den Server-Status.');
+      setErrorMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
@@ -65,11 +67,11 @@ export default function PasswortBestaetigen() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0B1118] px-6">
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.03] p-10">
-        <h1 className="text-center text-3xl font-bold text-[#F5F2EA]">Neues Passwort setzen</h1>
+        <h1 className="text-center text-3xl font-bold text-[#F5F2EA]">{t('title')}</h1>
 
         {linkChecked && !accessToken && (
           <div className="mt-6 rounded-2xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
-            Dieser Link ist ungültig oder abgelaufen. Bitte fordere einen neuen Reset-Link an.
+            {t('linkInvalid')}
           </div>
         )}
 
@@ -78,7 +80,7 @@ export default function PasswortBestaetigen() {
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Neues Passwort (mind. 8 Zeichen)"
+            placeholder={t('newPasswordPlaceholder')}
             className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
             required
             minLength={8}
@@ -95,12 +97,12 @@ export default function PasswortBestaetigen() {
             disabled={loading || !accessToken}
             className="w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-4 text-lg font-semibold text-[#0B1118] transition hover:brightness-110 disabled:opacity-70"
           >
-            {loading ? 'Aktualisiere...' : 'Passwort speichern'}
+            {loading ? t('updating') : t('savePassword')}
           </button>
         </form>
 
         <p className="mt-6 text-center text-[#8E969F]">
-          Zurück zum <Link href="/passwort-vergessen" className="text-[#58D7D4] hover:underline">Passwort vergessen</Link>
+          {t('backTo')} <Link href="/passwort-vergessen" className="text-[#58D7D4] hover:underline">{t('forgotPassword')}</Link>
         </p>
       </div>
     </div>

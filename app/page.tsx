@@ -1,18 +1,22 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import HomeLanding from './components/home-landing';
 
-export const metadata: Metadata = {
-  title: 'VitalTwin | Digitaler Wellness-Zwilling',
-  description:
-    'VitalTwin ordnet deine freiwillig eingetragenen Biomarker ein und gibt allgemeine Wellness-Impulse zur Orientierung für mehr Wohlbefinden im Alltag. Kein Medizinprodukt.',
-  alternates: { canonical: '/' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('siteMeta');
+  return {
+    title: t('homeTitle'),
+    description: t('homeDescription'),
+    alternates: { canonical: '/' },
+  };
+}
 
 type HomePageProps = {
   searchParams?: Promise<{ auth?: string; registered?: string; reset?: string; premium?: string }>;
 };
 
 export default async function Home({ searchParams }: HomePageProps) {
+  const t = await getTranslations('siteMeta');
   const params = searchParams ? await searchParams : undefined;
 
   const initialAuthMode =
@@ -20,13 +24,13 @@ export default async function Home({ searchParams }: HomePageProps) {
 
   const initialNotice =
     params?.registered === '1'
-      ? 'Konto erstellt. Du kannst dich jetzt anmelden.'
+      ? t('accountCreatedNotice')
       : params?.reset === '1'
-        ? 'Passwort aktualisiert. Bitte melde dich mit dem neuen Passwort an.'
+        ? t('passwordUpdatedNotice')
         : params?.premium === '1'
-          ? 'Bitte melde dich an, um Premium zu kaufen.'
+          ? t('loginForPremiumNotice')
           : params?.auth === 'login'
-            ? 'Hinweis: Im Starter ist genau 1 Berechnung enthalten. Danach kannst du kostenlos als Beta-Tester weitermachen.'
+            ? t('starterHintNotice')
         : '';
 
   const startedFromQuery =

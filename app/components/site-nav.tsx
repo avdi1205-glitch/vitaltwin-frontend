@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import VitalTwinMark from './brand/VitalTwinMark';
+import LanguageSelector from './LanguageSelector';
 
 type SiteNavProps = {
   onOpenLogin: () => void;
@@ -10,6 +12,7 @@ type SiteNavProps = {
 };
 
 export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
+  const t = useTranslations('nav');
   const [menuOpen, setMenuOpen] = useState(false);
   // Starts false (matches server render, avoids a hydration mismatch) and is
   // corrected in an effect right after mount — a real logged-in session must
@@ -28,19 +31,19 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B1118]/95 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" onClick={closeMenu} className="flex items-center" aria-label="VitalTwin Startseite">
+        <Link href="/" onClick={closeMenu} className="flex items-center" aria-label={`VitalTwin ${t('home')}`}>
           <VitalTwinMark variant="icon" theme="dark" className="h-7 w-auto" />
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
           <Link href="/" className="text-sm font-medium text-[#B7BDC4] transition hover:text-[#58D7D4]">
-            Startseite
+            {t('home')}
           </Link>
           <a href="#funktionen" className="text-sm font-medium text-[#B7BDC4] transition hover:text-[#58D7D4]">
-            Funktionen
+            {t('features')}
           </a>
           <Link href="/preise" className="text-sm font-medium text-[#B7BDC4] transition hover:text-[#58D7D4]">
-            Preise
+            {t('pricing')}
           </Link>
         </div>
 
@@ -51,13 +54,13 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
                 href="/profil"
                 className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
               >
-                Mein Konto
+                {t('account')}
               </Link>
               <Link
                 href="/dashboard"
                 className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
               >
-                Zum Dashboard
+                {t('dashboard')}
               </Link>
             </>
           ) : (
@@ -66,22 +69,23 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
                 onClick={onOpenLogin}
                 className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
               >
-                Anmelden
+                {t('login')}
               </button>
               <button
                 onClick={onOpenRegister}
                 className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
               >
-                Kostenlos starten
+                {t('register')}
               </button>
             </>
           )}
         </div>
 
+        <LanguageSelector />
         <button
           onClick={() => setMenuOpen((open) => !open)}
           aria-expanded={menuOpen}
-          aria-label={menuOpen ? 'Menü schließen' : 'Menü öffnen'}
+          aria-label={menuOpen ? t('closeMenu') : t('openMenu')}
           className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-[#F5F2EA] md:hidden"
         >
           {menuOpen ? (
@@ -100,13 +104,13 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
         <div className="border-t border-white/10 bg-[#0B1118] px-6 py-4 md:hidden">
           <div className="flex flex-col gap-1 text-sm font-medium text-[#F5F2EA]">
             <Link href="/" onClick={closeMenu} className="rounded-xl px-2 py-3">
-              Startseite
+              {t('home')}
             </Link>
             <a href="#funktionen" onClick={closeMenu} className="rounded-xl px-2 py-3">
-              Funktionen
+              {t('features')}
             </a>
             <Link href="/preise" onClick={closeMenu} className="rounded-xl px-2 py-3">
-              Preise
+              {t('pricing')}
             </Link>
             <div className="mt-3 flex flex-col gap-3">
               {isAuthenticated ? (
@@ -116,14 +120,14 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
                     onClick={closeMenu}
                     className="rounded-full border border-white/20 px-5 py-3 text-center font-semibold text-[#F5F2EA]"
                   >
-                    Mein Konto
+                    {t('account')}
                   </Link>
                   <Link
                     href="/dashboard"
                     onClick={closeMenu}
                     className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-3 text-center font-semibold text-[#0B1118]"
                   >
-                    Zum Dashboard
+                    {t('dashboard')}
                   </Link>
                 </>
               ) : (
@@ -135,7 +139,7 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
                     }}
                     className="rounded-full border border-white/20 px-5 py-3 text-center font-semibold text-[#F5F2EA]"
                   >
-                    Anmelden
+                    {t('login')}
                   </button>
                   <button
                     onClick={() => {
@@ -144,7 +148,7 @@ export default function SiteNav({ onOpenLogin, onOpenRegister }: SiteNavProps) {
                     }}
                     className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-3 text-center font-semibold text-[#0B1118]"
                   >
-                    Kostenlos starten
+                    {t('register')}
                   </button>
                 </>
               )}

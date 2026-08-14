@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
+import { useTranslations } from 'next-intl';
 
 /**
  * "Frag deinen Twin …" chat entry field at the base of the hero. No new AI
@@ -9,6 +10,7 @@ import { useState, type FormEvent } from 'react';
  * /frag-deinen-twin chat route (see app/frag-deinen-twin/page.tsx).
  */
 export default function TwinChatBar() {
+  const t = useTranslations('hero');
   const router = useRouter();
   const [value, setValue] = useState('');
 
@@ -32,19 +34,19 @@ export default function TwinChatBar() {
         />
       </svg>
       <label htmlFor="vt-hero-chat-input" className="sr-only">
-        Frag deinen Twin
+        {t('chatSrLabel')}
       </label>
       <input
         id="vt-hero-chat-input"
         type="text"
         value={value}
         onChange={(event) => setValue(event.target.value)}
-        placeholder="Frag deinen Twin …"
+        placeholder={t('chatPlaceholder')}
         className="min-w-0 flex-1 bg-transparent text-sm text-[#F5F2EA] placeholder:text-[#8E969F] focus:outline-none"
       />
       <button
         type="submit"
-        aria-label="Frage an deinen Twin senden"
+        aria-label={t('chatSendAriaLabel')}
         className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#46C8C8] text-[#0B1118] transition hover:bg-[#58D7D4]"
       >
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">

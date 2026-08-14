@@ -3,23 +3,25 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import VitalTwinMark from '../components/brand/VitalTwinMark';
 
-const WELLNESS_GOALS: { id: string; label: string }[] = [
-  { id: 'besser_schlafen', label: 'Besser schlafen' },
-  { id: 'mehr_bewegen', label: 'Mehr bewegen' },
-  { id: 'stress_reduzieren', label: 'Stress reduzieren' },
-  { id: 'gesuender_essen', label: 'Gesünder essen' },
-  { id: 'gewicht_bewusst_verwalten', label: 'Gewicht bewusst verwalten' },
-  { id: 'mehr_energie', label: 'Mehr Energie' },
-  { id: 'bessere_erholung', label: 'Bessere Erholung' },
-  { id: 'gesunde_gewohnheiten_aufbauen', label: 'Gesunde Gewohnheiten aufbauen' },
+const WELLNESS_GOALS: { id: string; key: 'goalSleep' | 'goalMove' | 'goalStress' | 'goalFood' | 'goalWeight' | 'goalEnergy' | 'goalRecovery' | 'goalHabits' }[] = [
+  { id: 'besser_schlafen', key: 'goalSleep' },
+  { id: 'mehr_bewegen', key: 'goalMove' },
+  { id: 'stress_reduzieren', key: 'goalStress' },
+  { id: 'gesuender_essen', key: 'goalFood' },
+  { id: 'gewicht_bewusst_verwalten', key: 'goalWeight' },
+  { id: 'mehr_energie', key: 'goalEnergy' },
+  { id: 'bessere_erholung', key: 'goalRecovery' },
+  { id: 'gesunde_gewohnheiten_aufbauen', key: 'goalHabits' },
 ];
 
 const STEP_LABELS = ['Willkommen', 'Persönliche Ziele', 'Alltag', 'Erste Gewohnheiten', 'Zusammenfassung'];
 
 export default function Onboarding() {
+  const t = useTranslations('onboarding');
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [token, setToken] = useState<string | null>(null);
@@ -89,7 +91,7 @@ export default function Onboarding() {
 
       setCompleted(true);
     } catch {
-      setMessage('Speichern hat nicht ganz geklappt — du kannst alles jederzeit in deinem Profil nachtragen.');
+      setMessage(t('saveError'));
     } finally {
       setSaving(false);
     }
@@ -99,8 +101,8 @@ export default function Onboarding() {
     <div className="min-h-screen bg-[#0B1118] px-6 py-16 text-[#F5F2EA]">
       <div className="mx-auto max-w-xl">
         <div className="flex items-center justify-between text-xs text-[#8E969F]">
-          <span>Schritt {step + 1} von {STEP_LABELS.length}</span>
-          <Link href="/profil" className="underline hover:text-[#58D7D4]">Später im Profil bearbeiten</Link>
+          <span>{t('step', { current: step + 1, total: STEP_LABELS.length })}</span>
+          <Link href="/profil" className="underline hover:text-[#58D7D4]">{t('editLater')}</Link>
         </div>
         <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
           <div
@@ -123,25 +125,22 @@ export default function Onboarding() {
               <div className="relative">
                 <VitalTwinMark variant="icon" theme="dark" className="mx-auto h-9 w-auto" />
                 <h1 className="mt-6 font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-[#F5F2EA] sm:text-4xl">
-                  Triff deinen Zwilling
+                  {t('welcome')}
                 </h1>
                 <p className="mt-3 font-[family-name:var(--font-mono-technical)] text-xs font-medium uppercase tracking-[0.35em] text-[#8E969F]">
-                  Menschliche Intuition. Digitale Präzision.
+                  {t('welcomeTagline')}
                 </p>
                 <p className="mx-auto mt-5 max-w-md text-sm text-[#B7BDC4]">
-                  In wenigen kurzen Schritten richten wir deinen digitalen Wellness-Zwilling ein. Alles ist optional —
-                  du kannst jede Frage überspringen und später jederzeit in deinem Profil ändern.
+                  {t('welcomeText')}
                 </p>
                 <p className="mx-auto mt-3 max-w-md text-sm text-[#B7BDC4]">
-                  Dein Twin lernt aus deinen Daten und vergleicht dich mit deiner eigenen persönlichen Basislinie —
-                  nicht mit fremden Durchschnittswerten. Je mehr relevante Daten vorliegen, desto persönlicher werden
-                  seine Beobachtungen.
+                  {t('welcomeBaselineText')}
                 </p>
                 <button
                   onClick={goNext}
                   className="mt-8 rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-8 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
                 >
-                  Los geht&apos;s
+                  {t('start')}
                 </button>
               </div>
             </div>
@@ -149,13 +148,13 @@ export default function Onboarding() {
 
           {step === 1 && (
             <>
-              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">Persönliche Ziele</h2>
-              <p className="mt-2 text-sm text-[#B7BDC4]">Wähle, was dir wichtig ist (optional, Mehrfachauswahl).</p>
+              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">{t('goals')}</h2>
+              <p className="mt-2 text-sm text-[#B7BDC4]">{t('goalsHint')}</p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {WELLNESS_GOALS.map((goal) => (
                   <label key={goal.id} className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-[#F5F2EA]">
                     <input type="checkbox" checked={goals.includes(goal.id)} onChange={() => toggleGoal(goal.id)} className="accent-[#58D7D4]" />
-                    {goal.label}
+                    {t(goal.key)}
                   </label>
                 ))}
               </div>
@@ -164,11 +163,11 @@ export default function Onboarding() {
 
           {step === 2 && (
             <>
-              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">Dein Alltag</h2>
-              <p className="mt-2 text-sm text-[#B7BDC4]">Optional — hilft uns, passendere Hinweise zu geben.</p>
+              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">{t('daily')}</h2>
+              <p className="mt-2 text-sm text-[#B7BDC4]">{t('dailyHint')}</p>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Durchschnittliche Schlafdauer (Stunden)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('sleepHours')}</span>
                   <input
                     type="number"
                     step="0.5"
@@ -178,7 +177,7 @@ export default function Onboarding() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Bewegungstage pro Woche</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('movementDays')}</span>
                   <input
                     type="number"
                     min={0}
@@ -194,14 +193,14 @@ export default function Onboarding() {
 
           {step === 3 && (
             <>
-              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">Erste Gewohnheiten</h2>
-              <p className="mt-2 text-sm text-[#B7BDC4]">Optional — füge bis zu 3 Gewohnheiten hinzu, mit denen du starten willst.</p>
+              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">{t('habits')}</h2>
+              <p className="mt-2 text-sm text-[#B7BDC4]">{t('habitsHint')}</p>
               <div className="mt-4 flex gap-2">
                 <input
                   type="text"
                   value={newHabitName}
                   onChange={(e) => setNewHabitName(e.target.value)}
-                  placeholder="z. B. 20 Minuten spazieren"
+                  placeholder={t('habitPlaceholder')}
                   className="flex-1 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
                 />
                 <button
@@ -209,7 +208,7 @@ export default function Onboarding() {
                   disabled={habitNames.length >= 3}
                   className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Hinzufügen
+                  {t('add')}
                 </button>
               </div>
               <ul className="mt-4 space-y-2">
@@ -224,15 +223,15 @@ export default function Onboarding() {
 
           {step === 4 && !completed && (
             <>
-              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">Zusammenfassung</h2>
+              <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">{t('summary')}</h2>
               <div className="mt-4 space-y-3 text-sm text-[#B7BDC4]">
-                <p><span className="font-semibold text-[#F5F2EA]">Ziele:</span> {goals.length > 0 ? goals.map((g) => WELLNESS_GOALS.find((w) => w.id === g)?.label).join(', ') : 'übersprungen'}</p>
-                <p><span className="font-semibold text-[#F5F2EA]">Schlaf:</span> {sleepHours ? `${sleepHours} Std.` : 'übersprungen'}</p>
-                <p><span className="font-semibold text-[#F5F2EA]">Bewegungstage:</span> {movementDays || 'übersprungen'}</p>
-                <p><span className="font-semibold text-[#F5F2EA]">Gewohnheiten:</span> {habitNames.length > 0 ? habitNames.join(', ') : 'übersprungen'}</p>
+                <p><span className="font-semibold text-[#F5F2EA]">{t('goals')}:</span> {goals.length > 0 ? goals.map((g) => { const goal = WELLNESS_GOALS.find((w) => w.id === g); return goal ? t(goal.key) : g; }).join(', ') : t('skipped')}</p>
+                <p><span className="font-semibold text-[#F5F2EA]">{t('sleepHours')}:</span> {sleepHours ? `${sleepHours} ${t('hoursUnit')}` : t('skipped')}</p>
+                <p><span className="font-semibold text-[#F5F2EA]">{t('movementDays')}:</span> {movementDays || t('skipped')}</p>
+                <p><span className="font-semibold text-[#F5F2EA]">{t('habits')}:</span> {habitNames.length > 0 ? habitNames.join(', ') : t('skipped')}</p>
               </div>
               <p className="mt-4 text-xs text-[#8E969F]">
-                Du kannst alles jederzeit in deinem Profil anpassen.
+                {t('editAnytimeNote')}
               </p>
               {message && <p className="mt-3 text-sm text-red-300">{message}</p>}
             </>
@@ -241,35 +240,34 @@ export default function Onboarding() {
           {completed && (() => {
             const hasStartedData = Boolean(sleepHours || movementDays || habitNames.length > 0);
             const primaryAction = hasStartedData
-              ? { label: 'Frag deinen Twin', href: '/frag-deinen-twin' }
-              : { label: 'Ersten Check-in machen', href: '/dashboard/gewohnheiten' };
+              ? { isAskTwin: true, href: '/frag-deinen-twin' }
+              : { isAskTwin: false, href: '/dashboard/gewohnheiten' };
             return (
               <div className="text-center">
                 <VitalTwinMark variant="icon" theme="dark" className="mx-auto h-9 w-auto" />
-                <h2 className="mt-5 font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">Dein Twin ist bereit</h2>
+                <h2 className="mt-5 font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">{t('twinReady')}</h2>
                 <p className="mx-auto mt-3 max-w-md text-sm text-[#B7BDC4]">
-                  Dein Twin startet jetzt mit dem, was du ihm gegeben hast — und wird mit jedem Check-in, verbundenen
-                  Datenpunkt und Feedback persönlicher.
+                  {t('twinStartText')}
                 </p>
                 <p className="mx-auto mt-2 max-w-md text-sm text-[#B7BDC4]">
-                  Ab jetzt vergleicht er dich mit deiner eigenen Entwicklung — nicht mit anderen.
+                  {t('twinCompareText')}
                 </p>
                 <Link
                   href={primaryAction.href}
                   className="mt-6 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-8 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
                 >
-                  {primaryAction.label}
+                    {primaryAction.isAskTwin ? t('viewTwin') : t('firstCheckin')}
                 </Link>
                 <div className="mt-4 flex flex-wrap justify-center gap-3">
                   <Link href="/dashboard/gesundheitsdaten" className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60">
-                    Gesundheitsdaten verbinden
+                    {t('connectHealth')}
                   </Link>
                   <Link href="/dashboard/mein-twin" className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60">
-                    Mein Twin ansehen
+                    {t('viewTwin')}
                   </Link>
                 </div>
                 <Link href="/dashboard" className="mt-5 inline-block text-xs text-[#8E969F] underline hover:text-[#58D7D4]">
-                  Später zum Dashboard
+                  {t('laterDashboard')}
                 </Link>
               </div>
             );
@@ -282,14 +280,14 @@ export default function Onboarding() {
                 disabled={step === 0}
                 className="rounded-xl border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Zurück
+                {t('back')}
               </button>
               {step < STEP_LABELS.length - 1 ? (
                 <button
                   onClick={goNext}
                   className="rounded-xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-6 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
                 >
-                  Weiter
+                  {t('next')}
                 </button>
               ) : (
                 <button
@@ -297,7 +295,7 @@ export default function Onboarding() {
                   disabled={saving}
                   className="rounded-xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-6 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  {saving ? 'Speichere...' : 'Fertig'}
+                  {saving ? 'Saving...' : t('finish')}
                 </button>
               )}
             </div>

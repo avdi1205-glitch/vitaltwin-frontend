@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
+import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import GoogleHealthConnect from '../../components/GoogleHealthConnect';
 import HealthConnectSync from '../../components/HealthConnectSync';
 
-export const metadata: Metadata = {
-  title: 'Gesundheitsdaten',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('health');
+  return { title: t('title') };
+}
 
 /**
  * Gesundheitsdaten is the CATEGORY (nav label, room for future sources);
@@ -16,17 +19,17 @@ export const metadata: Metadata = {
  * (Health Connect Phase 2.2), never an empty heading with no controls.
  */
 export default function GesundheitsdatenPage() {
+  const t = useTranslations('health');
   return (
     <section className="mt-8 scroll-mt-24">
       <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">
-        Gesundheitsdaten
+        {t('title')}
       </p>
       <h1 className="mt-2 font-[family-name:var(--font-serif-display)] text-4xl font-semibold text-[#F5F2EA] md:text-6xl">
         Google Health
       </h1>
       <p className="mt-4 max-w-2xl text-[#B7BDC4]">
-        Verbinde und synchronisiere deine Gesundheitsdaten mit VitalTwin — heute über Google Health, Basis für
-        weitere Datenquellen in Zukunft.
+        {t('pageIntro')}
       </p>
 
       <div className="mt-8">

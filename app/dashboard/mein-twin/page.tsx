@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import { DEFAULT_TWIN_FORM } from '@/lib/twin-defaults';
 import DashboardAdvancedTwinOverview from '../../components/dashboard-advanced-twin-overview';
@@ -50,6 +51,7 @@ type HistoryItem = {
  * Liste lebt auf /dashboard/verlauf.
  */
 export default function MeinTwinPage() {
+  const t = useTranslations('meinTwin');
   const { profile, loadingProfile, setProfile } = useDashboardShell();
   const [form, setForm] = useState({ ...DEFAULT_TWIN_FORM });
   const [showMoreMarkers, setShowMoreMarkers] = useState(false);
@@ -108,7 +110,7 @@ export default function MeinTwinPage() {
         if (typeof detail === 'string' && detail.toLowerCase().includes('starter')) {
           return;
         }
-        setErrorMessage(detail || 'Berechnung fehlgeschlagen.');
+        setErrorMessage(detail || t('calcFailedError'));
         return;
       }
 
@@ -118,11 +120,11 @@ export default function MeinTwinPage() {
       }
       if (token) void fetchLatest(token);
     } catch {
-      setErrorMessage('Berechnung aktuell nicht verfügbar. Bitte prüfe die API-Verbindung.');
+      setErrorMessage(t('calcUnavailableError'));
     } finally {
       setLoading(false);
     }
-  }, [familyContext, fetchLatest, form, profile, setProfile]);
+  }, [familyContext, fetchLatest, form, profile, setProfile, t]);
 
   const displayedTwin: TwinResponse | null = twin ?? (latest
     ? {
@@ -133,11 +135,11 @@ export default function MeinTwinPage() {
         optimiert: latest.scenarios?.optimiert ?? latest.biologisches_alter,
         aggressiv: latest.scenarios?.aggressiv ?? latest.biologisches_alter,
       },
-      methodik: { typ: 'Wellness-Orientierung', hinweis: 'Angezeigt wird deine letzte gespeicherte Berechnung.' },
+      methodik: { typ: t('wellnessOrientation'), hinweis: t('lastCalcHint') },
       marker_references: [],
       empfehlungen: [
-        'Achte auf Schlaf, Stressmanagement und regelmäßige Bewegung.',
-        'Kontrolliere deine Marker regelmäßig für bessere Vergleichbarkeit.',
+        t('fallbackRec1'),
+        t('fallbackRec2'),
       ],
     }
     : null);
@@ -145,7 +147,7 @@ export default function MeinTwinPage() {
   const submitFeedback = async () => {
     setFeedbackMessage('');
     if (feedbackText.trim().length < 5) {
-      setFeedbackMessage('Bitte gib mindestens 5 Zeichen Feedback ein.');
+      setFeedbackMessage(t('feedbackMinLength'));
       return;
     }
     const token = localStorage.getItem('token');
@@ -160,14 +162,14 @@ export default function MeinTwinPage() {
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setFeedbackMessage(data?.detail ?? 'Feedback konnte nicht gesendet werden.');
+        setFeedbackMessage(data?.detail ?? t('feedbackSendError'));
         return;
       }
       setFeedbackText('');
       setFeedbackScore(5);
-      setFeedbackMessage(data?.message ?? 'Danke für dein Feedback!');
+      setFeedbackMessage(data?.message ?? t('feedbackThanksDefault'));
     } catch {
-      setFeedbackMessage('Feedback-Service gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setFeedbackMessage(t('feedbackUnavailable'));
     } finally {
       setSendingFeedback(false);
     }
@@ -179,26 +181,26 @@ export default function MeinTwinPage() {
         {!loadingProfile && profile && !profile.premium && (
           <div className="mb-6 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#F5F2EA]">
             {profile?.starter_calc_remaining === 0
-              ? 'Starter-Limit: 1 von 1 Berechnung wurde bereits genutzt.'
-              : 'Starter-Limit: Du hast genau 1 von 1 Berechnung verfügbar.'}
+              ? t('starterLimitUsed')
+              : t('starterLimitAvailable')}
           </div>
         )}
         {!loadingProfile && profile && !profile.premium && (
           <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-[#F5F2EA]">
             {profile?.starter_calc_remaining === 0
-              ? 'Deine einmalige Starter-Berechnung wurde bereits genutzt. Für weitere Berechnungen, Verlauf und Detailquellen aktiviere den Beta-Zugang.'
-              : 'Starter enthält eine einmalige Twin-Berechnung mit Basis-Empfehlungen. Für Verlauf, Detailquellen und unbegrenzte Simulationen aktiviere den Beta-Zugang.'}
+              ? t('starterUsedNotice')
+              : t('starterOnceNotice')}
           </div>
         )}
 
         <div className="mb-6">
-          <h1 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">Marker-Eingabe</h1>
-          <p className="mt-2 text-sm text-[#8E969F]">Aktualisiere deine Biomarker und starte eine neue Twin-Berechnung.</p>
+          <h1 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">{t('title')}</h1>
+          <p className="mt-2 text-sm text-[#8E969F]">{t('subtitle')}</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block">
-            <span className="mb-2 block text-sm text-[#B7BDC4]">Alter</span>
+            <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldAge')}</span>
             <input
               type="number"
               value={form.age === 0 ? '' : form.age}
@@ -208,18 +210,18 @@ export default function MeinTwinPage() {
             />
           </label>
           <label className="block">
-            <span className="mb-2 block text-sm text-[#B7BDC4]">Geschlecht</span>
+            <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldGender')}</span>
             <select
               value={form.gender}
               onChange={(e) => setForm({ ...form, gender: e.target.value })}
               className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             >
-              <option value="männlich">Männlich</option>
-              <option value="weiblich">Weiblich</option>
+              <option value="männlich">{t('genderMale')}</option>
+              <option value="weiblich">{t('genderFemale')}</option>
             </select>
           </label>
           <label className="block">
-            <span className="mb-2 block text-sm text-[#B7BDC4]">HbA1c</span>
+            <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldHba1c')}</span>
             <input
               type="number"
               step="0.1"
@@ -230,7 +232,7 @@ export default function MeinTwinPage() {
             />
           </label>
           <label className="block">
-            <span className="mb-2 block text-sm text-[#B7BDC4]">CRP</span>
+            <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldCrp')}</span>
             <input
               type="number"
               step="0.1"
@@ -241,7 +243,7 @@ export default function MeinTwinPage() {
             />
           </label>
           <label className="block">
-            <span className="mb-2 block text-sm text-[#B7BDC4]">Vitamin D</span>
+            <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldVitaminD')}</span>
             <input
               type="number"
               value={form.vitamin_d === 0 ? '' : form.vitamin_d}
@@ -251,7 +253,7 @@ export default function MeinTwinPage() {
             />
           </label>
           <label className="block">
-            <span className="mb-2 block text-sm text-[#B7BDC4]">ApoB</span>
+            <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldApob')}</span>
             <input
               type="number"
               value={form.apob === 0 ? '' : form.apob}
@@ -267,16 +269,16 @@ export default function MeinTwinPage() {
           onClick={() => setShowMoreMarkers((current) => !current)}
           className="mt-4 text-sm font-semibold text-[#B7BDC4] underline hover:text-[#58D7D4]"
         >
-          {showMoreMarkers ? 'Weitere Marker ausblenden' : 'Weitere Marker anzeigen (optional)'}
+          {showMoreMarkers ? t('hideMoreMarkers') : t('showMoreMarkers')}
         </button>
 
         {showMoreMarkers && (
           <div className="mt-4 space-y-5">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">Weitere Blutwerte</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">{t('moreBloodValuesTitle')}</p>
               <div className="mt-3 grid gap-4 md:grid-cols-2">
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Nüchternglukose (mg/dL)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldFastingGlucose')}</span>
                   <input
                     type="number"
                     value={form.fasting_glucose === 0 ? '' : form.fasting_glucose}
@@ -286,7 +288,7 @@ export default function MeinTwinPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">HDL-Cholesterin (mg/dL)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldHdl')}</span>
                   <input
                     type="number"
                     value={form.hdl === 0 ? '' : form.hdl}
@@ -296,7 +298,7 @@ export default function MeinTwinPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Triglyceride (mg/dL)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldTriglycerides')}</span>
                   <input
                     type="number"
                     value={form.triglycerides === 0 ? '' : form.triglycerides}
@@ -306,7 +308,7 @@ export default function MeinTwinPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Homocystein (µmol/L)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldHomocysteine')}</span>
                   <input
                     type="number"
                     step="0.1"
@@ -317,7 +319,7 @@ export default function MeinTwinPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">TSH (mIU/L)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldTsh')}</span>
                   <input
                     type="number"
                     step="0.1"
@@ -328,7 +330,7 @@ export default function MeinTwinPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Ferritin (ng/mL)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldFerritin')}</span>
                   <input
                     type="number"
                     value={form.ferritin === 0 ? '' : form.ferritin}
@@ -338,7 +340,7 @@ export default function MeinTwinPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Vitamin B12 (pg/mL)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldVitaminB12')}</span>
                   <input
                     type="number"
                     value={form.vitamin_b12 === 0 ? '' : form.vitamin_b12}
@@ -348,7 +350,7 @@ export default function MeinTwinPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Omega-3-Index (%)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldOmega3')}</span>
                   <input
                     type="number"
                     step="0.1"
@@ -362,10 +364,10 @@ export default function MeinTwinPage() {
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">Vitalwerte &amp; Sonstiges</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">{t('vitalsOtherTitle')}</p>
               <div className="mt-3 grid gap-4 md:grid-cols-2">
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Ruhepuls (bpm)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldRestingHeartRate')}</span>
                   <input
                     type="number"
                     value={form.resting_heart_rate === 0 ? '' : form.resting_heart_rate}
@@ -375,7 +377,7 @@ export default function MeinTwinPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Blutdruck systolisch (mmHg)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldBpSystolic')}</span>
                   <input
                     type="number"
                     value={form.blood_pressure_systolic === 0 ? '' : form.blood_pressure_systolic}
@@ -385,7 +387,7 @@ export default function MeinTwinPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Blutdruck diastolisch (mmHg)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldBpDiastolic')}</span>
                   <input
                     type="number"
                     value={form.blood_pressure_diastolic === 0 ? '' : form.blood_pressure_diastolic}
@@ -395,7 +397,7 @@ export default function MeinTwinPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Taillenumfang (cm)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldWaist')}</span>
                   <input
                     type="number"
                     value={form.waist_circumference === 0 ? '' : form.waist_circumference}
@@ -405,7 +407,7 @@ export default function MeinTwinPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Schlafdauer (h/Nacht)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldSleepHours')}</span>
                   <input
                     type="number"
                     step="0.1"
@@ -416,7 +418,7 @@ export default function MeinTwinPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-sm text-[#B7BDC4]">Griffkraft (kg)</span>
+                  <span className="mb-2 block text-sm text-[#B7BDC4]">{t('fieldGripStrength')}</span>
                   <input
                     type="number"
                     value={form.grip_strength === 0 ? '' : form.grip_strength}
@@ -431,9 +433,9 @@ export default function MeinTwinPage() {
         )}
 
         <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.02] p-4">
-          <p className="text-sm font-semibold text-[#F5F2EA]">Familienkontext (optional)</p>
+          <p className="text-sm font-semibold text-[#F5F2EA]">{t('familyContextTitle')}</p>
           <p className="mt-1 text-xs text-[#8E969F]">
-            Rein für die Priorisierung deiner Wellness-Empfehlungen &mdash; keine Diagnose, keine Risikoeinstufung.
+            {t('familyContextHint')}
           </p>
           <div className="mt-3 flex flex-wrap gap-4 text-sm text-[#F5F2EA]">
             <label className="flex items-center gap-2">
@@ -447,7 +449,7 @@ export default function MeinTwinPage() {
                 }
                 className="h-4 w-4 rounded border-white/20 bg-white/5 accent-[#58D7D4]"
               />
-              Herz-Kreislauf in der Familie
+              {t('familyContextHeart')}
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -460,7 +462,7 @@ export default function MeinTwinPage() {
                 }
                 className="h-4 w-4 rounded border-white/20 bg-white/5 accent-[#58D7D4]"
               />
-              Stoffwechsel/Diabetes in der Familie
+              {t('familyContextMetabolic')}
             </label>
           </div>
         </div>
@@ -473,40 +475,40 @@ export default function MeinTwinPage() {
           className="mt-6 w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-4 text-lg font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {loading
-            ? 'Berechne Twin...'
+            ? t('calculating')
             : (loadingProfile || !profile)
-              ? 'Profil wird geladen...'
+              ? t('loadingProfile')
               : (!profile.premium && profile.starter_calc_remaining === 0)
-                ? 'Starter-Limit erreicht'
-                : 'Twin neu berechnen'}
+                ? t('limitReached')
+                : t('recalculate')}
         </button>
 
         {!loadingProfile && profile && !profile.premium && profile?.starter_calc_remaining === 1 && (
-          <p className="mt-3 text-sm text-[#B7BDC4]">Hinweis: Im Starter ist genau eine Berechnung möglich.</p>
+          <p className="mt-3 text-sm text-[#B7BDC4]">{t('starterOneCalcHint')}</p>
         )}
 
         {displayedTwin?.methodik && (
-          <p className="mt-4 text-xs text-[#8E969F]">Methodik: {displayedTwin.methodik.typ} · {displayedTwin.methodik.hinweis}</p>
+          <p className="mt-4 text-xs text-[#8E969F]">{t('methodikLabel')} {displayedTwin.methodik.typ} · {displayedTwin.methodik.hinweis}</p>
         )}
       </div>
 
       <div className="space-y-6">
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-          <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">Analyse</h2>
-          <p className="mt-2 text-sm text-[#8E969F]">Deine aktuelle Auswertung inklusive Vergleichsszenarien.</p>
+          <h2 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA]">{t('analysisTitle')}</h2>
+          <p className="mt-2 text-sm text-[#8E969F]">{t('analysisSubtitle')}</p>
 
           {!loadingLatest && !displayedTwin && (
             <div className="mt-6 rounded-2xl border border-dashed border-white/20 bg-white/[0.02] p-6 text-[#B7BDC4]">
               {!profile?.premium && profile?.starter_calc_remaining === 0
-                ? 'Starter-Berechnung bereits genutzt. Aktiviere den Beta-Zugang, um hier wieder Ergebnisse und Szenarien zu sehen.'
-                : 'Starte deine erste Berechnung, um hier Ergebnisse und Szenarien zu sehen.'}
+                ? t('emptyStarterUsed')
+                : t('emptyFirstCalc')}
             </div>
           )}
 
           {displayedTwin && (
             <>
               <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-                <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">Auf einen Blick</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-[#8E969F]">{t('atGlanceTitle')}</p>
                 <ul className="mt-3 space-y-2 text-sm text-[#F5F2EA]">
                   {displayedTwin.empfehlungen.slice(0, 3).map((item) => (
                     <li key={item} className="flex gap-2">
@@ -520,20 +522,20 @@ export default function MeinTwinPage() {
                 )}
               </div>
 
-              <p className="mt-6 font-[family-name:var(--font-serif-display)] text-5xl font-semibold text-[#F5F2EA]">{displayedTwin.biologisches_alter} Jahre</p>
-              <p className="mt-2 text-[#B7BDC4]">Abweichung vom chronologischen Alter: {displayedTwin.differenz > 0 ? '+' : ''}{displayedTwin.differenz} Jahre</p>
+              <p className="mt-6 font-[family-name:var(--font-serif-display)] text-5xl font-semibold text-[#F5F2EA]">{displayedTwin.biologisches_alter} {t('ageResultSuffix')}</p>
+              <p className="mt-2 text-[#B7BDC4]">{t('deviationLabel')} {displayedTwin.differenz > 0 ? '+' : ''}{displayedTwin.differenz} {t('ageResultSuffix')}</p>
 
               <div className="mt-6 grid grid-cols-3 gap-3 text-center text-sm">
                 <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3">
-                  <p className="text-[#8E969F]">Aktuell</p>
+                  <p className="text-[#8E969F]">{t('scenarioCurrent')}</p>
                   <p className="mt-1 text-lg font-semibold text-[#F5F2EA]">{displayedTwin.scenarios.aktuell}</p>
                 </div>
                 <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3">
-                  <p className="text-[#8E969F]">Optimiert</p>
+                  <p className="text-[#8E969F]">{t('scenarioOptimized')}</p>
                   <p className="mt-1 text-lg font-semibold text-[#F5F2EA]">{displayedTwin.scenarios.optimiert}</p>
                 </div>
                 <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3">
-                  <p className="text-[#8E969F]">Aggressiv</p>
+                  <p className="text-[#8E969F]">{t('scenarioAggressive')}</p>
                   <p className="mt-1 text-lg font-semibold text-[#F5F2EA]">{displayedTwin.scenarios.aggressiv}</p>
                 </div>
               </div>
@@ -542,12 +544,12 @@ export default function MeinTwinPage() {
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-          <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Empfehlungen</h3>
+          <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('recommendationsTitle')}</h3>
           <ul className="mt-4 space-y-3 text-[#F5F2EA]">
             {(displayedTwin?.empfehlungen ?? [
-              'Schließe eine Berechnung ab, um personalisierte Empfehlungen zu erhalten.',
-              'Achte auf Schlaf, Stressmanagement und regelmäßige Bewegung.',
-              'Kontrolliere Marker regelmäßig und tracke Verbesserungen im Dashboard.',
+              t('defaultRec1'),
+              t('defaultRec2'),
+              t('defaultRec3'),
             ]).map((item) => (
               <li key={item} className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3">
                 {item}
@@ -558,22 +560,22 @@ export default function MeinTwinPage() {
 
         {loadingProfile ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-            <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Wellness-Szenarien</h3>
-            <p className="mt-2 text-sm text-[#8E969F]">Lädt...</p>
+            <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('wellnessScenariosTitle')}</h3>
+            <p className="mt-2 text-sm text-[#8E969F]">{t('wellnessScenariosLoading')}</p>
           </div>
         ) : profile && (profile.plan === 'pro' || profile.plan === 'family') ? (
           <DashboardLifestyleSimulation />
         ) : (
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-            <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Wellness-Szenarien</h3>
+            <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('wellnessScenariosTitle')}</h3>
             <p className="mt-2 text-sm text-[#8E969F]">
-              Simuliere rein rechnerisch, wie sich dein eigener 7-Tage-Durchschnitt verändern würde — ein Pro-Feature.
+              {t('wellnessScenariosProText')}
             </p>
             <a
               href="/preise"
               className="mt-4 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
             >
-              Pro ansehen
+              {t('viewPro')}
             </a>
           </div>
         )}
@@ -584,23 +586,23 @@ export default function MeinTwinPage() {
 
         <p className="-mt-2 text-sm text-[#B7BDC4]">
           <a href="/dashboard/verlauf" className="font-semibold text-[#58D7D4] underline hover:text-[#F3C979]">
-            Deine Trends &amp; Baselines ansehen → Verlauf
+            {t('trendsLink')}
           </a>
         </p>
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-          <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Referenzdaten & Quellen</h3>
-          <p className="mt-2 text-sm text-[#8E969F]">Transparente Referenzbereiche aus veröffentlichten Leitlinien und Fachquellen.</p>
+          <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('referencesTitle')}</h3>
+          <p className="mt-2 text-sm text-[#8E969F]">{t('referencesSubtitle')}</p>
 
           {!loadingProfile && profile && !profile.premium && (
             <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-[#F5F2EA]">
-              Detailquellen sind im Beta-Zugang verfügbar.
+              {t('referencesBetaNotice')}
             </p>
           )}
 
           {(profile?.premium && (!displayedTwin?.marker_references || displayedTwin.marker_references.length === 0)) && (
             <p className="mt-4 rounded-xl border border-dashed border-white/20 bg-white/[0.02] px-4 py-3 text-[#8E969F]">
-              Referenzdaten werden nach der ersten Berechnung angezeigt.
+              {t('referencesEmptyAfterCalc')}
             </p>
           )}
 
@@ -609,11 +611,11 @@ export default function MeinTwinPage() {
               {displayedTwin.marker_references.map((ref) => (
                 <div key={ref.marker} className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3">
                   <p className="text-sm font-semibold text-[#F5F2EA]">
-                    {ref.marker.toUpperCase()} · Zielbereich {ref.target_min ?? '-'} bis {ref.target_max ?? '-'} {ref.unit}
+                    {ref.marker.toUpperCase()} · {t('targetRangeLabel')} {ref.target_min ?? '-'} {t('toLabel')} {ref.target_max ?? '-'} {ref.unit}
                   </p>
-                  <p className="mt-1 text-xs text-[#B7BDC4]">Population: {ref.population_note} · Evidenz: {ref.evidence_level}</p>
+                  <p className="mt-1 text-xs text-[#B7BDC4]">{t('populationLabel')} {ref.population_note} · {t('evidenceLabel')} {ref.evidence_level}</p>
                   <a href={ref.source_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs text-[#58D7D4] hover:underline">
-                    Quelle: {ref.source_name}
+                    {t('sourceLabel')} {ref.source_name}
                   </a>
                 </div>
               ))}
@@ -622,23 +624,23 @@ export default function MeinTwinPage() {
         </div>
 
         <div id="feedback" className="scroll-mt-24 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
-          <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Feedback zur Beta</h3>
+          <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('feedbackTitle')}</h3>
           <p className="mt-2 text-sm text-[#8E969F]">
-            Was war hilfreich und was sollten wir verbessern? Dein Feedback fließt direkt in die nächsten Releases.
+            {t('feedbackIntro')}
           </p>
 
           <div className="mt-4 grid gap-3 sm:grid-cols-[160px_1fr] sm:items-center">
-            <label className="text-sm text-[#B7BDC4]">Bewertung (1-5)</label>
+            <label className="text-sm text-[#B7BDC4]">{t('ratingLabel')}</label>
             <select
               value={feedbackScore}
               onChange={(e) => setFeedbackScore(Number(e.target.value))}
               className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
             >
-              <option value={5}>5 - Sehr gut</option>
-              <option value={4}>4 - Gut</option>
-              <option value={3}>3 - Okay</option>
-              <option value={2}>2 - Schwach</option>
-              <option value={1}>1 - Schlecht</option>
+              <option value={5}>{t('rating5')}</option>
+              <option value={4}>{t('rating4')}</option>
+              <option value={3}>{t('rating3')}</option>
+              <option value={2}>{t('rating2')}</option>
+              <option value={1}>{t('rating1')}</option>
             </select>
           </div>
 
@@ -646,7 +648,7 @@ export default function MeinTwinPage() {
             value={feedbackText}
             onChange={(e) => setFeedbackText(e.target.value)}
             rows={4}
-            placeholder="Z. B. 'Simulation ist stark, aber ich wünsche mir mehr Erklärung zu Marker X.'"
+            placeholder={t('feedbackPlaceholder')}
             className="mt-4 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[#F5F2EA] placeholder:text-[#6B7480] focus:border-[#58D7D4] focus:outline-none"
           />
 
@@ -656,7 +658,7 @@ export default function MeinTwinPage() {
               disabled={sendingFeedback}
               className="rounded-xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {sendingFeedback ? 'Sende...' : 'Feedback senden'}
+              {sendingFeedback ? t('sendingFeedback') : t('sendFeedback')}
             </button>
             {feedbackMessage && <p className="text-sm text-[#B7BDC4]">{feedbackMessage}</p>}
           </div>

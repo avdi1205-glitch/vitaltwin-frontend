@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type ChatStatus = {
@@ -18,6 +19,7 @@ type ChatStatus = {
  * counter, so the shown limit always reflects the caller's own real tier.
  */
 export default function DashboardChatUsage() {
+  const t = useTranslations('chatUsage');
   const [status, setStatus] = useState<ChatStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -48,13 +50,13 @@ export default function DashboardChatUsage() {
 
   return (
     <p className="mt-3 text-xs text-[#8E969F]">
-      {status.used_today} von {status.daily_limit} KI-Fragen heute verwendet
+      {status.used_today} {t('usedOf')} {status.daily_limit} {t('usedSuffix')}
       {status.remaining_today <= 0 && (
         <>
           {' '}
-          — Limit erreicht.{' '}
+          — {t('limitReached')}{' '}
           <Link href="/preise" className="text-[#58D7D4] underline hover:text-[#F3C979]">
-            Für mehr Anfragen upgraden
+            {t('upgradeForMore')}
           </Link>
         </>
       )}

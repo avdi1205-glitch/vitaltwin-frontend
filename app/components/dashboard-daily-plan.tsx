@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type PlanAction = {
@@ -40,6 +41,7 @@ const EMPTY_REFLECTION: DailyReflection = {
  * gehalten ("keine Informationsflut"/"keine Überladung").
  */
 export default function DashboardDailyPlan() {
+  const t = useTranslations('dailyPlan');
   const [actions, setActions] = useState<PlanAction[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -63,7 +65,7 @@ export default function DashboardDailyPlan() {
       const planData = await planResponse.json().catch(() => null);
       const reflectionData = await reflectionResponse.json().catch(() => null);
       if (!planResponse.ok) {
-        setErrorMessage('Tagesplan konnte nicht geladen werden.');
+        setErrorMessage(t('loadError'));
         return;
       }
       setActions(Array.isArray(planData?.actions) ? planData.actions : []);
@@ -79,11 +81,11 @@ export default function DashboardDailyPlan() {
         setReflectionSaved(true);
       }
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
-  }, [authHeader]);
+  }, [authHeader, t]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -101,7 +103,7 @@ export default function DashboardDailyPlan() {
       });
       await loadPlan();
     } catch {
-      setErrorMessage('Entscheidung konnte nicht gespeichert werden.');
+      setErrorMessage(t('decisionError'));
     }
   };
 
@@ -113,7 +115,7 @@ export default function DashboardDailyPlan() {
       });
       await loadPlan();
     } catch {
-      setErrorMessage('Aktion konnte nicht als erledigt markiert werden.');
+      setErrorMessage(t('completeError'));
     }
   };
 
@@ -129,7 +131,7 @@ export default function DashboardDailyPlan() {
       setAdjustedText('');
       await loadPlan();
     } catch {
-      setErrorMessage('Anpassung konnte nicht gespeichert werden.');
+      setErrorMessage(t('adjustError'));
     }
   };
 
@@ -142,14 +144,14 @@ export default function DashboardDailyPlan() {
       });
       setReflectionSaved(true);
     } catch {
-      setErrorMessage('Reflexion konnte nicht gespeichert werden.');
+      setErrorMessage(t('reflectionError'));
     }
   };
 
   if (loading) {
     return (
       <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <p className="text-sm text-[#8E969F]">Lade deinen heutigen Plan...</p>
+        <p className="text-sm text-[#8E969F]">{t('loading')}</p>
       </article>
     );
   }
@@ -157,13 +159,13 @@ export default function DashboardDailyPlan() {
   return (
     <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
-        Dein heutiger Plan
+        {t('title')}
       </h3>
       {errorMessage && <p className="mt-2 text-xs text-red-300">{errorMessage}</p>}
 
       {actions.length === 0 ? (
         <p className="mt-3 text-sm text-[#B7BDC4]">
-          Noch nicht genügend Daten für einen Tagesplan. Trag ein paar Check-ins, Ziele oder Gewohnheiten ein.
+          {t('empty')}
         </p>
       ) : (
         <div className="mt-4 space-y-3">
@@ -174,12 +176,12 @@ export default function DashboardDailyPlan() {
                   {action.user_adjusted_description || action.description}
                 </p>
                 <span className="rounded-full border border-white/15 px-2 py-0.5 text-[10px] uppercase tracking-wide text-[#8E969F]">
-                  {action.priority === 'high' ? 'Hoch' : action.priority === 'medium' ? 'Mittel' : 'Niedrig'}
+                  {action.priority === 'high' ? t('priorityHigh') : action.priority === 'medium' ? t('priorityMedium') : t('priorityLow')}
                 </span>
               </div>
               {action.reasoning && <p className="mt-1 text-xs text-[#8E969F]">{action.reasoning}</p>}
-              {action.estimated_effort && <p className="mt-1 text-xs text-[#6B7480]">Aufwand: {action.estimated_effort}</p>}
-              {action.carried_over && <p className="mt-1 text-xs text-[#58D7D4]">Von gestern noch offen</p>}
+              {action.estimated_effort && <p className="mt-1 text-xs text-[#6B7480]">{t('effort')} {action.estimated_effort}</p>}
+              {action.carried_over && <p className="mt-1 text-xs text-[#58D7D4]">{t('carriedOver')}</p>}
 
               {action.status === 'proposed' && (
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -187,7 +189,7 @@ export default function DashboardDailyPlan() {
                     onClick={() => void decide(action.id, 'accepted')}
                     className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-1.5 text-xs font-semibold text-[#0B1118] transition hover:brightness-110"
                   >
-                    Übernehmen
+                    {t('accept')}
                   </button>
                   <button
                     onClick={() => {
@@ -196,13 +198,13 @@ export default function DashboardDailyPlan() {
                     }}
                     className="rounded-full border border-white/20 px-4 py-1.5 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60"
                   >
-                    Anpassen
+                    {t('adjust')}
                   </button>
                   <button
                     onClick={() => void decide(action.id, 'rejected')}
                     className="rounded-full border border-red-400/25 px-4 py-1.5 text-xs text-red-300 transition hover:bg-red-400/10"
                   >
-                    Ablehnen
+                    {t('reject')}
                   </button>
                 </div>
               )}
@@ -213,11 +215,11 @@ export default function DashboardDailyPlan() {
                     onClick={() => void complete(action.id)}
                     className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-1.5 text-xs font-semibold text-[#0B1118] transition hover:brightness-110"
                   >
-                    Erledigt
+                    {t('complete')}
                   </button>
                 </div>
               )}
-              {action.status === 'completed' && <p className="mt-2 text-xs text-[#58D7D4]">Erledigt ✓</p>}
+              {action.status === 'completed' && <p className="mt-2 text-xs text-[#58D7D4]">{t('completedStatus')}</p>}
 
               {adjustingId === action.id && (
                 <div className="mt-3 flex flex-col gap-2 sm:flex-row">
@@ -232,7 +234,7 @@ export default function DashboardDailyPlan() {
                     disabled={!adjustedText.trim()}
                     className="rounded-xl border border-white/20 px-4 py-2 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Speichern
+                    {t('save')}
                   </button>
                 </div>
               )}
@@ -246,35 +248,35 @@ export default function DashboardDailyPlan() {
           onClick={() => setShowReflection(!showReflection)}
           className="text-sm font-semibold text-[#8E969F] underline hover:text-[#58D7D4]"
         >
-          {showReflection ? 'Abendreflexion ausblenden' : reflectionSaved ? 'Abendreflexion bearbeiten' : 'Abendreflexion starten'}
+          {showReflection ? t('hideReflection') : reflectionSaved ? t('editReflection') : t('startReflection')}
         </button>
 
         {showReflection && (
           <div className="mt-3 space-y-2">
             <input
               type="text"
-              placeholder="Was wurde erledigt?"
+              placeholder={t('reflectWhat')}
               value={reflection.completed_summary}
               onChange={(e) => setReflection({ ...reflection, completed_summary: e.target.value })}
               className="w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#F5F2EA] placeholder:text-[#6B7480] focus:border-[#58D7D4] focus:outline-none"
             />
             <input
               type="text"
-              placeholder="Was war hilfreich?"
+              placeholder={t('reflectHelpful')}
               value={reflection.helpful_note}
               onChange={(e) => setReflection({ ...reflection, helpful_note: e.target.value })}
               className="w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#F5F2EA] placeholder:text-[#6B7480] focus:border-[#58D7D4] focus:outline-none"
             />
             <input
               type="text"
-              placeholder="Was war zu schwierig?"
+              placeholder={t('reflectDifficult')}
               value={reflection.difficult_note}
               onChange={(e) => setReflection({ ...reflection, difficult_note: e.target.value })}
               className="w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#F5F2EA] placeholder:text-[#6B7480] focus:border-[#58D7D4] focus:outline-none"
             />
             <input
               type="text"
-              placeholder="Was soll morgen anders sein?"
+              placeholder={t('reflectTomorrow')}
               value={reflection.tomorrow_change}
               onChange={(e) => setReflection({ ...reflection, tomorrow_change: e.target.value })}
               className="w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#F5F2EA] placeholder:text-[#6B7480] focus:border-[#58D7D4] focus:outline-none"
@@ -283,9 +285,9 @@ export default function DashboardDailyPlan() {
               onClick={() => void submitReflection()}
               className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-1.5 text-xs font-semibold text-[#0B1118] transition hover:brightness-110"
             >
-              Reflexion speichern
+              {t('saveReflection')}
             </button>
-            {reflectionSaved && <p className="text-xs text-[#8E969F]">Gespeichert.</p>}
+            {reflectionSaved && <p className="text-xs text-[#8E969F]">{t('saved')}</p>}
           </div>
         )}
       </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import VitalTwinMark from '../brand/VitalTwinMark';
 import HumanMetricsCard from './HumanMetricsCard';
 import TwinMetricsCard from './TwinMetricsCard';
@@ -25,6 +26,8 @@ type VitalTwinHeroProps = {
  * (matching the reference design, which has no separate hero CTA buttons).
  */
 export default function VitalTwinHero({ onOpenRegister }: VitalTwinHeroProps) {
+  const t = useTranslations('hero');
+
   return (
     <section className="relative overflow-hidden bg-[#0B1118]">
       {/* Decorative background: dezent gold particle field (left) + teal data grid (right). Never affects readability. */}
@@ -67,10 +70,10 @@ export default function VitalTwinHero({ onOpenRegister }: VitalTwinHeroProps) {
             VITALTWIN
           </p>
           <h1 className="mt-4 max-w-3xl font-[family-name:var(--font-serif-display)] text-4xl font-semibold text-[#F5F2EA] sm:text-5xl md:text-6xl">
-            Du &amp; dein KI-Zwilling
+            {t('title')}
           </h1>
           <p className="mt-3 font-[family-name:var(--font-mono-technical)] text-sm font-medium uppercase tracking-[0.5em] text-[#8E969F]">
-            Im Takt
+            {t('inTakt')}
           </p>
         </div>
 

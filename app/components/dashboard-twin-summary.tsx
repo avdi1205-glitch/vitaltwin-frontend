@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type GoogleHealthStatus = {
@@ -43,6 +44,8 @@ const TOTAL_TWIN_DOMAINS = 7;
  * on (Premium UX Polish round).
  */
 export default function DashboardTwinSummary({ hasCheckinToday, hasBiomarkerTwin, isPremium }: DashboardTwinSummaryProps) {
+  const t = useTranslations('dashboard');
+  const locale = useLocale();
   const [googleConnected, setGoogleConnected] = useState<boolean | null>(null);
   const [evolution, setEvolution] = useState<TwinEvolutionSummary | null>(null);
 
@@ -70,7 +73,7 @@ export default function DashboardTwinSummary({ hasCheckinToday, hasBiomarkerTwin
     const token = localStorage.getItem('token');
     if (!token) return;
     try {
-      const response = await fetch(apiUrl('/api/profile/twin-evolution'), {
+      const response = await fetch(apiUrl(`/api/profile/twin-evolution?locale=${locale}`), {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -79,7 +82,7 @@ export default function DashboardTwinSummary({ hasCheckinToday, hasBiomarkerTwin
     } catch {
       // Non-fatal — the insight strip simply stays in its loading state.
     }
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -92,46 +95,46 @@ export default function DashboardTwinSummary({ hasCheckinToday, hasBiomarkerTwin
   const activeDomains = [hasCheckinToday, hasBiomarkerTwin, Boolean(googleConnected)].filter(Boolean).length;
 
   const changeText = !evolution
-    ? 'Lädt…'
+    ? t('loading')
     : evolution.comparison.available && evolution.comparison.explanations.length > 0
       ? evolution.comparison.explanations[0]
-      : (evolution.comparison.reason ?? 'Noch keine Veränderung seit deiner letzten Aufzeichnung erkennbar.');
+      : (evolution.comparison.reason ?? t('noData'));
 
   const missingCount = evolution?.data_quality_summary?.missing ?? null;
   const missingText =
     missingCount === null
-      ? 'Lädt…'
+      ? t('loading')
       : missingCount === 0
-        ? `Alle ${TOTAL_TWIN_DOMAINS} Twin-Bereiche liefern bereits Daten.`
-        : `${missingCount} von ${TOTAL_TWIN_DOMAINS} Twin-Bereichen haben noch keine Daten.`;
+        ? t('allDomainsHaveData', { total: TOTAL_TWIN_DOMAINS })
+        : t('domainsMissingData', { count: missingCount, total: TOTAL_TWIN_DOMAINS });
 
   const basisText =
-    evolution === null ? 'Lädt…' : `Basiert aktuell auf ${evolution.active_domain_count} von ${TOTAL_TWIN_DOMAINS} Bereichen mit Daten.`;
+    evolution === null ? t('loading') : t('basedOnDomains', { count: evolution.active_domain_count, total: TOTAL_TWIN_DOMAINS });
 
   return (
     <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">
-        Dein persönlicher Twin
+        {t('personalTwin')}
       </p>
       <div className="mt-4 grid gap-5 sm:grid-cols-3">
         <div>
           <p className="text-2xl font-bold text-[#F5F2EA]">{activeDomains} von 3</p>
-          <p className="mt-1 text-sm text-[#B7BDC4]">aktive Twin-Bereiche (Check-in, Biomarker, automatische Daten)</p>
+          <p className="mt-1 text-sm text-[#B7BDC4]">{t('activeAreas')} {t('activeAreasSuffix')}</p>
         </div>
         <div>
           <p className="text-sm font-semibold text-[#F5F2EA]">
-            {googleConnected === null ? 'Automatische Daten: lädt…' : googleConnected ? '✅ Automatische Daten verbunden' : 'Automatische Daten nicht verbunden'}
+            {googleConnected === null ? `${t('automaticConnected')}: ${t('loading')}` : googleConnected ? `✅ ${t('automaticConnected')}` : t('automaticNotConnected')}
           </p>
           <Link
             href="/dashboard/gesundheitsdaten"
             className="mt-1 inline-block text-sm font-semibold text-[#58D7D4] underline hover:text-[#F3C979]"
           >
-            {googleConnected ? 'Verbindung ansehen' : 'Automatische Daten verbinden'}
+            {googleConnected ? t('viewConnection') : t('connectAutomatic')}
           </Link>
         </div>
         <div>
           <p className="text-sm text-[#B7BDC4]">
-            Was dein Twin über dich weiß und lernt, siehst du weiter unten auf dieser Seite.
+            {t('twinLearningCaption')}
           </p>
         </div>
       </div>
@@ -139,19 +142,19 @@ export default function DashboardTwinSummary({ hasCheckinToday, hasBiomarkerTwin
       <div className="mt-5 grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-3">
         <div>
           <p className="font-[family-name:var(--font-mono-technical)] text-[11px] uppercase tracking-[0.18em] text-[#8E969F]">
-            Was sich verändert hat
+            {t('changed')}
           </p>
           <p className="mt-1 text-sm text-[#F5F2EA]">{changeText}</p>
         </div>
         <div>
           <p className="font-[family-name:var(--font-mono-technical)] text-[11px] uppercase tracking-[0.18em] text-[#8E969F]">
-            Was deinem Twin noch fehlt
+            {t('missing')}
           </p>
           <p className="mt-1 text-sm text-[#F5F2EA]">{missingText}</p>
         </div>
         <div>
           <p className="font-[family-name:var(--font-mono-technical)] text-[11px] uppercase tracking-[0.18em] text-[#8E969F]">
-            Wie belastbar diese Einschätzung ist
+            {t('confidence')}
           </p>
           <p className="mt-1 text-sm text-[#F5F2EA]">{basisText}</p>
         </div>

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import { DEFAULT_TWIN_FORM } from '@/lib/twin-defaults';
 import DashboardDailyPlan from '../components/dashboard-daily-plan';
@@ -14,11 +15,13 @@ import TwinEmptyState from '../components/brand/TwinEmptyState';
 import AdSlot from '../components/AdSlot';
 import { useDashboardShell } from './dashboard-shell';
 
-function getGreeting(): string {
+type Translator = (key: string, values?: Record<string, string | number>) => string;
+
+function getGreeting(t: Translator): string {
   const hour = new Date().getHours();
-  if (hour < 11) return 'Guten Morgen';
-  if (hour < 18) return 'Guten Tag';
-  return 'Guten Abend';
+  if (hour < 11) return t('greetingMorning');
+  if (hour < 18) return t('greetingAfternoon');
+  return t('greetingEvening');
 }
 
 // Old anchor URLs (from the previous single-page /dashboard) redirected to
@@ -54,7 +57,7 @@ type TodayCheckin = {
   recovery?: number | null;
 } | null;
 
-const WATER_HABIT_LABELS: Record<string, string> = { wenig: 'Wenig Wasser', mittel: 'Mittel viel Wasser', viel: 'Viel Wasser' };
+const WATER_HABIT_KEYS: Record<string, 'waterLow' | 'waterMedium' | 'waterHigh'> = { wenig: 'waterLow', mittel: 'waterMedium', viel: 'waterHigh' };
 
 type DomainCardContent = { status: string | null; hint: string };
 
@@ -63,27 +66,27 @@ type DomainCardContent = { status: string | null; hint: string };
  * computed/fabricated number. Falls back to an honest empty-state hint
  * with a real next action when the field wasn't filled in today.
  */
-function domainCardContent(field: 'sleep' | 'movement' | 'nutrition' | 'stress' | 'energy' | 'recovery', checkin: TodayCheckin): DomainCardContent {
+function domainCardContent(field: 'sleep' | 'movement' | 'nutrition' | 'stress' | 'energy' | 'recovery', checkin: TodayCheckin, t: Translator): DomainCardContent {
   switch (field) {
     case 'sleep':
-      if (checkin?.sleep_hours != null) return { status: `${checkin.sleep_hours} Std.`, hint: 'Heutige Schlafdauer aus deinem Check-in.' };
-      if (checkin?.sleep_quality != null) return { status: `${checkin.sleep_quality}/10`, hint: 'Heutige Schlafqualität aus deinem Check-in.' };
-      return { status: null, hint: 'Schlaf im heutigen Check-in ergänzen.' };
+      if (checkin?.sleep_hours != null) return { status: `${checkin.sleep_hours} Std.`, hint: t('hintSleepHours') };
+      if (checkin?.sleep_quality != null) return { status: `${checkin.sleep_quality}/10`, hint: t('hintSleepQuality') };
+      return { status: null, hint: t('hintSleepNone') };
     case 'movement':
-      if (checkin?.movement_minutes != null) return { status: `${checkin.movement_minutes} Min.`, hint: 'Heutige Bewegung aus deinem Check-in.' };
-      return { status: null, hint: 'Bewegung im heutigen Check-in ergänzen.' };
+      if (checkin?.movement_minutes != null) return { status: `${checkin.movement_minutes} Min.`, hint: t('hintMovementGiven') };
+      return { status: null, hint: t('hintMovementNone') };
     case 'nutrition':
-      if (checkin?.water_habit) return { status: WATER_HABIT_LABELS[checkin.water_habit] ?? checkin.water_habit, hint: 'Heutige Wasserzufuhr aus deinem Check-in.' };
-      return { status: null, hint: 'Ernährung/Wasser im heutigen Check-in ergänzen.' };
+      if (checkin?.water_habit) return { status: WATER_HABIT_KEYS[checkin.water_habit] ? t(WATER_HABIT_KEYS[checkin.water_habit]) : checkin.water_habit, hint: t('hintNutritionGiven') };
+      return { status: null, hint: t('hintNutritionNone') };
     case 'stress':
-      if (checkin?.stress != null) return { status: `${checkin.stress}/10`, hint: 'Heutiger Stresswert aus deinem Check-in.' };
-      return { status: null, hint: 'Stress im heutigen Check-in ergänzen.' };
+      if (checkin?.stress != null) return { status: `${checkin.stress}/10`, hint: t('hintStressGiven') };
+      return { status: null, hint: t('hintStressNone') };
     case 'energy':
-      if (checkin?.energy != null) return { status: `${checkin.energy}/10`, hint: 'Heutige Energie aus deinem Check-in.' };
-      return { status: null, hint: 'Energie im heutigen Check-in ergänzen.' };
+      if (checkin?.energy != null) return { status: `${checkin.energy}/10`, hint: t('hintEnergyGiven') };
+      return { status: null, hint: t('hintEnergyNone') };
     case 'recovery':
-      if (checkin?.recovery != null) return { status: `${checkin.recovery}/10`, hint: 'Heutige Erholung aus deinem Check-in.' };
-      return { status: null, hint: 'Erholung im heutigen Check-in ergänzen (unter "Motivation, Erholung, Notiz").' };
+      if (checkin?.recovery != null) return { status: `${checkin.recovery}/10`, hint: t('hintRecoveryGiven') };
+      return { status: null, hint: t('hintRecoveryNone') };
   }
 }
 
@@ -94,54 +97,53 @@ type NextStep = { headline: string; text: string; ctaLabel: string | null; ctaHr
  * plus `onboarding_completed` — kein Fake-Fortschrittsbalken, keine erfundene
  * Prozentzahl, nur eine klare nächste Aktion.
  */
-function nextStepFor(onboardingCompleted: boolean | null, checkinCount: number | null, historyCount: number): NextStep {
+function nextStepFor(onboardingCompleted: boolean | null, checkinCount: number | null, historyCount: number, t: Translator): NextStep {
   if (onboardingCompleted === null || checkinCount === null) return null;
 
   if (!onboardingCompleted && checkinCount === 0 && historyCount === 0) {
     return {
-      headline: 'Willkommen bei deinem VitalTwin',
-      text: 'Starte mit dem kurzen Onboarding, damit dein Twin deine Ziele und ersten Gewohnheiten kennt.',
-      ctaLabel: 'Onboarding starten',
+      headline: t('welcomeHeadline'),
+      text: t('welcomeText'),
+      ctaLabel: t('startOnboarding'),
       ctaHref: '/onboarding',
     };
   }
   if (checkinCount === 0) {
     return {
-      headline: 'Dein nächster Schritt',
-      text: 'Noch kein Check-in vorhanden. Mit deinem ersten Check-in beginnt dein Twin, deinen Verlauf aufzubauen.',
-      ctaLabel: 'Ersten Check-in durchführen',
+      headline: t('nextStepHeadline'),
+      text: t('firstCheckinText'),
+      ctaLabel: t('firstCheckinButton'),
       ctaHref: '/dashboard/gewohnheiten',
     };
   }
   if (historyCount === 0) {
     return {
-      headline: 'Dein nächster Schritt',
-      text: 'Du hast bereits Check-ins erfasst. Ergänze jetzt deine Wellness-Marker für dein erstes Ergebnis.',
-      ctaLabel: 'Marker ergänzen',
+      headline: t('nextStepHeadline'),
+      text: t('markersText'),
+      ctaLabel: t('markersButton'),
       ctaHref: '/dashboard/mein-twin',
     };
   }
   if (checkinCount < 7) {
     return {
-      headline: 'Dein Twin lernt dich noch kennen',
-      text: `Bisher ${checkinCount} ${checkinCount === 1 ? 'Check-in' : 'Check-ins'}. Mit ein paar weiteren Tagen werden Trends und Empfehlungen zuverlässiger.`,
-      ctaLabel: 'Weiteren Check-in ergänzen',
+      headline: t('learningHeadline'),
+      text: t('learningText', { count: checkinCount, checkinWord: checkinCount === 1 ? t('checkinSingular') : t('checkinPlural') }),
+      ctaLabel: t('moreCheckinButton'),
       ctaHref: '/dashboard/gewohnheiten',
     };
   }
   return null;
 }
 
-const PLAN_DISPLAY_LABELS: Record<string, string> = { premium: 'Premium', pro: 'Pro', family: 'Family' };
-
-function planDisplayLabel(profile: { premium: boolean; plan?: string; beta?: { plan: string } | null } | null | undefined): string {
-  if (!profile) return 'Unbekannt';
-  if (!profile.premium) return 'Starter';
-  const label = PLAN_DISPLAY_LABELS[profile.plan || 'premium'] || 'Beta-Zugang';
+function planDisplayLabel(profile: { premium: boolean; plan?: string; beta?: { plan: string } | null } | null | undefined, t: Translator): string {
+  if (!profile) return t('planUnknown');
+  if (!profile.premium) return t('planStarter');
+  const planKeys: Record<string, string> = { premium: t('planPremium'), pro: t('planPro'), family: t('planFamily') };
+  const label = planKeys[profile.plan || 'premium'] || t('planPremium');
   // Beta Tester Program: a subtle, honest label — never claims this is a
   // paid subscription (distinct from the pre-existing free "Beta-Zugang"
   // self-service activation, which has no admin-granted grant behind it).
-  return profile.beta ? `${label} · Beta-Tester` : label;
+  return profile.beta ? `${label} · ${t('betaTester')}` : label;
 }
 
 /**
@@ -154,6 +156,8 @@ function planDisplayLabel(profile: { premium: boolean; plan?: string; beta?: { p
 export default function Dashboard() {
   const { profile, loadingProfile, refetchProfile, setProfile, logout } = useDashboardShell();
   const router = useRouter();
+  const t = useTranslations('dashboard');
+  const cardsT = useTranslations('cards');
   const isMountedRef = useRef(true);
   const autoStarterTriggeredRef = useRef(false);
 
@@ -242,7 +246,7 @@ export default function Dashboard() {
     let paymentTimer: number | undefined;
     if (params.get('payment') === 'success') {
       paymentNoticeTimer = window.setTimeout(() => {
-        setPaymentMessage('Zahlung erfolgreich. Dein Plan wird jetzt synchronisiert...');
+        setPaymentMessage(t('paymentSuccess'));
       }, 0);
       paymentTimer = window.setTimeout(() => {
         refetchProfile();
@@ -250,7 +254,7 @@ export default function Dashboard() {
       }, 1800);
     } else if (params.get('beta') === 'activated') {
       paymentNoticeTimer = window.setTimeout(() => {
-        setPaymentMessage('Beta-Zugang aktiviert. Keine automatische Zahlung während der Beta-Phase.');
+        setPaymentMessage(t('betaActivated'));
       }, 0);
       paymentTimer = window.setTimeout(() => {
         refetchProfile();
@@ -263,7 +267,7 @@ export default function Dashboard() {
       if (paymentNoticeTimer) window.clearTimeout(paymentNoticeTimer);
       if (paymentTimer) window.clearTimeout(paymentTimer);
     };
-  }, [fetchLatest, fetchOnboardingState, fetchTodayCheckin, refetchProfile]);
+  }, [fetchLatest, fetchOnboardingState, fetchTodayCheckin, refetchProfile, t]);
 
   // Starter erhält weiterhin automatisch genau eine kostenlose Erstberechnung
   // (unverändertes Verhalten/Werte, jetzt über die geteilte DEFAULT_TWIN_FORM-
@@ -303,7 +307,7 @@ export default function Dashboard() {
     ? { biologisches_alter: latest.biologisches_alter, differenz: latest.differenz, empfehlungen: [] }
     : null);
 
-  const nextStep = nextStepFor(onboardingCompleted, checkinCount, latest ? 1 : 0);
+  const nextStep = nextStepFor(onboardingCompleted, checkinCount, latest ? 1 : 0, t);
 
   return (
     <>
@@ -315,51 +319,51 @@ export default function Dashboard() {
               className="mt-2 font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-[#F5F2EA] md:text-5xl"
               suppressHydrationWarning
             >
-              {getGreeting()}{profile?.full_name ? `, ${profile.full_name}` : ''}
+              {getGreeting(t)}{profile?.full_name ? `, ${profile.full_name}` : ''}
             </h1>
-            <p className="mt-3 text-[#B7BDC4]">Hier ist dein heutiger VitalTwin-Überblick.</p>
+            <p className="mt-3 text-[#B7BDC4]">{t('overviewIntro')}</p>
             {profile?.beta?.expires_at && (
               <p className="mt-1 text-xs text-[#8E969F]">
-                Dein Beta-Zugang läuft bis {new Date(profile.beta.expires_at).toLocaleDateString('de-DE')}.
+                {t('betaExpires', { date: new Date(profile.beta.expires_at).toLocaleDateString('de-DE') })}
               </p>
             )}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <span className={`rounded-full px-4 py-1 text-sm font-semibold ${profile?.premium ? 'bg-gradient-to-r from-[#F3C979] to-[#C9913D] text-[#0B1118]' : 'border border-white/20 text-[#B7BDC4]'}`}>
-              Plan: {loadingProfile ? 'Lädt...' : !profile ? 'Unbekannt' : planDisplayLabel(profile)}
+              {t('planLabel')} {loadingProfile ? t('loading') : !profile ? t('planUnknown') : planDisplayLabel(profile, t)}
             </span>
             {!loadingProfile && profile && !profile.premium && (
               <button
                 onClick={() => router.push('/preise')}
                 className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
               >
-                Beta freischalten
+                {t('betaUnlock')}
               </button>
             )}
             <button
               onClick={() => router.push('/profil')}
               className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
             >
-              Profil
+              {t('navProfile')}
             </button>
             <Link
               href="/dashboard/mein-twin#feedback"
               className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
             >
-              Beta-Feedback geben
+              {t('navFeedback')}
             </Link>
             <button
               onClick={() => router.push('/passwort-zuruecksetzen')}
               className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
             >
-              Passwort ändern
+              {t('navPassword')}
             </button>
             <button
               onClick={logout}
               className="rounded-full border border-red-400/30 px-5 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-400/10"
             >
-              Abmelden
+              {t('navLogout')}
             </button>
           </div>
         </div>
@@ -394,74 +398,70 @@ export default function Dashboard() {
         )}
 
         <h2 className="mt-8 font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
-          Tagesübersicht
+          {t('overviewSectionTitle')}
         </h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <DomainCard label="Schlaf" status={domainCardContent('sleep', todayCheckin).status} hint={domainCardContent('sleep', todayCheckin).hint} detailHref="/dashboard/gewohnheiten" />
-          <DomainCard label="Bewegung" status={domainCardContent('movement', todayCheckin).status} hint={domainCardContent('movement', todayCheckin).hint} detailHref="/dashboard/gewohnheiten" />
-          <DomainCard label="Ernährung" status={domainCardContent('nutrition', todayCheckin).status} hint={domainCardContent('nutrition', todayCheckin).hint} detailHref="/dashboard/gewohnheiten" />
-          <DomainCard label="Stress" status={domainCardContent('stress', todayCheckin).status} hint={domainCardContent('stress', todayCheckin).hint} detailHref="/dashboard/gewohnheiten" />
-          <DomainCard label="Energie" status={domainCardContent('energy', todayCheckin).status} hint={domainCardContent('energy', todayCheckin).hint} detailHref="/dashboard/gewohnheiten" />
-          <DomainCard label="Erholung" status={domainCardContent('recovery', todayCheckin).status} hint={domainCardContent('recovery', todayCheckin).hint} detailHref="/dashboard/gewohnheiten" />
+          <DomainCard label={t('domainSleep')} status={domainCardContent('sleep', todayCheckin, t).status} hint={domainCardContent('sleep', todayCheckin, t).hint} detailHref="/dashboard/gewohnheiten" />
+          <DomainCard label={t('domainMovement')} status={domainCardContent('movement', todayCheckin, t).status} hint={domainCardContent('movement', todayCheckin, t).hint} detailHref="/dashboard/gewohnheiten" />
+          <DomainCard label={t('domainNutrition')} status={domainCardContent('nutrition', todayCheckin, t).status} hint={domainCardContent('nutrition', todayCheckin, t).hint} detailHref="/dashboard/gewohnheiten" />
+          <DomainCard label={t('domainStress')} status={domainCardContent('stress', todayCheckin, t).status} hint={domainCardContent('stress', todayCheckin, t).hint} detailHref="/dashboard/gewohnheiten" />
+          <DomainCard label={t('domainEnergy')} status={domainCardContent('energy', todayCheckin, t).status} hint={domainCardContent('energy', todayCheckin, t).hint} detailHref="/dashboard/gewohnheiten" />
+          <DomainCard label={t('domainRecovery')} status={domainCardContent('recovery', todayCheckin, t).status} hint={domainCardContent('recovery', todayCheckin, t).hint} detailHref="/dashboard/gewohnheiten" />
         </div>
 
         <h2 className="mt-10 font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
-          Biomarker-Zwilling
+          {t('biomarkerTitle')}
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-[#B7BDC4]">
-          Ein Bereich deines Twins: der Status basiert ausschließlich auf den Biomarkern, die du im Bereich „Mein
-          Twin&quot; einträgst. Es handelt sich um keine medizinische Risikobewertung und keine wissenschaftlich exakte
-          Messung, sondern um eine grobe Wellness-Orientierung.
+          {t('biomarkerDescription')}
         </p>
         <section className="mt-4 grid gap-4 md:grid-cols-3">
           <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <p className="text-sm text-[#8E969F]">Status</p>
+            <p className="text-sm text-[#8E969F]">{t('statusLabel')}</p>
             <p className="mt-2 text-2xl font-bold text-[#F5F2EA]">
-              {loadingProfile ? 'Lade...' : profile?.premium ? `${planDisplayLabel(profile)} aktiv` : 'Starter aktiv'}
+              {loadingProfile ? t('loading') : profile?.premium ? t('activePlanStatus', { plan: planDisplayLabel(profile, t) }) : t('activePlanStatus', { plan: t('planStarter') })}
             </p>
           </article>
           <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <p className="text-sm text-[#8E969F]">Biologisches Alter</p>
-            <p className="mt-2 text-2xl font-bold text-[#F5F2EA]">{displayedTwin ? `${displayedTwin.biologisches_alter} Jahre` : 'Noch keine Berechnung'}</p>
+            <p className="text-sm text-[#8E969F]">{t('ageLabel')}</p>
+            <p className="mt-2 text-2xl font-bold text-[#F5F2EA]">{displayedTwin ? `${displayedTwin.biologisches_alter} ${t('ageUnit')}` : t('ageNoData')}</p>
           </article>
           <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <p className="text-sm text-[#8E969F]">Differenz</p>
+            <p className="text-sm text-[#8E969F]">{t('diffLabel')}</p>
             <p className="mt-2 text-2xl font-bold text-[#F5F2EA]">
-              {displayedTwin ? `${displayedTwin.differenz > 0 ? '+' : ''}${displayedTwin.differenz} Jahre` : '-'}
+              {displayedTwin ? `${displayedTwin.differenz > 0 ? '+' : ''}${displayedTwin.differenz} ${t('ageUnit')}` : '-'}
             </p>
           </article>
         </section>
         <p className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-[#B7BDC4]">
-          Diese Schätzung dient ausschließlich der Wellness-Orientierung und ist keine medizinische Bewertung.
-          Einfließende Daten: Alter, Geschlecht, HbA1c, CRP, Vitamin D, ApoB und die weiteren von dir eingetragenen
-          Marker.
+          {t('biomarkerDisclaimer')}
         </p>
 
         {!loadingLatest && !displayedTwin && (
           <div className="mt-6">
             <TwinEmptyState
-              subtext="Noch keine Twin-Berechnung vorhanden."
+              subtext={t('emptyTwinState')}
               onRetry={() => router.push('/dashboard/mein-twin')}
             />
           </div>
         )}
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <TodayActionsCard title="Heute für dich" actions={displayedTwin?.empfehlungen ?? []} />
+          <TodayActionsCard title={cardsT('todayTitle')} actions={displayedTwin?.empfehlungen ?? []} />
         </div>
 
         {!loadingProfile && profile && !profile.premium && (
           <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#B7BDC4]">
-            Du nutzt aktuell Free.{' '}
+            {t('freePlanPrefix')}{' '}
             <Link href="/preise" className="font-semibold text-[#58D7D4] underline hover:text-[#F3C979]">
-              Mehr Möglichkeiten mit Premium ansehen
+              {t('freePlanLink')}
             </Link>
             .
           </div>
         )}
         {!loadingProfile && profile?.premium && (
           <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#B7BDC4]">
-            Aktueller Tarif: <span className="font-semibold text-[#F5F2EA]">{planDisplayLabel(profile)}</span>
+            {t('premiumPlanPrefix')} <span className="font-semibold text-[#F5F2EA]">{planDisplayLabel(profile, t)}</span>
           </div>
         )}
 
@@ -485,16 +485,15 @@ export default function Dashboard() {
       </div>
 
       <article className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Frag deinen Twin</h3>
+        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('chatSectionTitle')}</h3>
         <p className="mt-2 text-sm text-[#B7BDC4]">
-          Stelle deinem digitalen Zwilling Fragen zu deiner Entwicklung — er antwortet auf Basis deiner eigenen Daten,
-          immer mit Quellenangabe und „Warum?&quot;.
+          {t('chatDescription')}
         </p>
         <Link
           href="/frag-deinen-twin"
           className="mt-4 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
         >
-          Twin fragen
+          {t('chatButton')}
         </Link>
       </article>
     </>

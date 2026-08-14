@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import { useDashboardShell } from '../dashboard-shell';
 
@@ -15,6 +16,7 @@ type CgmReading = { timestamp: string; glucose_value: number; source?: string };
  */
 export default function BlutzuckerPage() {
   const router = useRouter();
+  const t = useTranslations('blutzucker');
   const { profile, loadingProfile } = useDashboardShell();
   const [cgmData, setCgmData] = useState<CgmReading[]>([]);
   const [cgmUploading, setCgmUploading] = useState(false);
@@ -71,13 +73,13 @@ export default function BlutzuckerPage() {
       const data = await response.json().catch(() => null);
 
       if (response.ok) {
-        setCgmMessage(`✅ ${data?.count ?? 0} echte Messwerte importiert`);
+        setCgmMessage(t('uploadSuccess', { count: data?.count ?? 0 }));
         void loadCgm();
       } else {
-        setCgmMessage(`❌ ${data?.detail ?? 'Fehler beim Upload'}`);
+        setCgmMessage(`❌ ${data?.detail ?? t('uploadError')}`);
       }
     } catch {
-      setCgmMessage('❌ Netzwerkfehler');
+      setCgmMessage(t('networkError'));
     } finally {
       setCgmUploading(false);
       e.target.value = '';
@@ -87,7 +89,7 @@ export default function BlutzuckerPage() {
   const saveNutrition = async () => {
     setNutritionMessage('');
     if (!nutritionForm.meal_name.trim()) {
-      setNutritionMessage('❌ Bitte gib eine Mahlzeit an.');
+      setNutritionMessage(t('missingMeal'));
       return;
     }
 
@@ -111,49 +113,48 @@ export default function BlutzuckerPage() {
       });
 
       if (response.ok) {
-        setNutritionMessage('✅ Mahlzeit gespeichert');
+        setNutritionMessage(t('mealSaved'));
         setNutritionForm({ meal_name: '', carbs: '', protein: '', fat: '', calories: '' });
       } else {
         const data = await response.json().catch(() => null);
-        setNutritionMessage(`❌ ${data?.detail ?? 'Fehler beim Speichern'}`);
+        setNutritionMessage(`❌ ${data?.detail ?? t('mealError')}`);
       }
     } catch {
-      setNutritionMessage('❌ Netzwerkfehler');
+      setNutritionMessage(t('networkError'));
     }
   };
 
   return (
     <section className="mt-8 scroll-mt-24">
       <h1 className="font-[family-name:var(--font-serif-display)] text-2xl font-semibold text-[#F5F2EA] md:text-3xl">
-        Blutzucker &amp; Ernährung
+        {t('title')}
       </h1>
       <p className="mt-2 max-w-2xl text-sm text-[#B7BDC4]">
-        Importiere echte CGM-Messwerte oder trage eine Mahlzeit manuell ein — nur echte Daten, keine Platzhalter.
+        {t('intro')}
       </p>
 
       {!loadingProfile && profile && !profile.premium ? (
         <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
           <p className="font-[family-name:var(--font-serif-display)] text-lg font-semibold text-[#F5F2EA]">
-            Premium-Feature
+            {t('premiumTitle')}
           </p>
           <p className="mx-auto mt-2 max-w-md text-sm text-[#B7BDC4]">
-            CGM-Import und das Ernährungstagebuch sind Teil von Premium. Aktiviere Premium, um deine Blutzuckerwerte
-            zu importieren und Mahlzeiten zu protokollieren.
+            {t('premiumText')}
           </p>
           <Link
             href="/preise"
             className="mt-5 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
           >
-            Premium ansehen
+            {t('premiumLink')}
           </Link>
         </div>
       ) : (
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
-              CGM-Daten importieren
+              {t('cgmImportTitle')}
             </h3>
-            <p className="mt-2 text-sm text-[#B7BDC4]">Lade eine echte LibreView- oder Dexcom-CSV hoch.</p>
+            <p className="mt-2 text-sm text-[#B7BDC4]">{t('cgmImportHint')}</p>
 
             <input
               type="file"
@@ -163,12 +164,12 @@ export default function BlutzuckerPage() {
               className="mt-4 mb-2 w-full text-sm text-[#B7BDC4] file:mr-4 file:rounded-full file:border-0 file:bg-gradient-to-r file:from-[#F3C979] file:to-[#C9913D] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#0B1118]"
             />
 
-            {cgmUploading && <p className="text-sm text-[#58D7D4]">Wird verarbeitet...</p>}
+            {cgmUploading && <p className="text-sm text-[#58D7D4]">{t('processing')}</p>}
             {cgmMessage && <p className="mt-2 text-sm text-[#B7BDC4]">{cgmMessage}</p>}
 
             {cgmData.length > 0 && (
               <div className="mt-6 max-h-64 space-y-1 overflow-y-auto">
-                <p className="mb-2 text-xs text-[#8E969F]">{cgmData.length} Messwerte (letzte 7 Tage)</p>
+                <p className="mb-2 text-xs text-[#8E969F]">{t('readingsCount', { count: cgmData.length })}</p>
                 {cgmData.slice(0, 12).map((r, i) => (
                   <div key={i} className="flex justify-between border-b border-white/10 py-1 text-sm">
                     <span className="text-[#B7BDC4]">{new Date(r.timestamp).toLocaleString('de-DE')}</span>
@@ -181,13 +182,13 @@ export default function BlutzuckerPage() {
 
           <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">
-              Ernährung eintragen
+              {t('nutritionTitle')}
             </h3>
 
             <div className="mt-4 space-y-4">
               <input
                 type="text"
-                placeholder="Mahlzeit (z. B. Haferflocken mit Beeren)"
+                placeholder={t('mealPlaceholder')}
                 value={nutritionForm.meal_name}
                 onChange={(e) => setNutritionForm({ ...nutritionForm, meal_name: e.target.value })}
                 className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
@@ -196,28 +197,28 @@ export default function BlutzuckerPage() {
               <div className="grid grid-cols-2 gap-3">
                 <input
                   type="number"
-                  placeholder="Kohlenhydrate (g)"
+                  placeholder={t('carbsPlaceholder')}
                   value={nutritionForm.carbs}
                   onChange={(e) => setNutritionForm({ ...nutritionForm, carbs: e.target.value })}
                   className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
                 />
                 <input
                   type="number"
-                  placeholder="Protein (g)"
+                  placeholder={t('proteinPlaceholder')}
                   value={nutritionForm.protein}
                   onChange={(e) => setNutritionForm({ ...nutritionForm, protein: e.target.value })}
                   className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
                 />
                 <input
                   type="number"
-                  placeholder="Fett (g)"
+                  placeholder={t('fatPlaceholder')}
                   value={nutritionForm.fat}
                   onChange={(e) => setNutritionForm({ ...nutritionForm, fat: e.target.value })}
                   className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
                 />
                 <input
                   type="number"
-                  placeholder="Kalorien"
+                  placeholder={t('caloriesPlaceholder')}
                   value={nutritionForm.calories}
                   onChange={(e) => setNutritionForm({ ...nutritionForm, calories: e.target.value })}
                   className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-[#F5F2EA] placeholder:text-[#8E969F]"
@@ -228,7 +229,7 @@ export default function BlutzuckerPage() {
                 onClick={saveNutrition}
                 className="w-full rounded-xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
               >
-                Mahlzeit speichern
+                {t('saveMeal')}
               </button>
               {nutritionMessage && <p className="text-sm text-[#B7BDC4]">{nutritionMessage}</p>}
             </div>

@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 const HEART_PATH =
   'M450 152 C450 152 415 128 415 104 C415 91 425 81 438 81 C443 81 450 85 450 85 C450 85 457 81 462 81 C475 81 485 91 485 104 C485 128 450 152 450 152 Z';
 
@@ -15,13 +17,15 @@ const RING_RADII = [40, 62, 84, 106];
  * fully disabled under `prefers-reduced-motion: reduce` (see globals.css).
  */
 export default function TwinPulseScene({ className = '' }: { className?: string }) {
+  const t = useTranslations('hero');
+
   return (
     <div className={`flex min-w-0 flex-col items-center ${className}`.trim()}>
       <svg
         viewBox="0 0 900 260"
         className="vt-pulse-scene w-full max-w-2xl"
         role="img"
-        aria-label="Goldene menschliche Pulslinie und türkise KI-Pulslinie treffen sich in einem synchron schlagenden Herzen"
+        aria-label={t('pulseSceneAriaLabel')}
       >
         <g className="vt-rings" aria-hidden="true">
           {RING_RADII.map((r, i) => (
@@ -81,14 +85,14 @@ export default function TwinPulseScene({ className = '' }: { className?: string 
           ✓
         </span>
         <span className="font-[family-name:var(--font-mono-technical)] text-xs font-medium uppercase tracking-[0.25em] text-[#58D7D4]">
-          Synchronisiert
+          {t('pulseSynced')}
         </span>
       </div>
 
       <p className="mt-4 max-w-md text-center text-sm leading-relaxed text-[#B7BDC4]">
-        Deine Daten. Deine Ziele.
+        {t('pulseDataGoals')}
         <br />
-        <span className="font-semibold text-[#F5F2EA]">Dein Zwilling versteht dich.</span>
+        <span className="font-semibold text-[#F5F2EA]">{t('pulseUnderstands')}</span>
       </p>
     </div>
   );

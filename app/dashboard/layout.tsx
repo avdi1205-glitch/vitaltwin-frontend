@@ -1,12 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import DashboardNav from '../components/dashboard-nav';
 import DashboardBrandMark from '../components/brand/DashboardBrandMark';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
 import { DashboardShellProvider, useDashboardShell } from './dashboard-shell';
 
 function DashboardChrome({ children }: { children: React.ReactNode }) {
+  const t = useTranslations('dashboard');
+  const tFooter = useTranslations('footer');
   const { profileError, clearProfileError, refetchProfile } = useDashboardShell();
 
   return (
@@ -16,7 +19,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
         <DashboardBrandMark />
 
         <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-[#B7BDC4]">
-          Dieses Dashboard ist ein Wellness-Tool zur Gesundheitsorientierung und kein medizinisches Produkt. Die Ergebnisse ersetzen keine ärztliche Diagnose oder Therapie.
+          {t('wellnessDisclaimer')}
         </div>
 
         {profileError && (
@@ -36,13 +39,13 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm text-[#8E969F]">
           <p>VitalTwin DE Dashboard</p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <Link href="/preise" className="transition hover:text-[#58D7D4]">Preise</Link>
-            <Link href="/impressum" className="transition hover:text-[#58D7D4]">Impressum</Link>
-            <Link href="/datenschutz" className="transition hover:text-[#58D7D4]">Datenschutz</Link>
-            <Link href="/agb" className="transition hover:text-[#58D7D4]">AGB</Link>
-            <Link href="/widerrufsrecht" className="transition hover:text-[#58D7D4]">Widerrufsrecht</Link>
-            <Link href="/cookie-einstellungen" className="transition hover:text-[#58D7D4]">Cookie-Einstellungen</Link>
-            <Link href="/ki-hinweise" className="transition hover:text-[#58D7D4]">KI-Hinweise</Link>
+            <Link href="/preise" className="transition hover:text-[#58D7D4]">{tFooter('pricing')}</Link>
+            <Link href="/impressum" className="transition hover:text-[#58D7D4]">{tFooter('legal')}</Link>
+            <Link href="/datenschutz" className="transition hover:text-[#58D7D4]">{tFooter('privacy')}</Link>
+            <Link href="/agb" className="transition hover:text-[#58D7D4]">{tFooter('terms')}</Link>
+            <Link href="/widerrufsrecht" className="transition hover:text-[#58D7D4]">{tFooter('withdrawal')}</Link>
+            <Link href="/cookie-einstellungen" className="transition hover:text-[#58D7D4]">{tFooter('cookies')}</Link>
+            <Link href="/ki-hinweise" className="transition hover:text-[#58D7D4]">{tFooter('ai')}</Link>
           </div>
         </footer>
       </div>

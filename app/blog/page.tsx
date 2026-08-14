@@ -1,15 +1,18 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { apiUrl } from '@/lib/api';
 import PublicFooter from '../components/PublicFooter';
 import { excerptFromBody, formatContentDate } from '../components/blog-content-renderer';
 
-export const metadata: Metadata = {
-  title: 'Blog',
-  description:
-    'Verständliche Artikel zu Schlaf, Bewegung, Ernährung, Gewohnheiten, Wearables und Datenschutz bei Wellness-Apps.',
-  alternates: { canonical: '/blog' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('siteMeta');
+  return {
+    title: t('blogMetaTitle'),
+    description: t('blogMetaDescription'),
+    alternates: { canonical: '/blog' },
+  };
+}
 
 export const revalidate = 60;
 
@@ -41,26 +44,26 @@ function formatDate(iso: string | null): string {
 }
 
 export default async function BlogIndex() {
+  const t = await getTranslations('blog');
   const posts = await getPublishedPosts();
 
   return (
     <main className="min-h-screen bg-[#0B1118] text-[#F5F2EA]">
       <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
         <Link href="/" className="text-sm font-medium text-[#8E969F] transition hover:text-[#58D7D4]">
-          ← Zur Startseite
+          {t('backToHome')}
         </Link>
-        <p className="mt-6 text-xs uppercase tracking-[0.18em] text-[#8E969F]">Ratgeber</p>
+        <p className="mt-6 text-xs uppercase tracking-[0.18em] text-[#8E969F]">{t('badge')}</p>
         <h1 className="mt-3 font-[family-name:var(--font-serif-display)] text-4xl font-semibold md:text-5xl">
-          VitalTwin Blog
+          {t('title')}
         </h1>
         <p className="mt-4 max-w-2xl text-[#B7BDC4]">
-          Verständliche, ehrliche Artikel zu Schlaf, Bewegung, Ernährung, Gewohnheiten, Wearables und Datenschutz —
-          ohne Heilversprechen, ohne erfundene Studien.
+          {t('intro')}
         </p>
 
         {posts.length === 0 && (
           <div className="mt-12 rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center text-[#8E969F]">
-            Wir arbeiten gerade an den ersten Artikeln. Schau bald wieder vorbei.
+            {t('empty')}
           </div>
         )}
 
@@ -76,7 +79,7 @@ export default async function BlogIndex() {
               )}
               <h2 className="mt-2 text-xl font-semibold text-[#F5F2EA]">{post.title}</h2>
               <p className="mt-3 text-sm text-[#B7BDC4]">{post.excerpt || excerpt(post.body)}</p>
-              <span className="mt-4 inline-block text-sm font-semibold text-[#58D7D4]">Weiterlesen →</span>
+              <span className="mt-4 inline-block text-sm font-semibold text-[#58D7D4]">{t('readMore')}</span>
             </Link>
           ))}
         </div>

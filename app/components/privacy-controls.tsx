@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type ConsentStatus = { granted: boolean | null; changed_at: string | null };
@@ -12,29 +13,31 @@ type Overview = {
   note: string;
 };
 
-const CONSENT_LABELS: Record<string, string> = {
-  wellness_data_processing: 'Wellness-Datenverarbeitung',
-  ai_features: 'KI-Funktionen',
-  chat_storage: 'Chat-Speicherung',
-  wearables_future: 'Zukünftige Wearables',
-  marketing: 'Marketing',
-  affiliate_tracking: 'Affiliate-Tracking',
-  research_optional: 'Optionale Forschung',
+type ConsentKey = 'consentWellness' | 'consentAi' | 'consentChat' | 'consentWearables' | 'consentMarketing' | 'consentAffiliate' | 'consentResearch';
+const CONSENT_KEYS: Record<string, ConsentKey> = {
+  wellness_data_processing: 'consentWellness',
+  ai_features: 'consentAi',
+  chat_storage: 'consentChat',
+  wearables_future: 'consentWearables',
+  marketing: 'consentMarketing',
+  affiliate_tracking: 'consentAffiliate',
+  research_optional: 'consentResearch',
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  checkins: 'Check-ins',
-  habits: 'Gewohnheiten',
-  habit_entries: 'Gewohnheitseinträge',
-  goals: 'Ziele',
-  daily_plans: 'Tagespläne',
-  reflections: 'Tagesreflexionen',
-  weekly_reflections: 'Wochenrückblicke',
-  recommendations: 'Empfehlungen',
-  memories: 'Twin Memories',
-  patterns: 'Erkannte Muster',
-  chat_history: 'Chatverlauf',
-  feedback: 'Feedback',
+type CategoryKey = 'catCheckins' | 'catHabits' | 'catHabitEntries' | 'catGoals' | 'catPlans' | 'catReflections' | 'catWeeklyReflections' | 'catRecommendations' | 'catMemories' | 'catPatterns' | 'catChat' | 'catFeedback';
+const CATEGORY_KEYS: Record<string, CategoryKey> = {
+  checkins: 'catCheckins',
+  habits: 'catHabits',
+  habit_entries: 'catHabitEntries',
+  goals: 'catGoals',
+  daily_plans: 'catPlans',
+  reflections: 'catReflections',
+  weekly_reflections: 'catWeeklyReflections',
+  recommendations: 'catRecommendations',
+  memories: 'catMemories',
+  patterns: 'catPatterns',
+  chat_history: 'catChat',
+  feedback: 'catFeedback',
 };
 
 /**
@@ -45,6 +48,8 @@ const CATEGORY_LABELS: Record<string, string> = {
  * vorhandene `/api/privacy/*`-Endpunkte, keine neue Datenbanklogik hier.
  */
 export default function PrivacyControls() {
+  const t = useTranslations('privacy');
+  const locale = useLocale();
   const [overview, setOverview] = useState<Overview | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -60,19 +65,19 @@ export default function PrivacyControls() {
 
   const load = useCallback(async () => {
     try {
-      const response = await fetch(apiUrl('/api/privacy/overview'), { headers: authHeader() });
+      const response = await fetch(apiUrl(`/api/privacy/overview?locale=${locale}`), { headers: authHeader() });
       const data = await response.json().catch(() => null);
       if (response.ok) {
         setOverview(data);
       } else {
-        setErrorMessage('Datenschutzübersicht konnte nicht geladen werden.');
+        setErrorMessage(t('loadError'));
       }
     } catch {
-      setErrorMessage('Backend gerade nicht erreichbar. Bitte später erneut versuchen.');
+      setErrorMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
-  }, [authHeader]);
+  }, [authHeader, t, locale]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -90,19 +95,19 @@ export default function PrivacyControls() {
         body: JSON.stringify({ consent_type: consentType, granted }),
       });
       if (!response.ok) {
-        setConsentMessage('Einwilligung konnte nicht gespeichert werden.');
+        setConsentMessage(t('consentError'));
         return;
       }
-      setConsentMessage('Gespeichert.');
+      setConsentMessage(t('saved'));
       await load();
     } catch {
-      setConsentMessage('Backend gerade nicht erreichbar.');
+      setConsentMessage(t('backendShort'));
     }
   };
 
   const deleteCategoryData = async () => {
-    const label = CATEGORY_LABELS[deleteCategory] ?? deleteCategory;
-    if (!window.confirm(`Wirklich alle Daten der Kategorie "${label}" löschen? Das kann nicht rückgängig gemacht werden.`)) {
+    const label = CATEGORY_KEYS[deleteCategory] ? t(CATEGORY_KEYS[deleteCategory]) : deleteCategory;
+    if (!window.confirm(`${t('confirmPrefix')}${label}${t('confirmSuffix')}`)) {
       return;
     }
     setDeleting(true);
@@ -114,13 +119,13 @@ export default function PrivacyControls() {
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        setDeleteMessage(data?.detail ?? 'Löschung fehlgeschlagen.');
+        setDeleteMessage(data?.detail ?? t('deleteError'));
         return;
       }
-      setDeleteMessage(data?.message ?? 'Gelöscht.');
+      setDeleteMessage(data?.message ?? t('deleted'));
       await load();
     } catch {
-      setDeleteMessage('Backend gerade nicht erreichbar.');
+      setDeleteMessage(t('backendShort'));
     } finally {
       setDeleting(false);
     }
@@ -143,7 +148,7 @@ export default function PrivacyControls() {
   };
 
   if (loading) {
-    return <p className="mt-4 text-sm text-[#8E969F]">Lade Datenschutzübersicht...</p>;
+    return <p className="mt-4 text-sm text-[#8E969F]">{t('loading')}</p>;
   }
 
   return (
@@ -153,31 +158,31 @@ export default function PrivacyControls() {
       {overview && (
         <>
           <div>
-            <p className="text-sm font-semibold text-[#F5F2EA]">Was bei dir gespeichert ist</p>
+            <p className="text-sm font-semibold text-[#F5F2EA]">{t('storageTitle')}</p>
             <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
               {Object.entries(overview.stored_data_counts).map(([category, count]) => (
                 <div key={category} className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-xs text-[#B7BDC4]">
-                  {CATEGORY_LABELS[category] ?? category}: <span className="font-semibold text-[#F5F2EA]">{count}</span>
+                  {CATEGORY_KEYS[category] ? t(CATEGORY_KEYS[category]) : category}: <span className="font-semibold text-[#F5F2EA]">{count}</span>
                 </div>
               ))}
             </div>
             <p className="mt-2 text-xs text-[#8E969F]">
-              Aktiv vom Twin genutzt: {overview.active_memories_count} Memories, {overview.active_patterns_count} Muster.{' '}
+              {t('activeUsage')} {overview.active_memories_count} {t('memories')} {overview.active_patterns_count} {t('patterns')}{' '}
               {overview.note}
             </p>
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-[#F5F2EA]">Einwilligungen (getrennt je Zweck)</p>
+            <p className="text-sm font-semibold text-[#F5F2EA]">{t('consentsTitle')}</p>
             <div className="mt-2 space-y-2">
-              {Object.entries(CONSENT_LABELS).map(([type, label]) => {
+              {Object.entries(CONSENT_KEYS).map(([type, key]) => {
                 const granted = overview.consents[type]?.granted ?? null;
                 return (
                   <div
                     key={type}
                     className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-sm"
                   >
-                    <span className="text-[#F5F2EA]">{label}</span>
+                    <span className="text-[#F5F2EA]">{t(key)}</span>
                     <div className="flex gap-2">
                       <button
                         onClick={() => void setConsent(type, true)}
@@ -187,7 +192,7 @@ export default function PrivacyControls() {
                             : 'border border-white/15 text-[#B7BDC4] hover:border-[#58D7D4]/60'
                         }`}
                       >
-                        Erlauben
+                        {t('allow')}
                       </button>
                       <button
                         onClick={() => void setConsent(type, false)}
@@ -197,7 +202,7 @@ export default function PrivacyControls() {
                             : 'border border-white/15 text-[#B7BDC4] hover:border-red-400/40'
                         }`}
                       >
-                        Widerrufen
+                        {t('revoke')}
                       </button>
                     </div>
                   </div>
@@ -208,16 +213,16 @@ export default function PrivacyControls() {
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-[#F5F2EA]">Datenkategorie löschen oder als CSV exportieren</p>
+            <p className="text-sm font-semibold text-[#F5F2EA]">{t('deleteTitle')}</p>
             <div className="mt-2 flex flex-wrap gap-2">
               <select
                 value={deleteCategory}
                 onChange={(e) => setDeleteCategory(e.target.value)}
                 className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-[#F5F2EA] focus:border-[#58D7D4] focus:outline-none"
               >
-                {Object.entries(CATEGORY_LABELS).map(([id, label]) => (
+                {Object.entries(CATEGORY_KEYS).map(([id, key]) => (
                   <option key={id} value={id}>
-                    {label}
+                    {t(key)}
                   </option>
                 ))}
               </select>
@@ -225,14 +230,14 @@ export default function PrivacyControls() {
                 onClick={() => void downloadCsv(deleteCategory)}
                 className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
               >
-                Als CSV exportieren
+                {t('exportCsv')}
               </button>
               <button
                 onClick={() => void deleteCategoryData()}
                 disabled={deleting}
                 className="rounded-xl border border-red-400/30 px-4 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {deleting ? 'Lösche...' : 'Kategorie löschen'}
+                {deleting ? t('deleting') : t('deleteCategory')}
               </button>
             </div>
             {deleteMessage && <p className="mt-2 text-xs text-[#8E969F]">{deleteMessage}</p>}

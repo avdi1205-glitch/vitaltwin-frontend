@@ -13,31 +13,31 @@
  */
 
 export type HumanMetric = {
+  id: 'mood' | 'energy' | 'sleep' | 'mindfulness';
   icon: string;
-  label: string;
   value: number;
   max: number;
 };
 
 export const HUMAN_METRICS: HumanMetric[] = [
-  { icon: '❤️', label: 'Stimmung', value: 7.2, max: 10 },
-  { icon: '⚡', label: 'Energie', value: 6.8, max: 10 },
-  { icon: '🌙', label: 'Schlaf', value: 6.1, max: 10 },
-  { icon: '🧘', label: 'Achtsamkeit', value: 7.5, max: 10 },
+  { id: 'mood', icon: '❤️', value: 7.2, max: 10 },
+  { id: 'energy', icon: '⚡', value: 6.8, max: 10 },
+  { id: 'sleep', icon: '🌙', value: 6.1, max: 10 },
+  { id: 'mindfulness', icon: '🧘', value: 7.5, max: 10 },
 ];
 
 export type AiMetric = {
+  id: 'hrv' | 'sleepQuality' | 'regeneration' | 'trend';
   icon: string;
-  label: string;
   value: string;
   trend: 'up' | 'flat';
 };
 
 export const AI_METRICS: AiMetric[] = [
-  { icon: '❤️', label: 'HRV', value: '68 ms', trend: 'up' },
-  { icon: '🌙', label: 'Schlafqualität', value: '78 %', trend: 'up' },
-  { icon: '🔋', label: 'Regeneration', value: 'Gut', trend: 'up' },
-  { icon: '📈', label: 'Trend', value: '+12 %', trend: 'up' },
+  { id: 'hrv', icon: '❤️', value: '68 ms', trend: 'up' },
+  { id: 'sleepQuality', icon: '🌙', value: '78 %', trend: 'up' },
+  { id: 'regeneration', icon: '🔋', value: '', trend: 'up' },
+  { id: 'trend', icon: '📈', value: '+12 %', trend: 'up' },
 ];
 
 export const WELLNESS_SCORE = 7.8;
@@ -45,15 +45,12 @@ export const WELLNESS_SCORE_MAX = 10;
 
 export type Recommendation = {
   icon: string;
-  text: string;
+  id: 'walk' | 'sleepEarlier' | 'drinkWater' | 'reduceStress';
 };
 
 export const RECOMMENDATIONS: Recommendation[] = [
-  { icon: '🚶', text: '20 Minuten spazieren gehen' },
-  { icon: '🌙', text: 'Heute etwas früher schlafen' },
-  { icon: '💧', text: 'Mehr Wasser trinken' },
-  { icon: '🧘', text: 'Stress bewusst reduzieren' },
+  { icon: '🚶', id: 'walk' },
+  { icon: '🌙', id: 'sleepEarlier' },
+  { icon: '💧', id: 'drinkWater' },
+  { icon: '🧘', id: 'reduceStress' },
 ];
-
-export const HERO_DATA_DISCLAIMER =
-  'Beispielhafte Demo-Werte zur Veranschaulichung – keine echten Messdaten und keine medizinische Empfehlung. Nach der Anmeldung siehst du deine eigenen, freiwillig eingetragenen Werte.';

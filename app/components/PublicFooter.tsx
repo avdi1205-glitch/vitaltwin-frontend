@@ -1,21 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-
-const LINKS = [
-  { href: '/', label: 'Startseite' },
-  { href: '/ueber-uns', label: 'Über uns' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/faq', label: 'FAQ' },
-  { href: '/preise', label: 'Preise' },
-  { href: '/impressum', label: 'Impressum' },
-  { href: '/datenschutz', label: 'Datenschutz' },
-  { href: '/agb', label: 'AGB' },
-  { href: '/widerrufsrecht', label: 'Widerrufsrecht' },
-  { href: '/cookie-einstellungen', label: 'Cookie-Einstellungen' },
-  { href: '/ki-hinweise', label: 'KI-Hinweise' },
-  { href: '/kontakt', label: 'Kontakt' },
-];
+import { useTranslations } from 'next-intl';
 
 /**
  * Consistent legal/navigation footer for every public page (landing,
@@ -35,13 +21,29 @@ export default function PublicFooter({
   className?: string;
   children?: React.ReactNode;
 }) {
+  const t = useTranslations('footer');
+  const links = [
+    { href: '/', label: t('home') },
+    { href: '/ueber-uns', label: t('about') },
+    { href: '/blog', label: t('blog') },
+    { href: '/faq', label: t('faq') },
+    { href: '/preise', label: t('pricing') },
+    { href: '/impressum', label: t('legal') },
+    { href: '/datenschutz', label: t('privacy') },
+    { href: '/agb', label: t('terms') },
+    { href: '/widerrufsrecht', label: t('withdrawal') },
+    { href: '/cookie-einstellungen', label: t('cookies') },
+    { href: '/ki-hinweise', label: t('ai') },
+    { href: '/kontakt', label: t('contact') },
+  ];
+
   return (
     <div
       className={`mt-10 flex flex-wrap items-center gap-5 border-t border-white/10 pt-6 text-sm text-[#8E969F] ${
         centered ? 'justify-center' : ''
       } ${className}`}
     >
-      {LINKS.map((link) => (
+      {links.map((link) => (
         <Link key={link.href} href={link.href} className="transition hover:text-[#58D7D4]">
           {link.label}
         </Link>

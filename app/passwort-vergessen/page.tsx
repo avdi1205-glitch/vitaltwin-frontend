@@ -2,9 +2,12 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 export default function PasswortVergessen() {
+  const t = useTranslations('passwordForgot');
+  const tAuth = useTranslations('auth');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -24,10 +27,10 @@ export default function PasswortVergessen() {
       const data = await response.json().catch(() => null);
       setMessage(
         data?.message ??
-          'Falls ein Konto mit dieser E-Mail existiert, haben wir eine E-Mail zum Zurücksetzen des Passworts gesendet.',
+          t('successDefault'),
       );
     } catch {
-      setMessage('Backend nicht erreichbar. Bitte prüfe die API-URL und den Server-Status.');
+      setMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
@@ -36,9 +39,9 @@ export default function PasswortVergessen() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0B1118] px-6">
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.03] p-10">
-        <h1 className="text-center text-3xl font-bold text-[#F5F2EA]">Passwort vergessen</h1>
+        <h1 className="text-center text-3xl font-bold text-[#F5F2EA]">{t('title')}</h1>
         <p className="mt-3 text-center text-[#8E969F]">
-          Gib deine E-Mail ein. Wenn ein Konto existiert, senden wir dir einen Link zum Zurücksetzen deines Passworts.
+          {t('instructions')}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -46,7 +49,7 @@ export default function PasswortVergessen() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="E-Mail"
+            placeholder={tAuth('email')}
             className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-[#F5F2EA] placeholder:text-[#6B7480]"
             required
           />
@@ -62,12 +65,12 @@ export default function PasswortVergessen() {
             disabled={loading}
             className="w-full rounded-2xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] py-4 text-lg font-semibold text-[#0B1118] transition hover:brightness-110 disabled:opacity-70"
           >
-            {loading ? 'Sende...' : 'Reset-Link anfordern'}
+            {loading ? t('sending') : t('requestReset')}
           </button>
         </form>
 
         <p className="mt-6 text-center text-[#8E969F]">
-          Zurück zum <Link href="/?auth=login" className="text-[#58D7D4] hover:underline">Login</Link>
+          {t('backTo')} <Link href="/?auth=login" className="text-[#58D7D4] hover:underline">{t('login')}</Link>
         </p>
       </div>
     </div>

@@ -2,7 +2,8 @@ type WellnessScoreRingProps = {
   score: number;
   max?: number;
   size?: number;
-  label?: string;
+  label: string;
+  ofLabel?: string;
 };
 
 /**
@@ -10,7 +11,7 @@ type WellnessScoreRingProps = {
  * card. The numeric score is rendered as real HTML text on top of the SVG
  * ring, not baked into the graphic, so it stays accessible and crisp.
  */
-export default function WellnessScoreRing({ score, max = 10, size = 112, label = 'Wellness-Score' }: WellnessScoreRingProps) {
+export default function WellnessScoreRing({ score, max = 10, size = 112, label, ofLabel = 'of' }: WellnessScoreRingProps) {
   const strokeWidth = 9;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -18,7 +19,7 @@ export default function WellnessScoreRing({ score, max = 10, size = 112, label =
   const offset = circumference * (1 - progress);
 
   return (
-    <div className="flex flex-col items-center" role="img" aria-label={`${label}: ${score.toFixed(1)} von ${max}`}>
+    <div className="flex flex-col items-center" role="img" aria-label={`${label}: ${score.toFixed(1)} ${ofLabel} ${max}`}>
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
           <circle

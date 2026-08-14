@@ -1,15 +1,16 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { FamilyState } from './family-section';
 import type { FamilyGoal } from './family-goals-section';
 import type { FamilyChallenge } from './family-challenges-section';
 
-const ROLE_LABEL: Record<string, string> = { owner: 'Owner', member: 'Mitglied' };
-const STATUS_LABEL: Record<string, string> = {
-  active: 'Aktiv',
-  invited: 'Eingeladen',
-  removed: 'Entfernt',
-  left: 'Ausgetreten',
+const ROLE_LABEL_KEY: Record<string, 'roleOwner' | 'roleMember'> = { owner: 'roleOwner', member: 'roleMember' };
+const STATUS_LABEL_KEY: Record<string, 'statusActive' | 'statusInvited' | 'statusRemoved' | 'statusLeft'> = {
+  active: 'statusActive',
+  invited: 'statusInvited',
+  removed: 'statusRemoved',
+  left: 'statusLeft',
 };
 
 type FamilyOverviewSectionProps = {
@@ -54,6 +55,7 @@ export default function FamilyOverviewSection({
   onViewChallenges,
   onLeaveFamily,
 }: FamilyOverviewSectionProps) {
+  const t = useTranslations('family');
   const activeGoals = goals ?? [];
   const activeChallenges = challenges ?? [];
   const pendingInvites = state.members.filter((m) => m.status === 'invited').length;
@@ -65,19 +67,19 @@ export default function FamilyOverviewSection({
   return (
     <div className="rounded-2xl border border-[#58D7D4]/20 bg-white/[0.02] p-5">
       <h3 className="font-[family-name:var(--font-serif-display)] text-base font-semibold text-[#F5F2EA]">
-        Family-Übersicht
+        {t('overviewTitle')}
       </h3>
 
       {/* 1. Family header */}
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#F5F2EA]">
         <span>
-          Deine Rolle: <strong>{ROLE_LABEL[state.role ?? ''] ?? state.role}</strong>
+          {t('yourRole')} <strong>{t(ROLE_LABEL_KEY[state.role ?? ''] ?? 'roleOwner')}</strong>
         </span>
         <span>
-          Status: <strong>{STATUS_LABEL[state.status ?? ''] ?? state.status}</strong>
+          {t('statusLabel')} <strong>{t(STATUS_LABEL_KEY[state.status ?? ''] ?? 'statusActive')}</strong>
         </span>
         <span>
-          Mitglieder: <strong>{state.member_count_active} / {state.max_members}</strong>
+          {t('membersLabel')} <strong>{state.member_count_active} / {state.max_members}</strong>
         </span>
       </div>
 
@@ -88,18 +90,18 @@ export default function FamilyOverviewSection({
             key={member.user_id}
             className="rounded-full border border-white/15 px-3 py-1 text-xs text-[#B7BDC4]"
           >
-            {member.display_name || member.email} · {ROLE_LABEL[member.role]} · {STATUS_LABEL[member.status]}
+            {member.display_name || member.email} · {t(ROLE_LABEL_KEY[member.role])} · {t(STATUS_LABEL_KEY[member.status])}
           </span>
         ))}
       </div>
 
       {/* 3. Active Family Goals */}
       <div className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[#8E969F]">Aktive Familienziele</p>
-        {goalsLoading && <p className="mt-2 text-sm text-[#8E969F]">Lädt Familienziele...</p>}
+        <p className="text-xs font-semibold uppercase tracking-wide text-[#8E969F]">{t('activeGoalsTitle')}</p>
+        {goalsLoading && <p className="mt-2 text-sm text-[#8E969F]">{t('loadingGoals')}</p>}
         {!goalsLoading && goalsError && <p className="mt-2 text-sm text-red-300">{goalsError}</p>}
         {!goalsLoading && !goalsError && activeGoals.length === 0 && (
-          <p className="mt-2 text-sm text-[#8E969F]">Noch keine aktiven Familienziele.</p>
+          <p className="mt-2 text-sm text-[#8E969F]">{t('noActiveGoals')}</p>
         )}
         {!goalsLoading && !goalsError && activeGoals.length > 0 && (
           <div className="mt-2 space-y-2">
@@ -109,9 +111,9 @@ export default function FamilyOverviewSection({
                 <div key={goal.id} className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-sm">
                   <p className="font-semibold text-[#F5F2EA]">{goal.title}</p>
                   <p className="mt-1 text-xs text-[#8E969F]">
-                    {goal.participant_count} Teilnehmende · {goal.completed_count} erledigt
-                    {own && ` · Dein Fortschritt: ${own.progress_value ?? 0}${own.completed ? ' (erledigt)' : ''}`}
-                    {!own && currentUserEmail && ' · Du nimmst noch nicht teil'}
+                    {goal.participant_count} {t('participantsLabel')} · {goal.completed_count} {t('completedLabel')}
+                    {own && ` · ${t('yourProgress')} ${own.progress_value ?? 0}${own.completed ? ` ${t('completedSuffix')}` : ''}`}
+                    {!own && currentUserEmail && ` · ${t('notParticipating')}`}
                   </p>
                 </div>
               );
@@ -123,18 +125,17 @@ export default function FamilyOverviewSection({
       {/* 4. Family activity summary (strictly Family-safe sentences) */}
       {!goalsLoading && !goalsError && (
         <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-[#B7BDC4]">
-          <li>{activeGoals.length} aktive Familienziele</li>
+          <li>{activeGoals.length} {t('activeGoalsSummary')}</li>
           {state.member_count_active > 0 && (
             <li>
-              {participatingUserIds.size} von {state.member_count_active} Mitgliedern nehmen an mind. einem
-              Familienziel teil
+              {participatingUserIds.size} {t('membersParticipatingSummary', { total: state.member_count_active })}
             </li>
           )}
-          {pendingInvites > 0 && <li>{pendingInvites} Einladung(en) ausstehend</li>}
+          {pendingInvites > 0 && <li>{pendingInvites} {t('pendingInvitesSummary')}</li>}
           {!challengesLoading && !challengesError && (
             <>
-              <li>{activeChallenges.length} aktive Challenges</li>
-              <li>{challengeParticipantIds.size} Teilnehmer insgesamt bei Challenges</li>
+              <li>{activeChallenges.length} {t('activeChallengesSummary')}</li>
+              <li>{challengeParticipantIds.size} {t('challengeParticipantsSummary')}</li>
             </>
           )}
         </ul>
@@ -148,19 +149,19 @@ export default function FamilyOverviewSection({
               onClick={onInviteMember}
               className="rounded-lg border border-white/20 px-3 py-1.5 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
             >
-              Mitglied einladen
+              {t('inviteMember')}
             </button>
             <button
               onClick={onCreateGoal}
               className="rounded-lg border border-white/20 px-3 py-1.5 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
             >
-              Familienziel erstellen
+              {t('createGoalAction')}
             </button>
             <button
               onClick={onCreateChallenge}
               className="rounded-lg border border-white/20 px-3 py-1.5 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
             >
-              Challenge erstellen
+              {t('createChallengeAction')}
             </button>
           </>
         )}
@@ -170,20 +171,20 @@ export default function FamilyOverviewSection({
               onClick={onViewGoals}
               className="rounded-lg border border-white/20 px-3 py-1.5 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
             >
-              Familienziele ansehen
+              {t('viewGoalsAction')}
             </button>
             <button
               onClick={onViewChallenges}
               className="rounded-lg border border-white/20 px-3 py-1.5 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
             >
-              Challenges ansehen
+              {t('viewChallengesAction')}
             </button>
             {state.status === 'active' && (
               <button
                 onClick={onLeaveFamily}
                 className="rounded-lg border border-white/20 px-3 py-1.5 text-xs font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60"
               >
-                Family verlassen
+                {t('leaveFamilyAction')}
               </button>
             )}
           </>

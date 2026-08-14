@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type CheckinEntry = {
@@ -17,16 +18,16 @@ type CheckinEntry = {
   note?: string | null;
 };
 
-const SCALE_FIELDS: { key: keyof CheckinEntry; label: string }[] = [
-  { key: 'mood', label: 'Stimmung' },
-  { key: 'energy', label: 'Energie' },
-  { key: 'stress', label: 'Stress' },
-  { key: 'sleep_quality', label: 'Schlafqualität' },
+const SCALE_FIELDS: { key: keyof CheckinEntry; labelKey: 'mood' | 'energy' | 'stress' | 'sleepQuality' }[] = [
+  { key: 'mood', labelKey: 'mood' },
+  { key: 'energy', labelKey: 'energy' },
+  { key: 'stress', labelKey: 'stress' },
+  { key: 'sleep_quality', labelKey: 'sleepQuality' },
 ];
 
-const OPTIONAL_SCALE_FIELDS: { key: keyof CheckinEntry; label: string }[] = [
-  { key: 'motivation', label: 'Motivation' },
-  { key: 'recovery', label: 'Erholung' },
+const OPTIONAL_SCALE_FIELDS: { key: keyof CheckinEntry; labelKey: 'motivation' | 'recovery' }[] = [
+  { key: 'motivation', labelKey: 'motivation' },
+  { key: 'recovery', labelKey: 'recovery' },
 ];
 
 /**
@@ -36,6 +37,7 @@ const OPTIONAL_SCALE_FIELDS: { key: keyof CheckinEntry; label: string }[] = [
  * §8 ("Dashboard nicht überladen").
  */
 export default function DashboardCheckin() {
+  const t = useTranslations('dashboard');
   const [entry, setEntry] = useState<CheckinEntry>({ entry_date: new Date().toISOString().slice(0, 10) });
   const [hasSavedEntry, setHasSavedEntry] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -129,7 +131,7 @@ export default function DashboardCheckin() {
   if (loading) {
     return (
       <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <p className="text-sm text-[#8E969F]">Lade heutigen Check-in...</p>
+        <p className="text-sm text-[#8E969F]">{t('loadingCheckin')}</p>
       </article>
     );
   }
@@ -137,15 +139,15 @@ export default function DashboardCheckin() {
   return (
     <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">Check-in heute</h3>
+        <h3 className="font-[family-name:var(--font-serif-display)] text-xl font-semibold text-[#F5F2EA]">{t('checkin')}</h3>
         <span className="rounded-full border border-white/15 px-3 py-1 text-xs text-[#8E969F]">{entry.entry_date}</span>
       </div>
-      <p className="mt-2 text-sm text-[#8E969F]">Freiwillig — lass Felder leer, die du heute nicht beantworten möchtest.</p>
+      <p className="mt-2 text-sm text-[#8E969F]">{t('optional')}</p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        {SCALE_FIELDS.map(({ key, label }) => (
+        {SCALE_FIELDS.map(({ key, labelKey }) => (
           <label key={key} className="block">
-            <span className="mb-1 block text-xs text-[#B7BDC4]">{label} (1-10)</span>
+            <span className="mb-1 block text-xs text-[#B7BDC4]">{t(labelKey)} (1-10)</span>
             <select
               value={entry[key] ?? ''}
               onChange={(e) => updateField(key, e.target.value)}
@@ -159,7 +161,7 @@ export default function DashboardCheckin() {
           </label>
         ))}
         <label className="block">
-          <span className="mb-1 block text-xs text-[#B7BDC4]">Schlafdauer (Stunden)</span>
+          <span className="mb-1 block text-xs text-[#B7BDC4]">{t('sleepDuration')}</span>
           <input
             type="number"
             step="0.5"
@@ -171,7 +173,7 @@ export default function DashboardCheckin() {
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs text-[#B7BDC4]">Bewegung (Minuten)</span>
+          <span className="mb-1 block text-xs text-[#B7BDC4]">{t('movement')}</span>
           <input
             type="number"
             min={0}
@@ -188,14 +190,14 @@ export default function DashboardCheckin() {
         onClick={() => setShowMore((current) => !current)}
         className="mt-3 text-xs font-semibold text-[#B7BDC4] underline hover:text-[#58D7D4]"
       >
-        {showMore ? 'Weniger anzeigen' : 'Motivation, Erholung, Notiz (optional)'}
+          {showMore ? t('showLess') : t('showMore')}
       </button>
 
       {showMore && (
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {OPTIONAL_SCALE_FIELDS.map(({ key, label }) => (
+          {OPTIONAL_SCALE_FIELDS.map(({ key, labelKey }) => (
             <label key={key} className="block">
-              <span className="mb-1 block text-xs text-[#B7BDC4]">{label} (1-10, optional)</span>
+              <span className="mb-1 block text-xs text-[#B7BDC4]">{t(labelKey)} (1-10, optional)</span>
               <select
                 value={entry[key] ?? ''}
                 onChange={(e) => updateField(key, e.target.value)}
@@ -209,7 +211,7 @@ export default function DashboardCheckin() {
             </label>
           ))}
           <label className="block">
-            <span className="mb-1 block text-xs text-[#B7BDC4]">Wasser (optional)</span>
+            <span className="mb-1 block text-xs text-[#B7BDC4]">{t('water')}</span>
             <select
               value={entry.water_habit ?? ''}
               onChange={(e) => setEntry((current) => ({ ...current, water_habit: e.target.value || null }))}
@@ -222,7 +224,7 @@ export default function DashboardCheckin() {
             </select>
           </label>
           <label className="block sm:col-span-2">
-            <span className="mb-1 block text-xs text-[#B7BDC4]">Notiz (optional, max. 280 Zeichen)</span>
+            <span className="mb-1 block text-xs text-[#B7BDC4]">{t('note')}</span>
             <input
               type="text"
               maxLength={280}
@@ -241,7 +243,7 @@ export default function DashboardCheckin() {
           disabled={saving}
           className="rounded-xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {saving ? 'Speichere...' : 'Check-in speichern'}
+            {saving ? t('saveLoading') : t('saveCheckin')}
         </button>
         {hasSavedEntry && (
           <button
@@ -249,7 +251,7 @@ export default function DashboardCheckin() {
             disabled={deleting}
             className="rounded-xl border border-red-400/25 px-5 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {deleting ? 'Lösche...' : 'Eintrag löschen'}
+              {deleting ? t('deleteLoading') : t('deleteEntry')}
           </button>
         )}
         {message && <p className="text-sm text-[#B7BDC4]">{message}</p>}

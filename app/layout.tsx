@@ -1,9 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import SplashScreen from "./components/brand/SplashScreen";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import AdSenseScript from "./components/AdSenseScript";
+import I18nProvider from "./i18n-provider";
+import { defaultLocale, isLocale, localeCookie } from "@/lib/i18n/config";
 
 const inter = Inter({
   variable: "--font-sans-body",
@@ -22,39 +26,39 @@ const fraunces = Fraunces({
   axes: ["opsz", "SOFT"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "VitalTwin | Digitaler Wellness-Zwilling",
-    template: "%s | VitalTwin",
-  },
-  description:
-    "VitalTwin ordnet deine freiwillig eingetragenen Biomarker ein und gibt allgemeine Wellness-Impulse zur Orientierung für mehr Wohlbefinden im Alltag.",
-  manifest: "/manifest.webmanifest",
-  applicationName: "VitalTwin",
-  metadataBase: new URL("https://www.vitaltwin.de"),
-  openGraph: {
-    type: "website",
-    locale: "de_DE",
-    siteName: "VitalTwin",
-    title: "VitalTwin | Digitaler Wellness-Zwilling",
-    description:
-      "Wellness-Orientierung auf Basis deiner freiwillig eingetragenen Biomarker und Gewohnheiten. Kein medizinisches Produkt.",
-    url: "https://www.vitaltwin.de",
-  },
-  twitter: {
-    card: "summary",
-    title: "VitalTwin | Digitaler Wellness-Zwilling",
-    description:
-      "Wellness-Orientierung auf Basis deiner freiwillig eingetragenen Biomarker und Gewohnheiten. Kein medizinisches Produkt.",
-  },
-  // Google AdSense site-ownership verification via meta tag — deliberately
-  // NOT the AdSense <script> snippet, which would load the ad library
-  // (and set cookies) before the user has given cookie consent. The meta
-  // tag alone loads nothing and sets no cookies, so it needs no consent.
-  other: {
-    "google-adsense-account": "ca-pub-9292565421244191",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('siteMeta');
+  return {
+    title: {
+      default: t('homeTitle'),
+      template: "%s | VitalTwin",
+    },
+    description: t('homeDescription'),
+    manifest: "/manifest.webmanifest",
+    applicationName: "VitalTwin",
+    metadataBase: new URL("https://www.vitaltwin.de"),
+    openGraph: {
+      type: "website",
+      locale: "de_DE",
+      siteName: "VitalTwin",
+      title: t('homeTitle'),
+      description: t('ogDescription'),
+      url: "https://www.vitaltwin.de",
+    },
+    twitter: {
+      card: "summary",
+      title: t('homeTitle'),
+      description: t('ogDescription'),
+    },
+    // Google AdSense site-ownership verification via meta tag — deliberately
+    // NOT the AdSense <script> snippet, which would load the ad library
+    // (and set cookies) before the user has given cookie consent. The meta
+    // tag alone loads nothing and sets no cookies, so it needs no consent.
+    other: {
+      "google-adsense-account": "ca-pub-9292565421244191",
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#0B1118",
@@ -62,20 +66,25 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const localeValue = (await cookies()).get(localeCookie)?.value;
+  const locale = isLocale(localeValue) ? localeValue : defaultLocale;
+
   return (
     <html
-      lang="de"
+      lang={locale}
       className={`${inter.variable} ${ibmPlexMono.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <SplashScreen>{children}</SplashScreen>
-        <AdSenseScript />
-        <CookieConsentBanner />
+        <I18nProvider locale={locale}>
+          <SplashScreen>{children}</SplashScreen>
+          <AdSenseScript />
+          <CookieConsentBanner />
+        </I18nProvider>
       </body>
     </html>
   );
