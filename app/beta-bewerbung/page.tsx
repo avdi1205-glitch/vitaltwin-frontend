@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import PublicFooter from '../components/PublicFooter';
 
@@ -10,6 +10,7 @@ type BetaStatus = 'pending' | 'approved' | 'rejected' | null;
 
 export default function BetaBewerbung() {
   const t = useTranslations('betaApplication');
+  const locale = useLocale();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [age, setAge] = useState('');
@@ -54,7 +55,7 @@ export default function BetaBewerbung() {
     setMessage('');
 
     try {
-      const response = await fetch(apiUrl('/api/beta/apply'), {
+      const response = await fetch(apiUrl(`/api/beta/apply?locale=${locale}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
