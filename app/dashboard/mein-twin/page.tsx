@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import { DEFAULT_TWIN_FORM } from '@/lib/twin-defaults';
 import DashboardAdvancedTwinOverview from '../../components/dashboard-advanced-twin-overview';
@@ -52,6 +52,7 @@ type HistoryItem = {
  */
 export default function MeinTwinPage() {
   const t = useTranslations('meinTwin');
+  const locale = useLocale();
   const { profile, loadingProfile, setProfile } = useDashboardShell();
   const [form, setForm] = useState({ ...DEFAULT_TWIN_FORM });
   const [showMoreMarkers, setShowMoreMarkers] = useState(false);
@@ -97,7 +98,7 @@ export default function MeinTwinPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(apiUrl('/api/twin/calculate'), {
+      const res = await fetch(apiUrl(`/api/twin/calculate?locale=${locale}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, family_context: familyContext, token }),
@@ -124,7 +125,7 @@ export default function MeinTwinPage() {
     } finally {
       setLoading(false);
     }
-  }, [familyContext, fetchLatest, form, profile, setProfile, t]);
+  }, [familyContext, fetchLatest, form, locale, profile, setProfile, t]);
 
   const displayedTwin: TwinResponse | null = twin ?? (latest
     ? {

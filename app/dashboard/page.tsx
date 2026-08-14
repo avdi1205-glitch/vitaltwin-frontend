@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import { DEFAULT_TWIN_FORM } from '@/lib/twin-defaults';
 import DashboardDailyPlan from '../components/dashboard-daily-plan';
@@ -158,6 +158,7 @@ export default function Dashboard() {
   const router = useRouter();
   const t = useTranslations('dashboard');
   const cardsT = useTranslations('cards');
+  const locale = useLocale();
   const isMountedRef = useRef(true);
   const autoStarterTriggeredRef = useRef(false);
 
@@ -283,7 +284,7 @@ export default function Dashboard() {
       const token = localStorage.getItem('token');
       if (!token) return;
       try {
-        const res = await fetch(apiUrl('/api/twin/calculate'), {
+        const res = await fetch(apiUrl(`/api/twin/calculate?locale=${locale}`), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...DEFAULT_TWIN_FORM, family_context: [], token }),
@@ -301,7 +302,7 @@ export default function Dashboard() {
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [fetchLatest, latest, loadingLatest, loadingProfile, profile, setProfile, twin]);
+  }, [fetchLatest, latest, loadingLatest, loadingProfile, locale, profile, setProfile, twin]);
 
   const displayedTwin: TwinResponse | null = twin ?? (latest
     ? { biologisches_alter: latest.biologisches_alter, differenz: latest.differenz, empfehlungen: [] }
