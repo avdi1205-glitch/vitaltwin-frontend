@@ -262,6 +262,20 @@ export default function PreiseClient() {
           )}
         </div>
 
+        {!activeBetaGrant && (
+          <div className="mt-8 rounded-3xl border border-[#58D7D4]/30 bg-[#58D7D4]/[0.06] p-6 text-center md:p-8">
+            <p className="font-semibold text-[#F5F2EA]">{t('betaApplyCalloutTitle')}</p>
+            <p className="mx-auto mt-2 max-w-2xl text-sm text-[#B7BDC4]">{t('betaApplyCalloutText')}</p>
+            <Link
+              href="/beta-bewerbung"
+              className="mt-4 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-6 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
+            >
+              {t('betaApplyCalloutCta')}
+            </Link>
+            <p className="mx-auto mt-3 max-w-2xl text-xs text-[#8E969F]">{t('betaApplyCalloutNote')}</p>
+          </div>
+        )}
+
         <div id="tarife" className="mt-10 scroll-mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {PLAN_ORDER.map((planId) => {
             const plan = PLANS[planId];
