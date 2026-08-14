@@ -1,10 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import PublicFooter from '../components/PublicFooter';
+
+type BetaStatus = 'pending' | 'approved' | 'rejected' | null;
 
 export default function BetaBewerbung() {
   const t = useTranslations('betaApplication');
@@ -16,6 +18,35 @@ export default function BetaBewerbung() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
+  const [status, setStatus] = useState<BetaStatus>(null);
+  const [betaExpiresAt, setBetaExpiresAt] = useState<string | null>(null);
+  const [alreadyActiveBeta, setAlreadyActiveBeta] = useState(false);
+  const [checkingAccount, setCheckingAccount] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      const timer = window.setTimeout(() => setCheckingAccount(false), 0);
+      return () => window.clearTimeout(timer);
+    }
+    const timer = window.setTimeout(async () => {
+      try {
+        const res = await fetch(apiUrl('/api/users/me'), { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) {
+          const data = (await res.json()) as { beta?: { expires_at?: string } | null };
+          if (data.beta) {
+            setAlreadyActiveBeta(true);
+            setBetaExpiresAt(data.beta.expires_at ?? null);
+          }
+        }
+      } catch {
+        // Non-fatal — falls back to showing the normal application form.
+      } finally {
+        setCheckingAccount(false);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +67,7 @@ export default function BetaBewerbung() {
         }),
       });
 
-      const data = await response.json().catch(() => null);
+      const data = (await response.json().catch(() => null)) as { detail?: string; message?: string; status?: BetaStatus } | null;
 
       if (!response.ok) {
         setMessage(data?.detail ?? t('submitError'));
@@ -44,12 +75,20 @@ export default function BetaBewerbung() {
       }
 
       setMessage(data?.message ?? t('successDefault'));
+      setStatus(data?.status ?? 'pending');
       setSuccess(true);
     } catch {
       setMessage(t('backendError'));
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDate = (iso: string | null): string | null => {
+    if (!iso) return null;
+    const parsed = new Date(iso);
+    if (Number.isNaN(parsed.getTime())) return null;
+    return parsed.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   return (
@@ -63,11 +102,43 @@ export default function BetaBewerbung() {
           {t('intro')}
         </p>
 
+        <ul className="mx-auto mt-6 max-w-md space-y-2 text-sm text-[#B7BDC4]">
+          <li>✓ {t('noCreditCard')}</li>
+          <li>✓ {t('noSubscription')}</li>
+          <li>✓ {t('reviewFirst')}</li>
+          <li>✓ {t('notGuaranteed')}</li>
+          <li>✓ {t('honestFeedback')}</li>
+        </ul>
+
+        <div className="mx-auto mt-8 grid max-w-md grid-cols-1 gap-4 sm:grid-cols-3">
+          {[t('step1'), t('step2'), t('step3')].map((step, index) => (
+            <div key={step} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center">
+              <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">{index + 1}</p>
+              <p className="mt-2 text-sm text-[#F5F2EA]">{step}</p>
+            </div>
+          ))}
+        </div>
+
         <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">
-          {success ? (
+          {!checkingAccount && alreadyActiveBeta ? (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
-              <p className="text-lg font-semibold text-[#F5F2EA]">{t('submittedTitle')}</p>
-              <p className="mt-2 text-[#B7BDC4]">{message}</p>
+              <p className="text-lg font-semibold text-[#F5F2EA]">{t('alreadyActiveTitle')}</p>
+              <p className="mt-2 text-[#B7BDC4]">{t('alreadyActiveText')}</p>
+              {betaExpiresAt && (
+                <p className="mt-2 text-sm text-[#8E969F]">{t('statusApprovedUntil')} {formatDate(betaExpiresAt)}</p>
+              )}
+              <Link href="/dashboard" className="mt-6 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-6 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110">
+                {t('goToDashboard')}
+              </Link>
+            </div>
+          ) : success ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
+              <p className="text-lg font-semibold text-[#F5F2EA]">
+                {status === 'approved' ? t('statusApprovedTitle') : status === 'rejected' ? t('statusRejectedTitle') : t('statusPendingTitle')}
+              </p>
+              <p className="mt-2 text-[#B7BDC4]">
+                {status === 'approved' ? t('statusApprovedNoPayment') : status === 'rejected' ? t('statusRejectedText') : (message || t('statusPendingText'))}
+              </p>
               <Link href="/" className="mt-6 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-6 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110">
                 {t('backToHome')}
               </Link>
@@ -178,3 +249,4 @@ export default function BetaBewerbung() {
     </div>
   );
 }
+

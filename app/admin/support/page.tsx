@@ -15,12 +15,14 @@ type ContactMessage = {
   created_at: string;
 };
 type BetaApplication = {
+  id: number;
   email: string;
   full_name: string;
   age: number | null;
   motivation: string;
   source: string | null;
   created_at: string;
+  status: 'pending' | 'approved' | 'rejected';
 };
 
 const CONTACT_STATUSES = ['new', 'beantwortet', 'archiviert'] as const;
@@ -43,7 +45,8 @@ export default function AdminSupportPage() {
 
   const [betaApplications, setBetaApplications] = useState<BetaApplication[]>([]);
   const [betaTotal, setBetaTotal] = useState(0);
-  const [betaNote, setBetaNote] = useState('');
+  const [betaBusyId, setBetaBusyId] = useState<number | null>(null);
+  const [betaActionMessage, setBetaActionMessage] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -86,11 +89,29 @@ export default function AdminSupportPage() {
       const data = await response.json();
       setBetaApplications(Array.isArray(data.items) ? data.items : []);
       setBetaTotal(typeof data.total === 'number' ? data.total : 0);
-      setBetaNote(data.note || '');
     } catch {
       // Non-fatal — feedback section already loaded.
     }
   }, [authFetch]);
+
+  const reviewBetaApplication = async (application: BetaApplication, action: 'approve' | 'reject') => {
+    setBetaBusyId(application.id);
+    setBetaActionMessage('');
+    try {
+      const response = await authFetch(`/api/admin/support/beta-applications/${application.id}/${action}`, { method: 'POST' });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setBetaActionMessage(data?.detail || 'Aktion fehlgeschlagen.');
+        return;
+      }
+      setBetaActionMessage(data?.message || 'Aktion erfolgreich.');
+      await loadBetaApplications();
+    } catch {
+      setBetaActionMessage('Backend gerade nicht erreichbar.');
+    } finally {
+      setBetaBusyId(null);
+    }
+  };
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -195,17 +216,32 @@ export default function AdminSupportPage() {
           <p style={{ color: tokens.mutedMore, fontSize: '0.85rem' }}>Keine Beta-Bewerbungen vorhanden.</p>
         )}
         {betaApplications.map((application) => (
-          <div key={application.email} style={{ padding: '0.6rem 0', borderBottom: `1px solid ${tokens.border}` }}>
-            <p style={{ color: tokens.text, fontSize: '0.85rem', fontWeight: 600 }}>
-              {application.full_name} · {application.email} {application.age ? `· ${application.age} Jahre` : ''}
-            </p>
+          <div key={application.id} style={{ padding: '0.6rem 0', borderBottom: `1px solid ${tokens.border}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <p style={{ color: tokens.text, fontSize: '0.85rem', fontWeight: 600 }}>
+                {application.full_name} · {application.email} {application.age ? `· ${application.age} Jahre` : ''}
+              </p>
+              <Badge tone={application.status === 'approved' ? 'success' : application.status === 'rejected' ? 'danger' : 'neutral'}>
+                {application.status}
+              </Badge>
+            </div>
             <p style={{ color: tokens.muted, fontSize: '0.8rem', marginTop: '0.25rem' }}>{application.motivation}</p>
             <p style={{ color: tokens.mutedMore, fontSize: '0.75rem', marginTop: '0.25rem' }}>
               {application.source || 'unbekannte Quelle'} · {application.created_at}
             </p>
+            {canManageSupport && application.status === 'pending' && (
+              <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.5rem' }}>
+                <Button variant="primary" disabled={betaBusyId === application.id} onClick={() => reviewBetaApplication(application, 'approve')}>
+                  Beta freigeben (90 Tage Pro)
+                </Button>
+                <Button variant="secondary" disabled={betaBusyId === application.id} onClick={() => reviewBetaApplication(application, 'reject')}>
+                  Ablehnen
+                </Button>
+              </div>
+            )}
           </div>
         ))}
-        {betaNote && <Note>{betaNote}</Note>}
+        {betaActionMessage && <Note>{betaActionMessage}</Note>}
       </Card>
 
       {loading && <Loading />}

@@ -325,7 +325,7 @@ export default function Dashboard() {
             <p className="mt-3 text-[#B7BDC4]">{t('overviewIntro')}</p>
             {profile?.beta?.expires_at && (
               <p className="mt-1 text-xs text-[#8E969F]">
-                {t('betaExpires', { date: new Date(profile.beta.expires_at).toLocaleDateString('de-DE') })}
+                {t('betaExpires', { date: new Date(profile.beta.expires_at).toLocaleDateString(locale) })} {t('betaNoPaymentNote')}
               </p>
             )}
           </div>

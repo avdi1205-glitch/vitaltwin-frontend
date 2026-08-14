@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import PublicFooter from '../components/PublicFooter';
@@ -26,6 +26,31 @@ export default function PreiseClient() {
   const [confirmBeta, setConfirmBeta] = useState(false);
   const [betaLoading, setBetaLoading] = useState(false);
   const [betaMessage, setBetaMessage] = useState('');
+  const [activeBetaGrant, setActiveBetaGrant] = useState<{ plan: string; expires_at: string } | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const timer = window.setTimeout(async () => {
+      try {
+        const res = await fetch(apiUrl('/api/users/me'), { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) {
+          const data = (await res.json()) as { beta?: { plan: string; expires_at: string } | null };
+          setActiveBetaGrant(data.beta ?? null);
+        }
+      } catch {
+        // Non-fatal — falls back to the normal pricing view.
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const formatBetaDate = (iso: string | null): string | null => {
+    if (!iso) return null;
+    const parsed = new Date(iso);
+    if (Number.isNaN(parsed.getTime())) return null;
+    return parsed.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
 
   // Global safety switch: pause all paid checkouts (e.g. during beta) without
   // touching per-plan Stripe configuration. Defaults to enabled.
@@ -192,38 +217,49 @@ export default function PreiseClient() {
         </div>
 
         <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-center md:p-8">
-          <p className="font-semibold text-[#F5F2EA]">{t('betaBoxTitle')}</p>
-          <p className="mx-auto mt-2 max-w-2xl text-sm text-[#B7BDC4]">
-            {t('betaBoxText')}
-          </p>
-          {!confirmBeta ? (
-            <button
-              onClick={() => setConfirmBeta(true)}
-              className="mt-4 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
-            >
-              {t('activateBeta')}
-            </button>
+          {activeBetaGrant ? (
+            <>
+              <p className="font-semibold text-[#F5F2EA]">{t('betaTesterActiveTitle')}</p>
+              <p className="mx-auto mt-2 max-w-2xl text-sm text-[#B7BDC4]">
+                {t('betaTesterActiveUntil')} {formatBetaDate(activeBetaGrant.expires_at)} — {t('betaTesterActiveNoPayment')}
+              </p>
+            </>
           ) : (
-            <div className="mx-auto mt-4 max-w-md rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm text-[#F5F2EA]">
-              <p>{t('betaConfirmText')}</p>
-              <div className="mt-3 flex flex-wrap justify-center gap-2">
+            <>
+              <p className="font-semibold text-[#F5F2EA]">{t('betaBoxTitle')}</p>
+              <p className="mx-auto mt-2 max-w-2xl text-sm text-[#B7BDC4]">
+                {t('betaBoxText')}
+              </p>
+              {!confirmBeta ? (
                 <button
-                  onClick={activateFreeBeta}
-                  disabled={betaLoading}
-                  className="rounded-xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-2 font-semibold text-[#0B1118] disabled:cursor-not-allowed disabled:opacity-70"
+                  onClick={() => setConfirmBeta(true)}
+                  className="mt-4 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
                 >
-                  {betaLoading ? t('activating') : t('activateNow')}
+                  {t('activateBeta')}
                 </button>
-                <button
-                  onClick={() => setConfirmBeta(false)}
-                  className="rounded-xl border border-white/15 px-4 py-2 font-semibold text-[#F5F2EA]"
-                >
-                  {t('cancel')}
-                </button>
-              </div>
-            </div>
+              ) : (
+                <div className="mx-auto mt-4 max-w-md rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm text-[#F5F2EA]">
+                  <p>{t('betaConfirmText')}</p>
+                  <div className="mt-3 flex flex-wrap justify-center gap-2">
+                    <button
+                      onClick={activateFreeBeta}
+                      disabled={betaLoading}
+                      className="rounded-xl bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-4 py-2 font-semibold text-[#0B1118] disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      {betaLoading ? t('activating') : t('activateNow')}
+                    </button>
+                    <button
+                      onClick={() => setConfirmBeta(false)}
+                      className="rounded-xl border border-white/15 px-4 py-2 font-semibold text-[#F5F2EA]"
+                    >
+                      {t('cancel')}
+                    </button>
+                  </div>
+                </div>
+              )}
+              {betaMessage && <p className="mt-3 text-sm text-red-300">{betaMessage}</p>}
+            </>
           )}
-          {betaMessage && <p className="mt-3 text-sm text-red-300">{betaMessage}</p>}
         </div>
 
         <div id="tarife" className="mt-10 scroll-mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -284,7 +320,11 @@ export default function PreiseClient() {
                 </ul>
 
                 <div className="mt-8">
-                  {isFree ? (
+                  {activeBetaGrant && activeBetaGrant.plan === planId ? (
+                    <p className="rounded-2xl border border-[#58D7D4]/30 bg-[#58D7D4]/10 py-3 text-center text-sm font-semibold text-[#58D7D4]">
+                      {t('betaTesterActiveIncluded')}
+                    </p>
+                  ) : isFree ? (
                     <button
                       onClick={goToFreeStart}
                       className={`block w-full rounded-2xl py-3 text-center text-sm font-semibold transition ${
