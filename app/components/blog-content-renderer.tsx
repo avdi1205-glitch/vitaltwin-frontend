@@ -26,7 +26,7 @@ function isSafeUrl(url: string): boolean {
 // regardless of what an editor types into the textarea.
 function renderInline(text: string, keyPrefix: string): ReactNode[] {
   const nodes: ReactNode[] = [];
-  const pattern = /\*\*(.+?)\*\*|\[(.+?)\]\(\s*(.+?)\s*\)/gs;
+  const pattern = /\*\*([\s\S]+?)\*\*|\[([\s\S]+?)\]\(\s*([\s\S]+?)\s*\)/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   let index = 0;
