@@ -20,11 +20,15 @@ function isSafeUrl(url: string): boolean {
   return /^https?:\/\//i.test(url) || url.startsWith('/');
 }
 
+// Bold text can wrap a link (`**[text](url)**`) — bounds the recursive
+// re-parse of a bold match's inner content so malformed input can never spin.
+const MAX_INLINE_NESTING_DEPTH = 4;
+
 // Parses a single line of text for the small set of supported inline
 // markers (**bold**, [text](url) links) into safe React nodes — never
 // `dangerouslySetInnerHTML`, so there is no HTML/script-injection surface
 // regardless of what an editor types into the textarea.
-function renderInline(text: string, keyPrefix: string): ReactNode[] {
+function renderInline(text: string, keyPrefix: string, depth = 0): ReactNode[] {
   const nodes: ReactNode[] = [];
   const pattern = /\*\*([\s\S]+?)\*\*|\[([\s\S]+?)\]\(\s*([\s\S]+?)\s*\)/g;
   let lastIndex = 0;
@@ -36,7 +40,10 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
       nodes.push(text.slice(lastIndex, match.index));
     }
     if (match[1] !== undefined) {
-      nodes.push(<strong key={`${keyPrefix}-b${index}`}>{match[1]}</strong>);
+      const boldKey = `${keyPrefix}-b${index}`;
+      const innerNodes =
+        depth < MAX_INLINE_NESTING_DEPTH ? renderInline(match[1], boldKey, depth + 1) : [match[1]];
+      nodes.push(<strong key={boldKey}>{innerNodes}</strong>);
     } else if (match[2] !== undefined && match[3] !== undefined) {
       const url = match[3];
       if (isSafeUrl(url)) {
