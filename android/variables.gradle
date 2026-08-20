@@ -20,6 +20,9 @@ ext {
     // comment). No version bump needed after all.
     healthConnectClientVersion = '1.1.0-alpha07'
     kotlinxCoroutinesVersion = '1.8.1'
+    // Background Health Connect sync (Phase 2.3) — periodic + app-foreground
+    // trigger, same read/normalize/upload code path as the manual button.
+    workManagerVersion = '2.9.1'
     androidxActivityVersion = '1.9.2'
     androidxAppCompatVersion = '1.7.0'
     androidxCoordinatorLayoutVersion = '1.2.0'
