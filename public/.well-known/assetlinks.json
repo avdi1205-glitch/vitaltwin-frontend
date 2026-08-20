@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.vitaltwin.app",
+      "sha256_cert_fingerprints": [
+        "6A:11:26:24:37:E4:85:59:F9:FC:70:08:3E:BD:A1:7B:2F:A0:59:4A:E6:FC:50:C7:B3:1A:8F:BE:50:13:30:12",
+        "4F:E4:4A:1F:F3:1E:0F:3E:DF:2E:8B:7E:72:1A:48:07:58:D5:AB:65:8C:B1:B6:08:95:BB:87:59:90:18:51:24"
+      ]
+    }
+  }
+]

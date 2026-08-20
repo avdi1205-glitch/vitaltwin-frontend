@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
+        android:name=".VitalTwinApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -20,6 +21,22 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Verified Android App Link (Phase 2.3, Schritt 3) — brings the
+                 user back into the app after a cross-origin round trip (e.g.
+                 the Google Health OAuth callback, which necessarily happens
+                 in the external browser since api.vitaltwin.de is a
+                 different origin than this app's www.vitaltwin.de WebView)
+                 and for /passwort-bestaetigen email links. autoVerify
+                 requires https://www.vitaltwin.de/.well-known/assetlinks.json
+                 to list this app's signing certificate(s) — see PLAYSTORE.md. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="www.vitaltwin.de" />
+                <data android:scheme="https" android:host="vitaltwin.de" />
             </intent-filter>
 
         </activity>
