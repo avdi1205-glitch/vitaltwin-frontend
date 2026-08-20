@@ -103,6 +103,19 @@ export default function HealthConnectSync() {
   const handleSync = async () => {
     const token = localStorage.getItem('token');
     if (!token || granted.length === 0) return;
+    // Phase 2.3: keep the background WorkManager job's cached session fresh
+    // whenever the user is active here, and take the same lock it respects
+    // so the manual button and a background run never overlap.
+    try {
+      await HealthConnect.cacheAuthToken({ token });
+    } catch {
+      // Non-fatal — background sync just won't have a fresh token yet.
+    }
+    const lock = await HealthConnect.beginSync().catch(() => ({ acquired: true }));
+    if (!lock.acquired) {
+      setMessage(t('syncAlreadyRunning'));
+      return;
+    }
     setBusy(true);
     setMessage('');
     try {
@@ -120,7 +133,7 @@ export default function HealthConnectSync() {
       const response = await fetch(apiUrl('/api/health/health-connect/sync'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ records }),
+        body: JSON.stringify({ records, sync_type: 'manual' }),
       });
       const data = (await response.json().catch(() => null)) as SyncResponse | null;
       if (response.ok && data) {
@@ -134,6 +147,7 @@ export default function HealthConnectSync() {
       setMessage(t('backendShort'));
     } finally {
       setBusy(false);
+      await HealthConnect.endSync().catch(() => undefined);
     }
   };
 

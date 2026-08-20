@@ -34,6 +34,15 @@ export interface HealthConnectPluginInterface {
   getGrantedWellnessPermissions(): Promise<{ granted: string[] }>;
   requestWellnessPermissions(options: { dataTypes: string[] }): Promise<{ granted: string[] }>;
   readWellnessRecords(options: { dataType: string; days?: number }): Promise<{ records: HealthConnectRawRecord[] }>;
+  // Phase 2.3 — background-sync integration. cacheAuthToken lets the
+  // WorkManager background job (which has no access to WebView
+  // localStorage) reach the backend with the same session the user is
+  // already logged in with. beginSync/endSync share ONE lock with
+  // HealthConnectSyncWorker.kt so the manual button and the background job
+  // never run a full sync at the same time.
+  cacheAuthToken(options: { token: string }): Promise<void>;
+  beginSync(): Promise<{ acquired: boolean }>;
+  endSync(): Promise<void>;
 }
 
 const HealthConnect = registerPlugin<HealthConnectPluginInterface>('HealthConnect');

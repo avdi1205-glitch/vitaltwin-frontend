@@ -242,6 +242,7 @@ export const messages = {
       syncNoDataError: '❌ Synchronisierung fehlgeschlagen — Google Health hat keine Daten geliefert. Bitte später erneut versuchen.',
       syncPartial: '⚠️ Synchronisierung teilweise abgeschlossen — manche Datentypen konnten nicht geladen werden.',
       syncComplete: 'Synchronisierung abgeschlossen.', tokenExpired: 'Verbindung ist abgelaufen. Bitte erneut verbinden.', syncError: 'Synchronisierung fehlgeschlagen.',
+      syncAlreadyRunning: 'Synchronisierung läuft bereits (z. B. im Hintergrund) — bitte kurz warten.',
       disconnectSuccess: 'Verbindung getrennt. Gespeicherte Tokens wurden gelöscht.', disconnectError: 'Trennen fehlgeschlagen. Bitte versuche es erneut.',
       catSteps: 'Schritte', catDistance: 'Distanz', catActiveCal: 'Aktive Kalorien', catTotalCal: 'Gesamtkalorien', catExercise: 'Trainingseinheiten', catHeartRate: 'Herzfrequenz', catRestingHr: 'Ruheherzfrequenz', catHrv: 'Herzfrequenzvariabilität (HRV)', catOxygen: 'Sauerstoffsättigung (SpO2)', catRespiratory: 'Atemfrequenz', catBodyTemp: 'Körpertemperatur', catWeight: 'Gewicht', catSleep: 'Schlaf',
       groupActivity: 'Aktivität', groupSleep: 'Schlaf', groupRecovery: 'Erholung', groupBody: 'Körper',
@@ -545,6 +546,7 @@ export const messages = {
     betaApplication: {
       badge: 'VitalTwin Beta-Kohorte', title: '90 Tage VitalTwin Pro kostenlos testen',
       intro: 'Ausgewählte Beta-Tester erhalten 90 Tage kostenlosen Zugang zu VitalTwin Pro — deine Bewerbung wird zuerst geprüft, eine Freigabe ist nicht garantiert. Im Gegenzug erwarten wir ehrliches Produkt-Feedback.',
+      feedbackHeading: 'Dein Feedback zählt', feedbackText: 'Nach deiner Freischaltung kannst du uns während der Beta im Dashboard Feedback zu Bedienung, Verständlichkeit und Funktionen geben.',
       noCreditCard: 'Keine Kreditkarte notwendig', noSubscription: 'Es wird kein Abo abgeschlossen', reviewFirst: 'Deine Bewerbung wird zuerst geprüft', notGuaranteed: 'Eine Freigabe ist nicht garantiert', honestFeedback: 'Wir erwarten ehrliches Produkt-Feedback',
       stepsTitle: 'So funktioniert es', step1: 'Kostenlos bewerben', step2: 'Wir prüfen deine Bewerbung', step3: 'Nach Freigabe erhältst du 90 Tage Pro Beta',
       submitError: 'Bewerbung konnte nicht gesendet werden. Bitte versuche es erneut.', successDefault: 'Danke für deine Bewerbung!', backendError: 'Backend nicht erreichbar. Bitte versuche es in wenigen Sekunden erneut.',
@@ -833,6 +835,7 @@ export const messages = {
       syncNoDataError: '❌ Sync failed — Google Health did not deliver any data. Please try again later.',
       syncPartial: '⚠️ Sync partially completed — some data types could not be loaded.',
       syncComplete: 'Sync completed.', tokenExpired: 'Connection has expired. Please reconnect.', syncError: 'Sync failed.',
+      syncAlreadyRunning: 'A sync is already running (e.g. in the background) — please wait a moment.',
       disconnectSuccess: 'Disconnected. Stored tokens were deleted.', disconnectError: 'Disconnect failed. Please try again.',
       catSteps: 'Steps', catDistance: 'Distance', catActiveCal: 'Active calories', catTotalCal: 'Total calories', catExercise: 'Exercise sessions', catHeartRate: 'Heart rate', catRestingHr: 'Resting heart rate', catHrv: 'Heart rate variability (HRV)', catOxygen: 'Oxygen saturation (SpO2)', catRespiratory: 'Respiratory rate', catBodyTemp: 'Body temperature', catWeight: 'Weight', catSleep: 'Sleep',
       groupActivity: 'Activity', groupSleep: 'Sleep', groupRecovery: 'Recovery', groupBody: 'Body',
@@ -1112,6 +1115,7 @@ export const messages = {
     betaApplication: {
       badge: 'VitalTwin Beta Cohort', title: 'Test VitalTwin Pro free for 90 days',
       intro: "Selected beta testers get 90 days of free access to VitalTwin Pro — your application is reviewed first, and approval isn't guaranteed. In return, we expect honest product feedback.",
+      feedbackHeading: 'Your feedback matters', feedbackText: 'After your beta access is approved, you can share feedback on usability, clarity and features with us in the dashboard during the beta.',
       noCreditCard: 'No credit card required', noSubscription: 'No subscription is created', reviewFirst: 'Your application is reviewed first', notGuaranteed: 'Approval is not guaranteed', honestFeedback: 'We expect honest product feedback',
       stepsTitle: 'How it works', step1: 'Apply for free', step2: 'We review your application', step3: 'Once approved, you receive 90 days of Pro Beta access',
       submitError: 'Could not send application. Please try again.', successDefault: 'Thanks for your application!', backendError: 'Backend unavailable. Please try again in a few seconds.',

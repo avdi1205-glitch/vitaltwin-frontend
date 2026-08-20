@@ -4,20 +4,7 @@ import androidx.activity.result.ActivityResult
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
-import androidx.health.connect.client.records.BodyTemperatureRecord
-import androidx.health.connect.client.records.DistanceRecord
-import androidx.health.connect.client.records.ExerciseSessionRecord
-import androidx.health.connect.client.records.HeartRateRecord
-import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
-import androidx.health.connect.client.records.OxygenSaturationRecord
-import androidx.health.connect.client.records.Record
-import androidx.health.connect.client.records.RespiratoryRateRecord
-import androidx.health.connect.client.records.RestingHeartRateRecord
-import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
-import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import com.getcapacitor.JSArray
@@ -27,7 +14,6 @@ import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.ActivityCallback
 import com.getcapacitor.annotation.CapacitorPlugin
-import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -59,23 +45,9 @@ class HealthConnectPlugin : Plugin() {
 
     // data_type string (SAME identifiers the backend's
     // `health_normalization_service.HEALTH_CONNECT_TYPES` uses) -> Health
-    // Connect record class. Single source of truth for the consolidated
-    // permission/read flow below.
-    private val wellnessRecordClasses: Map<String, KClass<out Record>> = mapOf(
-        "steps" to StepsRecord::class,
-        "distance" to DistanceRecord::class,
-        "active-calories" to ActiveCaloriesBurnedRecord::class,
-        "total-calories" to TotalCaloriesBurnedRecord::class,
-        "exercise-session" to ExerciseSessionRecord::class,
-        "heart-rate" to HeartRateRecord::class,
-        "resting-heart-rate" to RestingHeartRateRecord::class,
-        "heart-rate-variability" to HeartRateVariabilityRmssdRecord::class,
-        "oxygen-saturation" to OxygenSaturationRecord::class,
-        "respiratory-rate" to RespiratoryRateRecord::class,
-        "body-temperature" to BodyTemperatureRecord::class,
-        "weight" to WeightRecord::class,
-        "sleep-session" to SleepSessionRecord::class,
-    )
+    // Connect record class. Single source of truth, shared with
+    // `HealthConnectSyncWorker.kt` via `HealthConnectSyncCore` (Phase 2.3).
+    private val wellnessRecordClasses = HealthConnectSyncCore.wellnessRecordClasses
 
     @PluginMethod
     fun checkAvailability(call: PluginCall) {
@@ -226,25 +198,20 @@ class HealthConnectPlugin : Plugin() {
             return
         }
         val dataType = call.getString("dataType")
-        val recordClass = dataType?.let { wellnessRecordClasses[it] }
-        if (dataType == null || recordClass == null) {
+        if (dataType == null || !wellnessRecordClasses.containsKey(dataType)) {
             call.reject("Unknown or missing dataType")
             return
         }
         val days = call.getInt("days", 7) ?: 7
-        val client = HealthConnectClient.getOrCreate(context)
 
         pluginScope.launch {
             try {
-                val endTime = Instant.now()
-                val startTime = endTime.minus(days.toLong(), ChronoUnit.DAYS)
-                val response = client.readRecords(
-                    ReadRecordsRequest(recordClass, timeRangeFilter = TimeRangeFilter.between(startTime, endTime))
-                )
-                val records = JSArray()
-                response.records.forEach { record -> shapeRecord(dataType, record, records) }
+                // Delegates to the SAME read+shape logic HealthConnectSyncWorker
+                // uses (HealthConnectSyncCore) — single source of truth, see
+                // that file's class doc.
+                val byType = HealthConnectSyncCore.readGrantedRecords(context, listOf(dataType), days)
                 val ret = JSObject()
-                ret.put("records", records)
+                ret.put("records", if (byType.has(dataType)) byType.getJSONArray(dataType) else JSArray())
                 call.resolve(ret)
             } catch (e: SecurityException) {
                 call.reject("Permission not granted for $dataType", e)
@@ -254,137 +221,35 @@ class HealthConnectPlugin : Plugin() {
         }
     }
 
-    /** Shapes ONE Health Connect record into the exact JSON shape the
-     * backend's `normalize_health_connect_record()` expects for this data
-     * type — a `HeartRateRecord` contains multiple samples per record, so
-     * it appends one JSON item PER SAMPLE (with a composite id) rather
-     * than one per record. */
-    private fun shapeRecord(dataType: String, record: Record, out: JSArray) {
-        when (dataType) {
-            "steps" -> (record as StepsRecord).let {
-                out.put(JSObject().apply {
-                    put("id", it.metadata.id)
-                    put("count", it.count)
-                    put("startTime", it.startTime.toString())
-                    put("endTime", it.endTime.toString())
-                })
-            }
-            "distance" -> (record as DistanceRecord).let {
-                out.put(JSObject().apply {
-                    put("id", it.metadata.id)
-                    put("distanceMeters", it.distance.inMeters)
-                    put("startTime", it.startTime.toString())
-                    put("endTime", it.endTime.toString())
-                })
-            }
-            "active-calories" -> (record as ActiveCaloriesBurnedRecord).let {
-                out.put(JSObject().apply {
-                    put("id", it.metadata.id)
-                    put("energyKcal", it.energy.inKilocalories)
-                    put("startTime", it.startTime.toString())
-                    put("endTime", it.endTime.toString())
-                })
-            }
-            "total-calories" -> (record as TotalCaloriesBurnedRecord).let {
-                out.put(JSObject().apply {
-                    put("id", it.metadata.id)
-                    put("energyKcal", it.energy.inKilocalories)
-                    put("startTime", it.startTime.toString())
-                    put("endTime", it.endTime.toString())
-                })
-            }
-            "exercise-session" -> (record as ExerciseSessionRecord).let {
-                out.put(JSObject().apply {
-                    put("id", it.metadata.id)
-                    put("durationSeconds", java.time.Duration.between(it.startTime, it.endTime).seconds)
-                    // Raw Health Connect exercise-type int, deliberately NOT
-                    // decoded into a human label here (95+ types, no
-                    // built-in name lookup) — the real value is preserved
-                    // untouched, never guessed at.
-                    put("exerciseType", it.exerciseType)
-                    put("title", it.title)
-                    put("startTime", it.startTime.toString())
-                    put("endTime", it.endTime.toString())
-                })
-            }
-            "heart-rate" -> (record as HeartRateRecord).let { hr ->
-                hr.samples.forEachIndexed { index, sample ->
-                    out.put(JSObject().apply {
-                        put("id", "${hr.metadata.id}:$index")
-                        put("beatsPerMinute", sample.beatsPerMinute)
-                        put("time", sample.time.toString())
-                    })
-                }
-            }
-            "resting-heart-rate" -> (record as RestingHeartRateRecord).let {
-                out.put(JSObject().apply {
-                    put("id", it.metadata.id)
-                    put("beatsPerMinute", it.beatsPerMinute)
-                    put("time", it.time.toString())
-                })
-            }
-            "heart-rate-variability" -> (record as HeartRateVariabilityRmssdRecord).let {
-                out.put(JSObject().apply {
-                    put("id", it.metadata.id)
-                    put("rmssdMillis", it.heartRateVariabilityMillis)
-                    put("time", it.time.toString())
-                })
-            }
-            "oxygen-saturation" -> (record as OxygenSaturationRecord).let {
-                out.put(JSObject().apply {
-                    put("id", it.metadata.id)
-                    put("percentage", it.percentage.value)
-                    put("time", it.time.toString())
-                })
-            }
-            "respiratory-rate" -> (record as RespiratoryRateRecord).let {
-                out.put(JSObject().apply {
-                    put("id", it.metadata.id)
-                    put("rate", it.rate)
-                    put("time", it.time.toString())
-                })
-            }
-            "body-temperature" -> (record as BodyTemperatureRecord).let {
-                out.put(JSObject().apply {
-                    put("id", it.metadata.id)
-                    put("temperatureCelsius", it.temperature.inCelsius)
-                    put("time", it.time.toString())
-                })
-            }
-            "weight" -> (record as WeightRecord).let {
-                out.put(JSObject().apply {
-                    put("id", it.metadata.id)
-                    put("weightKg", it.weight.inKilograms)
-                    put("time", it.time.toString())
-                })
-            }
-            "sleep-session" -> (record as SleepSessionRecord).let { session ->
-                val stages = JSArray()
-                session.stages.forEach { stage ->
-                    stages.put(JSObject().apply {
-                        put("stage", sleepStageLabel(stage.stage))
-                        put("startTime", stage.startTime.toString())
-                        put("endTime", stage.endTime.toString())
-                    })
-                }
-                out.put(JSObject().apply {
-                    put("id", session.metadata.id)
-                    put("startTime", session.startTime.toString())
-                    put("endTime", session.endTime.toString())
-                    put("stages", stages)
-                })
-            }
+    // ------------------------------------------------------------------
+    // Phase 2.3 — background-sync integration (WorkManager). The actual
+    // read/upload work lives in HealthConnectSyncCore/HealthConnectSyncWorker
+    // — these 3 methods only expose the pieces the JS-side manual flow
+    // needs: caching the auth token natively, and taking/releasing the same
+    // lock the background worker respects.
+    // ------------------------------------------------------------------
+
+    @PluginMethod
+    fun cacheAuthToken(call: PluginCall) {
+        val token = call.getString("token")
+        if (token.isNullOrBlank()) {
+            call.reject("Missing token")
+            return
         }
+        HealthConnectSyncCore.cacheAuthToken(context, token)
+        call.resolve()
     }
 
-    private fun sleepStageLabel(stageType: Int): String = when (stageType) {
-        SleepSessionRecord.STAGE_TYPE_AWAKE -> "awake"
-        SleepSessionRecord.STAGE_TYPE_AWAKE_IN_BED -> "awake_in_bed"
-        SleepSessionRecord.STAGE_TYPE_SLEEPING -> "sleeping"
-        SleepSessionRecord.STAGE_TYPE_OUT_OF_BED -> "out_of_bed"
-        SleepSessionRecord.STAGE_TYPE_LIGHT -> "light"
-        SleepSessionRecord.STAGE_TYPE_DEEP -> "deep"
-        SleepSessionRecord.STAGE_TYPE_REM -> "rem"
-        else -> "unknown"
+    @PluginMethod
+    fun beginSync(call: PluginCall) {
+        val ret = JSObject()
+        ret.put("acquired", HealthConnectSyncCore.tryAcquireSyncLock(context))
+        call.resolve(ret)
+    }
+
+    @PluginMethod
+    fun endSync(call: PluginCall) {
+        HealthConnectSyncCore.releaseSyncLock(context)
+        call.resolve()
     }
 }
