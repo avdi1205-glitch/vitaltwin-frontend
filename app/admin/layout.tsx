@@ -15,6 +15,7 @@ const NAV_SECTIONS: { href: string; label: string; permission: string }[] = [
   { href: '/admin/nutrition', label: 'Nutrition & CGM', permission: 'view_nutrition_admin' },
   { href: '/admin/ai', label: 'KI Control Center', permission: 'view_ai_usage' },
   { href: '/admin/business', label: 'Business Center', permission: 'view_business' },
+  { href: '/admin/accounting', label: 'Buchhaltung', permission: 'view_accounting' },
   { href: '/admin/analytics', label: 'Analytics', permission: 'view_analytics' },
   { href: '/admin/security', label: 'Security Center', permission: 'view_security' },
   { href: '/admin/system', label: 'System Center', permission: 'view_system_status' },

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useAdmin } from './AdminContext';
 
 /** A themed content card — the base building block for every admin page. */
@@ -131,4 +132,75 @@ export function Loading() {
 export function ErrorText({ children }: { children: React.ReactNode }) {
   const { tokens } = useAdmin();
   return <p style={{ color: tokens.danger, fontSize: '0.85rem' }}>{children}</p>;
+}
+
+/**
+ * Shared collapsible section header — the one component every admin page
+ * uses for "click to expand" categories, so the collapse/expand look is
+ * consistent site-wide instead of a per-page reimplementation. Starts
+ * closed by default (`defaultOpen=false`); open/closed state is local
+ * component state only, never persisted, so every page load starts fresh.
+ * Wrapping existing JSX in this component changes ONLY its visibility —
+ * any data-fetching above it in the page is completely unaffected.
+ */
+export function CollapsibleSection({
+  title,
+  subtitle,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const { tokens } = useAdmin();
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div
+      style={{
+        border: `1px solid ${tokens.border}`,
+        borderRadius: '1rem',
+        marginBottom: '1rem',
+        overflow: 'hidden',
+        background: tokens.card,
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          padding: '1rem 1.25rem',
+          textAlign: 'left',
+        }}
+      >
+        <span style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+          <span style={{ color: tokens.text, fontSize: '1rem', fontWeight: 700 }}>{title}</span>
+          {subtitle ? <span style={{ color: tokens.muted, fontSize: '0.8rem' }}>{subtitle}</span> : null}
+        </span>
+        <span
+          aria-hidden
+          style={{
+            color: tokens.muted,
+            fontSize: '0.75rem',
+            transition: 'transform 0.15s ease',
+            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+            flexShrink: 0,
+          }}
+        >
+          ▼
+        </span>
+      </button>
+      {open ? <div style={{ padding: '0 1.25rem 1.25rem' }}>{children}</div> : null}
+    </div>
+  );
 }
