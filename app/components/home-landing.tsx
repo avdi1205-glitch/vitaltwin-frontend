@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import { apiUrl } from '@/lib/api';
 import HomeAuthModal from './home-auth-modal';
 import SiteNav from './site-nav';
 import VitalTwinHero from './hero/VitalTwinHero';
@@ -25,9 +26,24 @@ export default function HomeLanding({
   const tFooter = useTranslations('footer');
   const [authMode, setAuthMode] = useState<AuthMode>(initialAuthMode);
   const [notice, setNotice] = useState(initialNotice);
-  // Hardcoded until wired to real signup counts in a follow-up task.
-  const [remainingSlots] = useState(20);
+  // Defaults to the full total; replaced with the real remaining count once fetched.
+  const [remainingSlots, setRemainingSlots] = useState(20);
   const router = useRouter();
+
+  useEffect(() => {
+    const timer = window.setTimeout(async () => {
+      try {
+        const res = await fetch(apiUrl('/api/beta/discount-slots-remaining'));
+        if (res.ok) {
+          const data = (await res.json()) as { remaining_slots?: number };
+          if (typeof data.remaining_slots === 'number') setRemainingSlots(data.remaining_slots);
+        }
+      } catch {
+        // Non-fatal — keeps the default of 20.
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     // Supabase password-recovery links always redirect to the configured Site URL
