@@ -58,11 +58,13 @@ export default function AgbClient() {
               <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                 <h2 className="text-xl font-semibold text-[#F5F2EA]">4. Prices, beta phase and payment</h2>
                 <p className="mt-3 text-[#B7BDC4]">
-                  During the beta phase, beta access is free to use, as described on the{' '}
-                  <Link href="/preise" className="text-[#58D7D4] hover:underline">pricing page</Link>. No automatic
-                  charge occurs during the beta phase. Should paid plans be introduced in the future, the terms
-                  published on the pricing page at that time will apply; you will be informed in advance of any
-                  price changes.
+                  The Free plan is free to use forever. Premium, Pro and Family are paid subscriptions that exist
+                  now and are billed via Stripe, as described on the{' '}
+                  <Link href="/preise" className="text-[#58D7D4] hover:underline">pricing page</Link>. Independently
+                  of this, you can apply for the Beta Tester Program; once reviewed and approved, selected beta
+                  testers receive 90 days of VitalTwin Pro for free, with no automatic charge during that period.
+                  After the 90 days, the terms published on the pricing page at that time apply to any further use
+                  of paid plans; you will be informed in advance of any price changes.
                 </p>
               </section>
 
@@ -72,6 +74,8 @@ export default function AgbClient() {
                   You may terminate your account at any time without giving reasons by sending an email to{' '}
                   <a href="mailto:info@vitaltwin.de" className="text-[#58D7D4] hover:underline">info@vitaltwin.de</a>.
                   For paid subscriptions, the respective agreed notice periods as stated on the pricing page apply.
+                  Consumers additionally have a statutory right of withdrawal — see our{' '}
+                  <Link href="/widerrufsrecht" className="text-[#58D7D4] hover:underline">right of withdrawal</Link> notice.
                 </p>
               </section>
 
@@ -167,11 +171,14 @@ export default function AgbClient() {
             <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
               <h2 className="text-xl font-semibold text-[#F5F2EA]">4. Preise, Beta-Phase und Zahlung</h2>
               <p className="mt-3 text-[#B7BDC4]">
-                Während der Beta-Phase ist der Beta-Zugang kostenlos nutzbar, wie auf der{' '}
-                <Link href="/preise" className="text-[#58D7D4] hover:underline">Preise-Seite</Link> beschrieben. Es
-                erfolgt keine automatische Abbuchung während der Beta-Phase. Sollten künftig kostenpflichtige Pläne
-                eingeführt werden, gelten die zu diesem Zeitpunkt auf der Preise-Seite veröffentlichten Konditionen;
-                über Preisänderungen wirst du vorab informiert.
+                Der Free-Tarif ist dauerhaft kostenlos nutzbar. Premium, Pro und Family sind kostenpflichtige
+                Abonnements, die real existieren und über Stripe abgerechnet werden, wie auf der{' '}
+                <Link href="/preise" className="text-[#58D7D4] hover:underline">Preise-Seite</Link> beschrieben.
+                Unabhängig davon kannst du dich für das Beta-Tester-Programm bewerben; nach Prüfung und Freigabe
+                erhalten ausgewählte Beta-Tester 90 Tage VitalTwin Pro kostenlos, ohne automatische Abbuchung für
+                diesen Zeitraum. Nach Ablauf der 90 Tage gelten die zu diesem Zeitpunkt auf der Preise-Seite
+                veröffentlichten Konditionen für eine weitere Nutzung kostenpflichtiger Tarife; über
+                Preisänderungen wirst du vorab informiert.
               </p>
             </section>
 
@@ -181,7 +188,9 @@ export default function AgbClient() {
                 Du kannst dein Konto jederzeit ohne Angabe von Gründen kündigen, indem du eine E-Mail an{' '}
                 <a href="mailto:info@vitaltwin.de" className="text-[#58D7D4] hover:underline">info@vitaltwin.de</a>{' '}
                 sendest. Bei kostenpflichtigen Abonnements gelten die jeweils vereinbarten Kündigungsfristen laut
-                Preise-Seite.
+                Preise-Seite. Verbraucherinnen und Verbrauchern steht zusätzlich ein gesetzliches Widerrufsrecht zu
+                — siehe unsere{' '}
+                <Link href="/widerrufsrecht" className="text-[#58D7D4] hover:underline">Widerrufsbelehrung</Link>.
               </p>
             </section>
 

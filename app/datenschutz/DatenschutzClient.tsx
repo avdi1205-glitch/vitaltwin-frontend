@@ -38,6 +38,11 @@ export default function DatenschutzClient() {
                 <ul className="mt-3 list-disc space-y-1 pl-6 text-[#B7BDC4]">
                   <li>Account data such as name and email address</li>
                   <li>Biomarkers and inputs from the dashboard</li>
+                  <li>
+                    Automatically synced health data, if you connect an account (Google Health or Health Connect:
+                    e.g. steps, sleep, heart rate, weight, blood oxygen saturation)
+                  </li>
+                  <li>Manually entered or imported blood glucose readings (CGM) and nutrition entries</li>
                   <li>Voluntary profile, goal, daily-life and habit information</li>
                   <li>
                     Derived, condensed summaries of your twin state over time (no duplicate raw-data storage), to
@@ -50,6 +55,11 @@ export default function DatenschutzClient() {
                   <li>Technical log data for stability and security</li>
                   <li>Payment information when purchasing Premium via Stripe</li>
                 </ul>
+                <p className="mt-3 text-[#B7BDC4]">
+                  If you join or create a Family group, other members can see your name, email address, role and
+                  status, as well as any progress you yourself submit for shared Family goals/challenges. Automatic
+                  wellness or health data is never shared between Family members.
+                </p>
               </section>
 
               <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
@@ -77,7 +87,15 @@ export default function DatenschutzClient() {
                   <li>Vercel (frontend hosting)</li>
                   <li>Railway (backend hosting)</li>
                   <li>Stripe (payment processing, once paid plans are active)</li>
-                  <li>Resend (sending transactional emails, e.g. password reset)</li>
+                  <li>
+                    Google (Google Health API) — only after you actively connect your account, with access to
+                    activity, sleep and health-metric data (three separately granted permissions); access tokens
+                    are stored encrypted.
+                  </li>
+                  <li>
+                    IONOS (sending transactional emails for the contact form and Family invitations);
+                    password-reset emails are triggered by our Supabase project.
+                  </li>
                   <li>
                     Sentry (error and stability monitoring for website and app, EU data processing via the
                     &quot;de.sentry.io&quot; region — see section 4b for details on which data is deliberately{' '}
@@ -190,12 +208,23 @@ export default function DatenschutzClient() {
               <ul className="mt-3 list-disc space-y-1 pl-6 text-[#B7BDC4]">
                 <li>Accountdaten wie Name und E-Mail-Adresse</li>
                 <li>Biomarker und Eingaben aus dem Dashboard</li>
+                <li>
+                  Automatisch synchronisierte Gesundheitsdaten, sofern du eine Verbindung herstellst (Google Health
+                  oder Health Connect: z. B. Schritte, Schlaf, Herzfrequenz, Gewicht, Sauerstoffsättigung)
+                </li>
+                <li>Manuell eingetragene oder importierte Blutzuckerwerte (CGM) und Ernährungseinträge</li>
                 <li>Freiwillige Profil-, Ziele-, Alltags- und Gewohnheitsangaben</li>
                 <li>Abgeleitete, verdichtete Zusammenfassungen deines Twin-Zustands im Zeitverlauf (keine doppelte Rohdaten-Speicherung), um dir zu zeigen, wie sich dein Twin und deine Wellness-Entwicklung über Zeit verändern</li>
                 <li>Nachrichten an &quot;Frag deinen Twin&quot; (nur zur Erzeugung der Antwort, siehe KI-Hinweise) sowie die Anzahl deiner täglichen Anfragen</li>
                 <li>Technische Logdaten zur Stabilität und Sicherheit</li>
                 <li>Zahlungsinformationen bei Premium-Abschluss über Stripe</li>
               </ul>
+              <p className="mt-3 text-[#B7BDC4]">
+                Wenn du einer Family-Gruppe beitrittst oder eine gründest, sehen andere Mitglieder deinen Namen,
+                deine E-Mail-Adresse, deine Rolle und deinen Status sowie deinen selbst eingetragenen Fortschritt
+                bei gemeinsamen Family-Zielen und -Challenges. Automatische Wellness- oder Gesundheitsdaten werden
+                zwischen Familienmitgliedern nicht geteilt.
+              </p>
             </section>
 
             <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
@@ -224,7 +253,15 @@ export default function DatenschutzClient() {
                 <li>Vercel (Hosting Frontend)</li>
                 <li>Railway (Hosting Backend)</li>
                 <li>Stripe (Zahlungsabwicklung, sobald kostenpflichtige Pläne aktiv sind)</li>
-                <li>Resend (Versand von Transaktions-E-Mails, z. B. Passwort-Reset)</li>
+                <li>
+                  Google (Google Health API) — ausschließlich nachdem du selbst eine Verbindung herstellst, mit
+                  Zugriff auf Aktivitäts-, Schlaf- und Gesundheitsmetrik-Daten (drei einzeln erteilte
+                  Berechtigungen); Zugangs-Token werden verschlüsselt gespeichert.
+                </li>
+                <li>
+                  IONOS (Versand von Transaktions-E-Mails für Kontaktformular und Familien-Einladungen);
+                  Passwort-Reset-E-Mails löst unser Supabase-Projekt aus.
+                </li>
                 <li>
                   Sentry (Fehler- und Stabilitätsüberwachung für Website und App, Datenverarbeitung in der EU
                   über die Region &quot;de.sentry.io&quot; — siehe Ziffer 4b für Details, welche Daten dabei

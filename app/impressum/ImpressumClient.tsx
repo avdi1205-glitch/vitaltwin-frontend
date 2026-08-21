@@ -50,9 +50,7 @@ export default function ImpressumClient() {
                       vitaltwin.de/kontakt
                     </Link>
                   </p>
-                  <p>
-                    <span className="font-semibold">VAT ID:</span> DE45336207810
-                  </p>
+                  {/* USt-IdNr / VAT ID: to be added once Gewerbe registration is complete */}
                 </div>
               </section>
             </div>
@@ -111,9 +109,7 @@ export default function ImpressumClient() {
                     vitaltwin.de/kontakt
                   </Link>
                 </p>
-                <p>
-                  <span className="font-semibold">USt-IdNr.:</span> DE45336207810
-                </p>
+                {/* USt-IdNr folgt nach Gewerbeanmeldung */}
               </div>
             </section>
           </div>
