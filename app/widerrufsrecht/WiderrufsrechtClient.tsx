@@ -70,9 +70,10 @@ export default function WiderrufsrechtClient() {
               <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
                 <h2 className="text-xl font-semibold text-[#F5F2EA]">Note on the beta phase</h2>
                 <p className="mt-3 text-[#B7BDC4]">
-                  During the current beta phase, use of VitalTwin is free of charge. Since no payment is made, no
-                  financial claims arise from a withdrawal. Once paid plans are introduced, this withdrawal notice
-                  applies in full to the respective contract.
+                  The Free plan and any active Beta Tester access (90 days of VitalTwin Pro after application and
+                  approval) are free of charge; since no payment is made in these cases, no financial claims arise
+                  from a withdrawal. For paid Premium, Pro or Family subscriptions, the withdrawal notice above
+                  applies in full from the conclusion of the contract.
                 </p>
               </section>
 
@@ -160,9 +161,10 @@ export default function WiderrufsrechtClient() {
             <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
               <h2 className="text-xl font-semibold text-[#F5F2EA]">Hinweis zur Beta-Phase</h2>
               <p className="mt-3 text-[#B7BDC4]">
-                Während der aktuellen Beta-Phase ist die Nutzung von VitalTwin kostenlos. Da keine Zahlung erfolgt,
-                entstehen dir aus einem Widerruf keine finanziellen Ansprüche. Sobald kostenpflichtige Pläne
-                eingeführt werden, gilt diese Widerrufsbelehrung uneingeschränkt für den jeweiligen Vertrag.
+                Der Free-Tarif und ein etwaiger aktiver Beta-Tester-Zugang (90 Tage VitalTwin Pro nach Bewerbung und
+                Freigabe) sind kostenlos; da hierfür keine Zahlung erfolgt, entstehen dir in diesen Fällen aus
+                einem Widerruf keine finanziellen Ansprüche. Für kostenpflichtige Premium-, Pro- oder
+                Family-Abonnements gilt die obenstehende Widerrufsbelehrung uneingeschränkt ab Vertragsschluss.
               </p>
             </section>
 
