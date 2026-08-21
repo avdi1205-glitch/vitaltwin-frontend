@@ -72,6 +72,9 @@ export default function VitalTwinHero({ onOpenRegister }: VitalTwinHeroProps) {
           <h1 className="mt-4 max-w-3xl font-[family-name:var(--font-serif-display)] text-4xl font-semibold text-[#F5F2EA] sm:text-5xl md:text-6xl">
             {t('title')}
           </h1>
+          <p className="mt-4 max-w-2xl text-base text-[#B7BDC4] sm:text-lg">
+            {t('subheadline')}
+          </p>
           <p className="mt-3 font-[family-name:var(--font-mono-technical)] text-sm font-medium uppercase tracking-[0.5em] text-[#8E969F]">
             {t('inTakt')}
           </p>

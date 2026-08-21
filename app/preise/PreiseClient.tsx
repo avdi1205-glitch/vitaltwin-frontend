@@ -24,6 +24,8 @@ export default function PreiseClient() {
   const [loadingPlan, setLoadingPlan] = useState<PlanId | null>(null);
   const [checkoutMessage, setCheckoutMessage] = useState('');
   const [activeBetaGrant, setActiveBetaGrant] = useState<{ plan: string; expires_at: string } | null>(null);
+  // Hardcoded until wired to real signup counts in a follow-up task.
+  const [remainingSlots] = useState(20);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -199,6 +201,7 @@ export default function PreiseClient() {
           <div className="mt-8 rounded-3xl border border-[#58D7D4]/30 bg-[#58D7D4]/[0.06] p-6 text-center md:p-8">
             <p className="font-semibold text-[#F5F2EA]">{t('betaApplyCalloutTitle')}</p>
             <p className="mx-auto mt-2 max-w-2xl text-sm text-[#B7BDC4]">{t('betaApplyCalloutText')}</p>
+            <p className="mx-auto mt-2 max-w-2xl text-sm font-semibold text-[#F3C979]">{t('betaSlotsRemaining', { remainingSlots })}</p>
             <Link
               href="/beta-bewerbung"
               className="mt-4 inline-block rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-6 py-3 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"

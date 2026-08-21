@@ -25,6 +25,8 @@ export default function HomeLanding({
   const tFooter = useTranslations('footer');
   const [authMode, setAuthMode] = useState<AuthMode>(initialAuthMode);
   const [notice, setNotice] = useState(initialNotice);
+  // Hardcoded until wired to real signup counts in a follow-up task.
+  const [remainingSlots] = useState(20);
   const router = useRouter();
 
   useEffect(() => {
@@ -88,7 +90,7 @@ export default function HomeLanding({
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
         <h2 className="font-[family-name:var(--font-serif-display)] text-3xl font-semibold text-[#F5F2EA] md:text-4xl">{t('howItWorks')}</h2>
-        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <p className="font-semibold text-[#8E969F]">01</p>
             <h3 className="mt-2 text-xl font-semibold text-[#F5F2EA]">{t('dataDecision')}</h3>
@@ -101,11 +103,6 @@ export default function HomeLanding({
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <p className="font-semibold text-[#8E969F]">03</p>
-            <h3 className="mt-2 text-xl font-semibold text-[#F5F2EA]">{t('learnsOverTime')}</h3>
-            <p className="mt-3 text-[#B7BDC4]">{t('learnsOverTimeText')}</p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-            <p className="font-semibold text-[#8E969F]">04</p>
             <h3 className="mt-2 text-xl font-semibold text-[#F5F2EA]">{t('patterns')}</h3>
             <p className="mt-3 text-[#B7BDC4]">{t('patternsText')}</p>
           </div>
@@ -211,6 +208,7 @@ export default function HomeLanding({
             <h3 className="mt-2 text-xl font-semibold">{t('planBetaTitle')}</h3>
             <p className="mt-2 text-3xl font-bold">{t('planBetaPrice')}</p>
             <p className="mt-3 text-sm text-[#B7BDC4]">{t('planBetaText')}</p>
+            <p className="mt-3 text-xs font-semibold text-[#F3C979]">{t('betaSlotsRemaining', { remainingSlots })}</p>
           </div>
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
             <h3 className="text-xl font-semibold text-[#F5F2EA]">{t('planPremiumTitle')}</h3>
