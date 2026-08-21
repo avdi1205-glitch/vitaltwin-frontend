@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAdmin } from '../_lib/AdminContext';
-import { Card, ErrorText, Loading, SectionTitle } from '../_lib/AdminUI';
+import { CollapsibleSection, ErrorText, Loading, SectionTitle } from '../_lib/AdminUI';
 
 type AuditEvent = { action: string; entity_type: string; entity_id: string | null; email: string | null; created_at?: string };
 type LoginEvent = { email: string; success: boolean; ip_address: string | null; created_at: string };
@@ -49,37 +49,34 @@ export default function AdminSecurityPage() {
       {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
 
       {!loading && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <Card>
-            <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.5rem' }}>Audit-Log</p>
+        <div>
+          <CollapsibleSection title="Audit-Log">
             {auditLogs.length === 0 && <p style={{ color: tokens.mutedMore, fontSize: '0.85rem' }}>Keine Einträge vorhanden.</p>}
             {auditLogs.map((event, index) => (
               <p key={index} style={{ color: tokens.muted, fontSize: '0.8rem' }}>
                 {event.action} · {event.entity_type} · {event.email || '—'} {event.entity_id ? `(${event.entity_id})` : ''}
               </p>
             ))}
-          </Card>
+          </CollapsibleSection>
 
-          <Card>
-            <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.5rem' }}>Globale Login-Historie</p>
+          <CollapsibleSection title="Globale Login-Historie">
             {loginHistory.length === 0 && <p style={{ color: tokens.mutedMore, fontSize: '0.85rem' }}>Keine Einträge vorhanden.</p>}
             {loginHistory.map((event, index) => (
               <p key={index} style={{ color: tokens.muted, fontSize: '0.8rem' }}>
                 {event.success ? '✅' : '❌'} {event.email} · {event.ip_address || 'unbekannte IP'} · {event.created_at}
               </p>
             ))}
-          </Card>
+          </CollapsibleSection>
 
           {matrix && (
-            <Card>
-              <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.5rem' }}>Berechtigungsmatrix</p>
+            <CollapsibleSection title="Berechtigungsmatrix">
               {Object.entries(matrix.roles).map(([role, permissions]) => (
                 <div key={role} style={{ marginBottom: '0.6rem' }}>
                   <p style={{ color: tokens.accent, fontWeight: 600, fontSize: '0.85rem' }}>{role}</p>
                   <p style={{ color: tokens.muted, fontSize: '0.78rem' }}>{permissions.join(', ')}</p>
                 </div>
               ))}
-            </Card>
+            </CollapsibleSection>
           )}
         </div>
       )}

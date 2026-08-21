@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useAdmin } from '../_lib/AdminContext';
-import { Badge, Button, Card, ErrorText, Loading, Note, SectionTitle } from '../_lib/AdminUI';
+import { Badge, Button, Card, CollapsibleSection, ErrorText, Loading, Note, SectionTitle } from '../_lib/AdminUI';
 
 type FeedbackItem = { score?: number; message?: string; source?: string | null; created_at?: string };
 type ContactMessage = {
@@ -154,23 +154,20 @@ export default function AdminSupportPage() {
     <div>
       <SectionTitle title="Support Center" subtitle="Nutzer-Feedback, Bug Reports, Feature-Wünsche, Kontaktanfragen und Beta-Bewerbungen." />
 
-      <Card style={{ marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-          <p style={{ color: tokens.text, fontWeight: 700 }}>Kontaktanfragen ({contactsTotal})</p>
-          <div style={{ display: 'flex', gap: '0.4rem' }}>
-            <Button variant={contactStatusFilter === '' ? 'primary' : 'secondary'} onClick={() => setContactStatusFilter('')}>
-              Alle
+      <CollapsibleSection title={`Kontaktanfragen (${contactsTotal})`}>
+        <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+          <Button variant={contactStatusFilter === '' ? 'primary' : 'secondary'} onClick={() => setContactStatusFilter('')}>
+            Alle
+          </Button>
+          {CONTACT_STATUSES.map((status) => (
+            <Button
+              key={status}
+              variant={contactStatusFilter === status ? 'primary' : 'secondary'}
+              onClick={() => setContactStatusFilter(status)}
+            >
+              {status}
             </Button>
-            {CONTACT_STATUSES.map((status) => (
-              <Button
-                key={status}
-                variant={contactStatusFilter === status ? 'primary' : 'secondary'}
-                onClick={() => setContactStatusFilter(status)}
-              >
-                {status}
-              </Button>
-            ))}
-          </div>
+          ))}
         </div>
         {contacts.length === 0 && (
           <p style={{ color: tokens.mutedMore, fontSize: '0.85rem' }}>Keine Kontaktanfragen vorhanden.</p>
@@ -206,12 +203,9 @@ export default function AdminSupportPage() {
             )}
           </div>
         ))}
-      </Card>
+      </CollapsibleSection>
 
-      <Card style={{ marginBottom: '1.5rem' }}>
-        <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.75rem' }}>
-          Beta-Bewerbungen ({betaTotal})
-        </p>
+      <CollapsibleSection title={`Beta-Bewerbungen (${betaTotal})`}>
         {betaApplications.length === 0 && (
           <p style={{ color: tokens.mutedMore, fontSize: '0.85rem' }}>Keine Beta-Bewerbungen vorhanden.</p>
         )}
@@ -242,13 +236,12 @@ export default function AdminSupportPage() {
           </div>
         ))}
         {betaActionMessage && <Note>{betaActionMessage}</Note>}
-      </Card>
+      </CollapsibleSection>
 
       {loading && <Loading />}
       {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
       {!loading && !errorMessage && (
-        <>
-          <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.5rem' }}>Feedback</p>
+        <CollapsibleSection title="Feedback">
           <Card style={{ padding: 0, overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
               <thead>
@@ -291,7 +284,7 @@ export default function AdminSupportPage() {
             </Button>
           </div>
           {note && <Note>{note}</Note>}
-        </>
+        </CollapsibleSection>
       )}
     </div>
   );

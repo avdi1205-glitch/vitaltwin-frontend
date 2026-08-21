@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAdmin } from '../_lib/AdminContext';
-import { Card, ErrorText, Kpi, Loading, Note, SectionTitle } from '../_lib/AdminUI';
+import { CollapsibleSection, ErrorText, Kpi, Loading, Note, SectionTitle } from '../_lib/AdminUI';
 
 type GrowthData = {
   total_users: number;
@@ -76,10 +76,7 @@ export default function AdminAnalyticsPage() {
             <Kpi label="Aktive Nutzer 30 Tage (MAU)" value={data.mau_30d} />
           </div>
 
-          <Card style={{ marginTop: '1rem' }}>
-            <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.5rem' }}>
-              Roadmap-KPIs (Master-Roadmap 90 Tage)
-            </p>
+          <CollapsibleSection title="Roadmap-KPIs (Master-Roadmap 90 Tage)">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
               <Kpi label="Activation Rate (Ziel ≥ 55%)" value={formatRate(data.activation_rate_24h)} />
               <Kpi
@@ -99,17 +96,16 @@ export default function AdminAnalyticsPage() {
                 value={formatRate(data.two_plus_calculations_30d_rate)}
               />
             </div>
-          </Card>
+          </CollapsibleSection>
 
-          <Card style={{ marginTop: '1rem' }}>
-            <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.5rem' }}>Registrierungen (letzte Tage)</p>
+          <CollapsibleSection title="Registrierungen (letzte Tage)">
             {recentDays.length === 0 && <p style={{ color: tokens.mutedMore, fontSize: '0.85rem' }}>Keine Registrierungen erfasst.</p>}
             {recentDays.map(([day, count]) => (
               <p key={day} style={{ color: tokens.muted, fontSize: '0.8rem' }}>
                 {day}: {count}
               </p>
             ))}
-          </Card>
+          </CollapsibleSection>
 
           <Note>{data.retention_note}</Note>
           <Note>{data.session_duration_note}</Note>

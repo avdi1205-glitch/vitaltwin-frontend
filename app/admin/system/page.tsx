@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAdmin } from '../_lib/AdminContext';
-import { Badge, Button, Card, ErrorText, Loading, Note, SectionTitle } from '../_lib/AdminUI';
+import { Badge, Button, CollapsibleSection, ErrorText, Loading, Note, SectionTitle } from '../_lib/AdminUI';
 
 type SystemStatus = {
   database: { status: string };
@@ -110,8 +110,7 @@ export default function AdminSystemPage() {
       {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
       {data && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-          <Card>
-            <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.5rem' }}>Kernstatus</p>
+          <CollapsibleSection title="Kernstatus">
             <p style={{ color: tokens.text, fontSize: '0.9rem' }}>
               Datenbank: {data.database.status === 'reachable' ? '✅ erreichbar' : '❌ nicht erreichbar'}
             </p>
@@ -126,10 +125,9 @@ export default function AdminSystemPage() {
             <Note>{data.queues.note}</Note>
             <Note>{data.health_connect.note}</Note>
             <Note>{data.apple_health.note}</Note>
-          </Card>
+          </CollapsibleSection>
 
-          <Card>
-            <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.5rem' }}>Letzter Release</p>
+          <CollapsibleSection title="Letzter Release">
             {data.release.version ? (
               <>
                 <p style={{ color: tokens.text, fontSize: '0.9rem' }}>
@@ -158,10 +156,9 @@ export default function AdminSystemPage() {
                 <Button variant="secondary" onClick={submitRelease}>Release erfassen</Button>
               </div>
             )}
-          </Card>
+          </CollapsibleSection>
 
-          <Card>
-            <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.5rem' }}>Letzter Backup-Status</p>
+          <CollapsibleSection title="Letzter Backup-Status">
             {data.backup.status ? (
               <>
                 <Badge tone={data.backup.status === 'erfolgreich' ? 'success' : data.backup.status === 'fehlgeschlagen' ? 'danger' : 'neutral'}>
@@ -186,10 +183,9 @@ export default function AdminSystemPage() {
                 <Button variant="secondary" onClick={submitBackup}>Backup-Status erfassen</Button>
               </div>
             )}
-          </Card>
+          </CollapsibleSection>
 
-          <Card>
-            <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.5rem' }}>Fehler (7 Tage)</p>
+          <CollapsibleSection title="Fehler (7 Tage)">
             <p style={{ color: tokens.text, fontSize: '1.3rem', fontWeight: 700 }}>
               {data.error_events_7d.total ?? '—'}
             </p>
@@ -205,7 +201,7 @@ export default function AdminSystemPage() {
               Erfasst unbehandelte Backend-Ausnahmen (vt_error_events) und sendet sie zusätzlich an Sentry, sofern
               SENTRY_DSN konfiguriert ist (Stacktrace-Gruppierung, Alerting).
             </Note>
-          </Card>
+          </CollapsibleSection>
         </div>
       )}
       {formMessage && <Note>{formMessage}</Note>}

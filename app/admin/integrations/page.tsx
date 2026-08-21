@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAdmin } from '../_lib/AdminContext';
-import { Badge, Button, Card, ErrorText, Loading, Note, SectionTitle } from '../_lib/AdminUI';
+import { Badge, Button, Card, CollapsibleSection, ErrorText, Loading, Note, SectionTitle } from '../_lib/AdminUI';
 
 type IntegrationItem = {
   id: string;
@@ -47,10 +47,7 @@ function statusLabel(status: IntegrationItem['status']): string {
 function IntegrationSection({ title, items }: { title: string; items: IntegrationItem[] }) {
   const { tokens } = useAdmin();
   return (
-    <>
-      <p style={{ color: tokens.text, fontSize: '1.05rem', fontWeight: 700, marginTop: '2rem', marginBottom: '0.75rem' }}>
-        {title}
-      </p>
+    <CollapsibleSection title={title}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
         {items.map((item) => (
           <Card key={item.id}>
@@ -69,7 +66,7 @@ function IntegrationSection({ title, items }: { title: string; items: Integratio
           </Card>
         ))}
       </div>
-    </>
+    </CollapsibleSection>
   );
 }
 
@@ -171,10 +168,7 @@ export default function AdminIntegrationsPage() {
           <IntegrationSection title="Benachrichtigungskanäle" items={report.notification_channels} />
 
           {hasPermission('manage_feature_flags') && (
-            <>
-              <p style={{ color: tokens.text, fontSize: '1.05rem', fontWeight: 700, marginTop: '2rem', marginBottom: '0.75rem' }}>
-                Feature Flags
-              </p>
+            <CollapsibleSection title="Feature Flags">
               {flags.length === 0 && <Note>Noch keine Feature-Flags angelegt.</Note>}
               <div style={{ display: 'grid', gap: '0.75rem' }}>
                 {flags.map((flag) => (
@@ -197,7 +191,7 @@ export default function AdminIntegrationsPage() {
                   </Card>
                 ))}
               </div>
-            </>
+            </CollapsibleSection>
           )}
         </>
       )}

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useAdmin } from '../_lib/AdminContext';
-import { Badge, Button, Card, ErrorText, Loading, SectionTitle } from '../_lib/AdminUI';
+import { Badge, Button, Card, CollapsibleSection, ErrorText, Loading, SectionTitle } from '../_lib/AdminUI';
 
 type UserListItem = {
   email: string;
@@ -361,10 +361,7 @@ export default function AdminUsersPage() {
       </div>
 
       {deletionRequests.length > 0 && (
-        <Card style={{ marginBottom: '1rem' }}>
-          <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.5rem' }}>
-            Löschanfragen ({deletionRequests.length})
-          </p>
+        <CollapsibleSection title={`Löschanfragen (${deletionRequests.length})`}>
           <p style={{ color: tokens.muted, fontSize: '0.8rem', marginBottom: '0.75rem' }}>
             Aus Sicherheitsgründen wird eine Löschung manuell geprüft, nicht automatisch ausgeführt.
           </p>
@@ -393,12 +390,11 @@ export default function AdminUsersPage() {
             </div>
           ))}
           {deletionMessage && <p style={{ color: tokens.accent, fontSize: '0.85rem', marginTop: '0.5rem' }}>{deletionMessage}</p>}
-        </Card>
+        </CollapsibleSection>
       )}
 
       {isSuperAdmin && (
-        <Card style={{ marginBottom: '1rem' }}>
-          <p style={{ color: tokens.text, fontWeight: 700, marginBottom: '0.4rem' }}>QA-Testaccount-Bereinigung</p>
+        <CollapsibleSection title="QA-Testaccount-Bereinigung">
           <p style={{ color: tokens.muted, fontSize: '0.8rem', marginBottom: '0.75rem' }}>
             Entfernt ausschließlich Accounts, deren E-Mail mit &quot;qa-test-&quot; beginnt UND deren Name
             &quot;QA TEST ACCOUNT&quot; enthält — niemals reguläre Nutzer per Wildcard. Erst Vorschau (Dry-Run), dann
@@ -440,13 +436,12 @@ export default function AdminUsersPage() {
           )}
 
           {qaMessage && <p style={{ color: tokens.accent, fontSize: '0.85rem' }}>{qaMessage}</p>}
-        </Card>
+        </CollapsibleSection>
       )}
 
       {betaSummary && betaSummary.total > 0 && (
-        <Card style={{ marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <p style={{ color: tokens.text, fontWeight: 700 }}>Beta-Tester Übersicht</p>
+        <CollapsibleSection title="Beta-Tester Übersicht">
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
             <Button variant="secondary" onClick={loadBetaTesters}>
               Aktualisieren
             </Button>
@@ -481,7 +476,7 @@ export default function AdminUsersPage() {
               </Badge>
             </div>
           ))}
-        </Card>
+        </CollapsibleSection>
       )}
 
       {loading && <Loading />}

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAdmin } from './_lib/AdminContext';
-import { Badge, Button, Card, ErrorText, Kpi, Loading, Note, SectionTitle } from './_lib/AdminUI';
+import { Badge, Button, Card, CollapsibleSection, ErrorText, Kpi, Loading, Note, SectionTitle } from './_lib/AdminUI';
 
 type DashboardData = {
   user_count: number | null;
@@ -177,13 +177,6 @@ export default function AdminDashboardPage() {
   const draftCount = content?.items.filter((i) => i.status === 'draft').length ?? null;
   const publishedCount = content?.items.filter((i) => i.status === 'published').length ?? null;
 
-  const sectionTitleStyle: React.CSSProperties = {
-    color: tokens.text,
-    fontSize: '1.05rem',
-    fontWeight: 700,
-    marginTop: '2rem',
-    marginBottom: '0.75rem',
-  };
   const gridStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
@@ -221,7 +214,7 @@ export default function AdminDashboardPage() {
           </Note>
 
           {/* --------------------------- 1. Systemübersicht --------------------------- */}
-          <p style={sectionTitleStyle}>1. Systemübersicht</p>
+          <CollapsibleSection title="1. Systemübersicht">
           {dashboard ? (
             <>
               <div style={gridStyle}>
@@ -348,8 +341,10 @@ export default function AdminDashboardPage() {
             <Note>Keine Berechtigung oder Daten nicht verfügbar (view_dashboard erforderlich).</Note>
           )}
 
+          </CollapsibleSection>
+
           {/* --------------------------- 2. Nutzer --------------------------- */}
-          <p style={sectionTitleStyle}>2. Nutzer</p>
+          <CollapsibleSection title="2. Nutzer">
           {dashboard ? (
             <div style={gridStyle}>
               <Kpi label="Nutzer gesamt" value={dashboard.user_count} />
@@ -366,8 +361,10 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
+          </CollapsibleSection>
+
           {/* --------------------------- 3. Content --------------------------- */}
-          <p style={sectionTitleStyle}>3. Content</p>
+          <CollapsibleSection title="3. Content">
           {content ? (
             <div style={gridStyle}>
               <Kpi label="Inhalte gesamt" value={content.items.length} />
@@ -387,8 +384,10 @@ export default function AdminDashboardPage() {
             laufen über den generischen Content-Typ oben.
           </Note>
 
+          </CollapsibleSection>
+
           {/* --------------------------- 4. KI --------------------------- */}
-          <p style={sectionTitleStyle}>4. KI</p>
+          <CollapsibleSection title="4. KI">
           {aiUsage ? (
             <>
               <div style={gridStyle}>
@@ -413,8 +412,10 @@ export default function AdminDashboardPage() {
             <Note>Keine Berechtigung oder Daten nicht verfügbar (view_ai_usage erforderlich).</Note>
           )}
 
+          </CollapsibleSection>
+
           {/* --------------------------- 5. Twin --------------------------- */}
-          <p style={sectionTitleStyle}>5. Twin</p>
+          <CollapsibleSection title="5. Twin">
           {twin ? (
             <>
               <div style={gridStyle}>
@@ -431,8 +432,10 @@ export default function AdminDashboardPage() {
             <Note>Keine Berechtigung oder Daten nicht verfügbar (view_dashboard erforderlich).</Note>
           )}
 
+          </CollapsibleSection>
+
           {/* --------------------------- 6. Zahlungen --------------------------- */}
-          <p style={sectionTitleStyle}>6. Zahlungen</p>
+          <CollapsibleSection title="6. Zahlungen">
           {business ? (
             <>
               <div style={gridStyle}>
@@ -471,8 +474,10 @@ export default function AdminDashboardPage() {
             <Note>Keine Berechtigung oder Daten nicht verfügbar (view_business erforderlich).</Note>
           )}
 
+          </CollapsibleSection>
+
           {/* --------------------------- 7. Affiliate --------------------------- */}
-          <p style={sectionTitleStyle}>7. Affiliate</p>
+          <CollapsibleSection title="7. Affiliate">
           <div style={gridStyle}>
             <Kpi label="Klicks" value="—" />
             <Kpi label="Verkäufe" value="—" />
@@ -483,8 +488,10 @@ export default function AdminDashboardPage() {
           <Note>{business?.affiliate_note ?? 'Kein Affiliate-/Provisions-System implementiert.'}</Note>
           <Note>{business?.coupons_note ?? 'Keine Gutschein-Verwaltung implementiert.'}</Note>
 
+          </CollapsibleSection>
+
           {/* --------------------------- 8. Support --------------------------- */}
-          <p style={sectionTitleStyle}>8. Support</p>
+          <CollapsibleSection title="8. Support">
           {feedback ? (
             <div style={gridStyle}>
               <Kpi label="Neue Supportanfragen / Feedback" value={feedback.total} />
@@ -500,8 +507,10 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
+          </CollapsibleSection>
+
           {/* --------------------------- 9. Analytics --------------------------- */}
-          <p style={sectionTitleStyle}>9. Analytics</p>
+          <CollapsibleSection title="9. Analytics">
           {growth ? (
             <>
               <div style={gridStyle}>
@@ -523,8 +532,10 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
+          </CollapsibleSection>
+
           {/* --------------------------- 10. Sicherheit --------------------------- */}
-          <p style={sectionTitleStyle}>10. Sicherheit</p>
+          <CollapsibleSection title="10. Sicherheit">
           {auditLogs || loginHistory ? (
             <div style={gridStyle}>
               <Kpi label="Login-Versuche gesamt" value={loginHistory?.total ?? null} />
@@ -539,6 +550,7 @@ export default function AdminDashboardPage() {
               <Link href="/admin/security"><Button variant="secondary">Details: Security Center öffnen</Button></Link>
             </div>
           )}
+          </CollapsibleSection>
           {hasPermission('view_nutrition_admin') && nutrition && !nutrition.available && (
             <Note>Nutrition & CGM: {nutrition.note}</Note>
           )}
