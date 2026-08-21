@@ -103,6 +103,11 @@ export default function BetaBewerbung() {
           {t('intro')}
         </p>
 
+        <div className="mx-auto mt-6 max-w-md text-center text-sm text-[#B7BDC4]">
+          <p className="font-semibold text-[#F5F2EA]">{t('feedbackHeading')}</p>
+          <p className="mt-2">{t('feedbackText')}</p>
+        </div>
+
         <ul className="mx-auto mt-6 max-w-md space-y-2 text-sm text-[#B7BDC4]">
           <li>✓ {t('noCreditCard')}</li>
           <li>✓ {t('noSubscription')}</li>
