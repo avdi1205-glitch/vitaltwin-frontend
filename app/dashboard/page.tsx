@@ -10,6 +10,7 @@ import DashboardDailyPlan from '../components/dashboard-daily-plan';
 import DashboardTwinMemory from '../components/dashboard-twin-memory';
 import DashboardLearningTimeline from '../components/dashboard-learning-timeline';
 import DashboardTwinSummary from '../components/dashboard-twin-summary';
+import DashboardAccountMenu, { type DiscountInfo } from '../components/dashboard-account-menu';
 import { DomainCard, TodayActionsCard } from '../components/dashboard-cards';
 import TwinEmptyState from '../components/brand/TwinEmptyState';
 import AdSlot from '../components/AdSlot';
@@ -56,6 +57,16 @@ type TodayCheckin = {
   energy?: number | null;
   recovery?: number | null;
 } | null;
+
+type TwinEvolutionSummary = {
+  active_domain_count: number;
+  data_quality_summary: Record<string, number>;
+  comparison: {
+    available: boolean;
+    reason: string | null;
+    explanations: string[];
+  };
+};
 
 const WATER_HABIT_KEYS: Record<string, 'waterLow' | 'waterMedium' | 'waterHigh'> = { wenig: 'waterLow', mittel: 'waterMedium', viel: 'waterHigh' };
 
@@ -169,6 +180,10 @@ export default function Dashboard() {
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
   const [checkinCount, setCheckinCount] = useState<number | null>(null);
   const [paymentMessage, setPaymentMessage] = useState('');
+  const [evolution, setEvolution] = useState<TwinEvolutionSummary | null>(null);
+  const [evolutionLoading, setEvolutionLoading] = useState(true);
+  const [discountInfo, setDiscountInfo] = useState<DiscountInfo | null>(null);
+  const [discountLoading, setDiscountLoading] = useState(true);
 
   useEffect(() => {
     return () => {
@@ -211,7 +226,6 @@ export default function Dashboard() {
       // Non-fatal — Tagesübersicht fällt auf ihren ehrlichen Empty-State zurück.
     }
   }, []);
-
   const fetchOnboardingState = useCallback(async (token: string) => {
     try {
       // nextStepFor() only distinguishes 0 / <7 / >=7 check-ins — the
@@ -232,6 +246,37 @@ export default function Dashboard() {
     }
   }, []);
 
+  // Lifted up from DashboardTwinSummary (was fetched there before) so the
+  // header's Kernaussage and the "Dein persönlicher Twin" section share the
+  // SAME response instead of firing the request twice.
+  const fetchEvolution = useCallback(async (token: string) => {
+    try {
+      const response = await fetch(apiUrl(`/api/profile/twin-evolution?locale=${locale}`), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!isMountedRef.current) return;
+      if (response.ok) setEvolution((await response.json()) as TwinEvolutionSummary);
+    } catch {
+      // Non-fatal — Kernaussage fällt still auf die generische Formulierung zurück.
+    } finally {
+      if (isMountedRef.current) setEvolutionLoading(false);
+    }
+  }, [locale]);
+
+  const fetchDiscount = useCallback(async (token: string) => {
+    try {
+      const response = await fetch(apiUrl('/api/beta/my-discount'), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!isMountedRef.current) return;
+      if (response.ok) setDiscountInfo((await response.json()) as DiscountInfo);
+    } catch {
+      // Non-fatal — Rabatt-Status fällt still auf den generischen Beta-Button zurück.
+    } finally {
+      if (isMountedRef.current) setDiscountLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -240,6 +285,8 @@ export default function Dashboard() {
       void fetchLatest(token);
       void fetchTodayCheckin(token);
       void fetchOnboardingState(token);
+      void fetchEvolution(token);
+      void fetchDiscount(token);
     }, 0);
 
     const params = new URLSearchParams(window.location.search);
@@ -268,7 +315,7 @@ export default function Dashboard() {
       if (paymentNoticeTimer) window.clearTimeout(paymentNoticeTimer);
       if (paymentTimer) window.clearTimeout(paymentTimer);
     };
-  }, [fetchLatest, fetchOnboardingState, fetchTodayCheckin, refetchProfile, t]);
+  }, [fetchDiscount, fetchEvolution, fetchLatest, fetchOnboardingState, fetchTodayCheckin, refetchProfile, t]);
 
   // Starter erhält weiterhin automatisch genau eine kostenlose Erstberechnung
   // (unverändertes Verhalten/Werte, jetzt über die geteilte DEFAULT_TWIN_FORM-
@@ -310,10 +357,20 @@ export default function Dashboard() {
 
   const nextStep = nextStepFor(onboardingCompleted, checkinCount, latest ? 1 : 0, t);
 
+  // Kernaussage: der bereits abgerufene, echte Twin-Vergleichssatz statt der
+  // generischen Einleitung -- still auf die generische Formulierung zurück,
+  // solange geladen wird oder wenn kein Vergleich verfügbar ist (kein
+  // sichtbarer Fehlerzustand, siehe Punkt 6/9).
+  const coreStatement = evolutionLoading
+    ? null
+    : evolution?.comparison.available && evolution.comparison.explanations.length > 0
+      ? evolution.comparison.explanations[0]
+      : t('overviewIntro');
+
   return (
     <>
       <header className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:p-8">
-        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="font-[family-name:var(--font-mono-technical)] text-xs uppercase tracking-[0.22em] text-[#8E969F]">VitalTwin Intelligence</p>
             <h1
@@ -322,7 +379,11 @@ export default function Dashboard() {
             >
               {getGreeting(t)}{profile?.full_name ? `, ${profile.full_name}` : ''}
             </h1>
-            <p className="mt-3 text-[#B7BDC4]">{t('overviewIntro')}</p>
+            {coreStatement === null ? (
+              <span className="mt-3 block h-5 w-2/3 animate-pulse rounded bg-white/10" />
+            ) : (
+              <p className="mt-3 text-[#B7BDC4]">{coreStatement}</p>
+            )}
             {profile?.beta?.expires_at && (
               <p className="mt-1 text-xs text-[#8E969F]">
                 {t('betaExpires', { date: new Date(profile.beta.expires_at).toLocaleDateString(locale) })} {t('betaNoPaymentNote')}
@@ -330,43 +391,16 @@ export default function Dashboard() {
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <span className={`rounded-full px-4 py-1 text-sm font-semibold ${profile?.premium ? 'bg-gradient-to-r from-[#F3C979] to-[#C9913D] text-[#0B1118]' : 'border border-white/20 text-[#B7BDC4]'}`}>
-              {t('planLabel')} {loadingProfile ? t('loading') : !profile ? t('planUnknown') : planDisplayLabel(profile, t)}
-            </span>
-            {!loadingProfile && profile && !profile.premium && (
-              <button
-                onClick={() => router.push('/preise')}
-                className="rounded-full bg-gradient-to-r from-[#F3C979] to-[#C9913D] px-5 py-2 text-sm font-semibold text-[#0B1118] transition hover:brightness-110"
-              >
-                {t('betaUnlock')}
-              </button>
-            )}
-            <button
-              onClick={() => router.push('/profil')}
-              className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
-            >
-              {t('navProfile')}
-            </button>
-            <Link
-              href="/dashboard/mein-twin#feedback"
-              className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
-            >
-              {t('navFeedback')}
-            </Link>
-            <button
-              onClick={() => router.push('/passwort-zuruecksetzen')}
-              className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-[#F5F2EA] transition hover:border-[#58D7D4]/60 hover:text-[#58D7D4]"
-            >
-              {t('navPassword')}
-            </button>
-            <button
-              onClick={logout}
-              className="rounded-full border border-red-400/30 px-5 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-400/10"
-            >
-              {t('navLogout')}
-            </button>
-          </div>
+          <DashboardAccountMenu
+            planLabel={loadingProfile ? t('loading') : !profile ? t('planUnknown') : planDisplayLabel(profile, t)}
+            isPremium={Boolean(profile?.premium)}
+            showBetaUnlock={!loadingProfile && Boolean(profile) && !profile?.premium}
+            discount={discountInfo}
+            discountLoading={discountLoading}
+            onProfile={() => router.push('/profil')}
+            onPasswordReset={() => router.push('/passwort-zuruecksetzen')}
+            onLogout={logout}
+          />
         </div>
       </header>
 
@@ -381,6 +415,8 @@ export default function Dashboard() {
           hasCheckinToday={Boolean(todayCheckin)}
           hasBiomarkerTwin={Boolean(displayedTwin)}
           isPremium={Boolean(profile?.premium)}
+          evolution={evolution}
+          evolutionLoading={evolutionLoading}
         />
 
         {nextStep && (

@@ -18,8 +18,18 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
         <DashboardNav />
         <DashboardBrandMark />
 
-        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-[#B7BDC4]">
-          {t('wellnessDisclaimer')}
+        {/* Wortlaut unverändert, immer sichtbar, keine zusätzliche Interaktion
+            nötig -- nur visuell zurückhaltender (kein großer Rahmen/große
+            Box) statt der dominantesten Fläche der Seite. Position bleibt
+            vor dem Seiteninhalt, damit die Offenlegung weiterhin ohne
+            Scrollen sofort sichtbar ist. */}
+        <div className="mt-4 flex items-start gap-2 text-xs text-[#8E969F]">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 flex-shrink-0" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          <span>{t('wellnessDisclaimer')}</span>
         </div>
 
         {profileError && (

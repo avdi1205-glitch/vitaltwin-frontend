@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
 type GoogleHealthStatus = {
@@ -24,6 +24,8 @@ type DashboardTwinSummaryProps = {
   hasCheckinToday: boolean;
   hasBiomarkerTwin: boolean;
   isPremium: boolean;
+  evolution: TwinEvolutionSummary | null;
+  evolutionLoading: boolean;
 };
 
 // Matches the fixed 7-domain Unified Twin State model (backend
@@ -43,11 +45,9 @@ const TOTAL_TWIN_DOMAINS = 7;
  * changed, what's still missing, and how many domains the picture is based
  * on (Premium UX Polish round).
  */
-export default function DashboardTwinSummary({ hasCheckinToday, hasBiomarkerTwin, isPremium }: DashboardTwinSummaryProps) {
+export default function DashboardTwinSummary({ hasCheckinToday, hasBiomarkerTwin, isPremium, evolution, evolutionLoading }: DashboardTwinSummaryProps) {
   const t = useTranslations('dashboard');
-  const locale = useLocale();
   const [googleConnected, setGoogleConnected] = useState<boolean | null>(null);
-  const [evolution, setEvolution] = useState<TwinEvolutionSummary | null>(null);
 
   const loadGoogleStatus = useCallback(async () => {
     if (!isPremium) {
@@ -69,36 +69,33 @@ export default function DashboardTwinSummary({ hasCheckinToday, hasBiomarkerTwin
     }
   }, [isPremium]);
 
-  const loadEvolution = useCallback(async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    try {
-      const response = await fetch(apiUrl(`/api/profile/twin-evolution?locale=${locale}`), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.ok) {
-        setEvolution((await response.json()) as TwinEvolutionSummary);
-      }
-    } catch {
-      // Non-fatal — the insight strip simply stays in its loading state.
-    }
-  }, [locale]);
-
   useEffect(() => {
     const timer = window.setTimeout(() => {
       void loadGoogleStatus();
-      void loadEvolution();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [loadGoogleStatus, loadEvolution]);
+  }, [loadGoogleStatus]);
 
   const activeDomains = [hasCheckinToday, hasBiomarkerTwin, Boolean(googleConnected)].filter(Boolean).length;
 
-  const changeText = !evolution
-    ? t('loading')
-    : evolution.comparison.available && evolution.comparison.explanations.length > 0
-      ? evolution.comparison.explanations[0]
-      : (evolution.comparison.reason ?? t('noData'));
+  // Honest, concrete next action for whichever of the 3 real areas is
+  // actually missing — never a generic/fabricated area (e.g. CGM isn't
+  // one of these 3 at all).
+  const missingAreaAction = !hasCheckinToday
+    ? t('missingCheckinAction')
+    : !hasBiomarkerTwin
+      ? t('missingBiomarkerAction')
+      : !googleConnected
+        ? t('missingGoogleAction')
+        : null;
+
+  const changeText = evolutionLoading
+    ? null
+    : !evolution
+      ? t('noData')
+      : evolution.comparison.available && evolution.comparison.explanations.length > 0
+        ? evolution.comparison.explanations[0]
+        : (evolution.comparison.reason ?? t('noData'));
 
   const missingCount = evolution?.data_quality_summary?.missing ?? null;
   const missingText =
@@ -120,6 +117,7 @@ export default function DashboardTwinSummary({ hasCheckinToday, hasBiomarkerTwin
         <div>
           <p className="text-2xl font-bold text-[#F5F2EA]">{activeDomains} von 3</p>
           <p className="mt-1 text-sm text-[#B7BDC4]">{t('activeAreas')} {t('activeAreasSuffix')}</p>
+          {missingAreaAction && <p className="mt-1 text-sm font-semibold text-[#58D7D4]">{missingAreaAction}</p>}
         </div>
         <div>
           <p className="text-sm font-semibold text-[#F5F2EA]">
@@ -144,7 +142,11 @@ export default function DashboardTwinSummary({ hasCheckinToday, hasBiomarkerTwin
           <p className="font-[family-name:var(--font-mono-technical)] text-[11px] uppercase tracking-[0.18em] text-[#8E969F]">
             {t('changed')}
           </p>
-          <p className="mt-1 text-sm text-[#F5F2EA]">{changeText}</p>
+          {changeText === null ? (
+            <span className="mt-1 block h-4 w-3/4 animate-pulse rounded bg-white/10" />
+          ) : (
+            <p className="mt-1 text-sm text-[#F5F2EA]">{changeText}</p>
+          )}
         </div>
         <div>
           <p className="font-[family-name:var(--font-mono-technical)] text-[11px] uppercase tracking-[0.18em] text-[#8E969F]">
